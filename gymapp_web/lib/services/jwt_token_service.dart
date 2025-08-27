@@ -7,6 +7,7 @@ class JwtTokenService{
   static const _key = 'jwt_token';
   
   Future<void> saveToken(String token) async {
+    print(token);
     await _storage.write(key: _key, value: token);
   }
   
