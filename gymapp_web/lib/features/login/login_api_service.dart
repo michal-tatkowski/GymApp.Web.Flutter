@@ -1,13 +1,13 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gymapp_web/services/api_service.dart';
+import 'package:gymapp_web/services/jwt_token_service.dart';
 
 class LoginApiService extends ChangeNotifier {
   final String baseUrl;
   final Map<String, String> defaultHeaders;
   final api = ApiService();
   final _storage = const FlutterSecureStorage();
-  String? _token;
 
   LoginApiService({
     this.baseUrl = '',
@@ -39,9 +39,8 @@ class LoginApiService extends ChangeNotifier {
       );
     }
 
-    _token = token;
     await _storage.write(key: 'auth_token', value: token);
-    api.setAuthToken(token);
+    JwtTokenService.instance.saveToken(token);
     notifyListeners();
     return true;
   }
@@ -49,17 +48,5 @@ class LoginApiService extends ChangeNotifier {
   Future<void> getUsers() async {
     final response = await api.get("User/GetUsers");
     print(response);
-  }
-  
-  Future<void> removeToken() async {
-    await _storage.delete(key: "aut_token");
-    api.setAuthToken("");
-  }
-
-  Future<void> logout() async {
-    _token = null;
-    await _storage.delete(key: 'auth_token');
-    api.setAuthToken(null);
-    notifyListeners();
   }
 }

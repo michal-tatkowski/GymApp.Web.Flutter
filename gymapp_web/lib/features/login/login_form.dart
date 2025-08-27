@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:gymapp_web/features/home/home_screen.dart';
-import '../register/register_screen.dart';
+import 'package:gymapp_web/features/home/home_menu.dart';
+import 'package:gymapp_web/features/register/register_form.dart';
+import 'package:gymapp_web/services/jwt_token_service.dart';
 import 'login_api_service.dart';
 
 class LoginForm extends StatefulWidget {
@@ -44,15 +45,11 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> _navigationToRegister() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterForm()));
   }
 
   Future<void> _navigationToHomeScreen() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
-  }
-  
-  Future<void> _removeToken() async {
-    await loginService.removeToken();
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeMenu()));
   }
 
   @override
@@ -215,7 +212,7 @@ class _LoginFormState extends State<LoginForm> {
                       ),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: _isLoading ? null : _removeToken,
+                          onPressed: _isLoading ? null : JwtTokenService.instance.clearToken,
                           icon: const Icon(Icons.delete),
                           label: const Text('Wyczyść token'),
                         ),

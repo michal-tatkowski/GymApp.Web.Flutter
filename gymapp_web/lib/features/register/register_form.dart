@@ -1,6 +1,6 @@
 ﻿import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gymapp_web/features/login/login_screen.dart';
+import 'package:gymapp_web/features/login/login_form.dart';
 import 'package:gymapp_web/features/register/register_api_service.dart';
 import 'package:gymapp_web/models/register_request.dart';
 
@@ -49,7 +49,7 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   Future<void> _navigationToLoginScreen() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginScreen()));
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginForm()));
   }
 
   @override

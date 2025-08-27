@@ -1,16 +1,13 @@
 ﻿import 'dart:convert';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
 import 'dart:async';
-
 import '../models/api_exception.dart';
+import 'jwt_token_service.dart';
 
 class ApiService {
   final String baseUrl;
   final Map<String, String> defaultHeaders;
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
-  String? _authToken;
 
   ApiService({
     this.baseUrl = 'http://10.0.2.2:5035/api/',
@@ -20,16 +17,12 @@ class ApiService {
     },
   });
 
-  void setAuthToken(String? token) {
-    _authToken = token;
-  }
-
   Future<Map<String, String>> _buildHeaders(
     Map<String, String>? headers,
   ) async {
     final Map<String, String> merged = {...defaultHeaders, ...?headers};
-    final token = _authToken ?? await _storage.read(key: 'auth_token');
-    if (token != null && token.isNotEmpty) {
+    final token = JwtTokenService.instance.getToken();
+    if (token is String) {
       merged['Authorization'] = 'Bearer $token';
     }
     return merged;
@@ -87,7 +80,7 @@ class ApiService {
     );
     return _handleResponse(response);
   }
-  
+
   Future<http.Response> _safe(Future<http.Response> Function() call) async {
     try {
       return await call();
