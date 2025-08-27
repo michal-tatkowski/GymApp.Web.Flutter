@@ -17,7 +17,7 @@ class LoginApiService extends ChangeNotifier {
     },
   });
 
-  Future<bool> login(String email, String password) async {
+  Future<(bool, String)> login(String email, String password) async {
     final response = await api.post(
       "Auth/Login",
       body: {'email': '$email', 'password': '$password'},
@@ -38,11 +38,8 @@ class LoginApiService extends ChangeNotifier {
         'Nieprawidłowa odpowiedź logowania: nie znaleziono tokenu',
       );
     }
-
-    await _storage.write(key: 'auth_token', value: token);
-    JwtTokenService.instance.saveToken(token);
-    notifyListeners();
-    return true;
+    
+    return (true, token);
   }
 
   Future<void> getUsers() async {
