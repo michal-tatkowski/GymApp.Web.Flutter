@@ -1,10 +1,14 @@
-﻿import 'package:gymapp_web/services/api_service.dart';
+﻿import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gymapp_web/services/api_service.dart';
 
-class LoginService {
+class LoginService extends ChangeNotifier {
   final String baseUrl;
   final Map<String, String> defaultHeaders;
   final api = ApiService();
-  
+  final _storage = const FlutterSecureStorage();
+  String? _token;
+
   LoginService({
     this.baseUrl = '',
     this.defaultHeaders = const {
@@ -12,11 +16,49 @@ class LoginService {
       'Accept': 'application/json',
     },
   });
+
+  Future login(String email, String password) async {
+    final response = await api.post(
+      "Auth/Login",
+      body: {'email': '$email', 'password': '$password'},
+    );
+
+    String? token;
+    if (response is String && response.isNotEmpty) {
+      token = response;
+    } else if (response is Map) {
+      final Map<String, dynamic> map = Map<String, dynamic>.from(
+        response as Map,
+      );
+      token = map['token'] as String?;
+    }
+
+    if (token == null || token.isEmpty) {
+      throw Exception(
+        'Nieprawidłowa odpowiedź logowania: nie znaleziono tokenu',
+      );
+    }
+
+    _token = token;
+    await _storage.write(key: 'auth_token', value: token);
+    api.setAuthToken(token);
+    notifyListeners();
+  }
+
+  Future<void> getUsers() async {
+    final response = await api.get("User/GetUsers");
+    print(response);
+  }
   
-  Future login() async {
-    final response = await api.post("Auth/Login", body: {
-      'email': 'test@test.pl',
-      'password': '123123'
-    });
+  Future<void> removeToken() async {
+    await _storage.delete(key: "aut_token");
+    api.setAuthToken("");
+  }
+
+  Future<void> logout() async {
+    _token = null;
+    await _storage.delete(key: 'auth_token');
+    api.setAuthToken(null);
+    notifyListeners();
   }
 }

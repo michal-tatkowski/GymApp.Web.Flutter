@@ -28,7 +28,7 @@ class _LoginFormState extends State<LoginForm> {
     // if (!_formKey.currentState!.validate()) return;
     // setState(() => _isLoading = true);
 
-    await loginService.login();
+    await loginService.login(_emailCtrl.text, _passwordCtrl.text);
     // setState(() => _isLoading = false);
     //
     // if (!mounted) return;
@@ -45,6 +45,14 @@ class _LoginFormState extends State<LoginForm> {
     // }
   }
 
+  Future<void> _getUsers() async {
+    await loginService.getUsers();
+  }
+  
+  Future<void> _removeToken() async{
+    await loginService.removeToken();
+  }
+  
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -198,19 +206,16 @@ class _LoginFormState extends State<LoginForm> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: _isLoading
-                              ? null
-                              : () {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Logowanie przez Google (demo)',
-                                      ),
-                                    ),
-                                  );
-                                },
-                          icon: const Icon(Icons.g_mobiledata),
-                          label: const Text('Google'),
+                          onPressed: _isLoading ? null : _getUsers,
+                          icon: const Icon(Icons.get_app),
+                          label: const Text('Pobierz użytkowników (test jwt)'),
+                        ),
+                      ),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: _isLoading ? null : _removeToken,
+                          icon: const Icon(Icons.delete),
+                          label: const Text('Wyczyść token'),
                         ),
                       ),
                       const SizedBox(width: 12),
