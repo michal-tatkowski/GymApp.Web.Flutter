@@ -34,10 +34,10 @@ class _LoginFormState extends State<LoginForm> {
     dynamic result = await loginService.login(_emailCtrl.text, _passwordCtrl.text);
     if (result is bool && true) {
       await _navigationToHomeScreen();
-    }
-    setState(() {
+    }else {  setState(() {
       _isLoading = false;
-    });
+    });}
+  
   }
 
   Future<void> _getUsers() async {

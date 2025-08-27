@@ -1,0 +1,10 @@
+﻿{
+    "@@locale": "pl",
+    "login": "Login",
+    "logout": "Wyloguj",
+    "email": "Email",
+    "password": "Hasło",
+    "loginButton": "Login",
+    "registerButton": "Zarejestruj",
+    "forgotPassword": "Zapomniałeś hasła?"
+}

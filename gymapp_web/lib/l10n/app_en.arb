@@ -1,0 +1,10 @@
+﻿{
+    "@@locale": "en",
+    "login": "Login",
+    "logout": "Logout",
+    "email": "Email",
+    "password": "Password",
+    "loginButton": "Login",
+    "registerButton": "Register",
+    "forgotPassword": "Forgot password?"
+}

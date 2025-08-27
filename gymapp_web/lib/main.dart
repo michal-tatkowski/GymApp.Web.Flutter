@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:gymapp_web/features/login/login_form.dart';
 import 'package:gymapp_web/routing/app_router.dart';
 import 'package:gymapp_web/routing/routes.dart';
@@ -22,6 +23,12 @@ class MyApp extends StatelessWidget {
       valueListenable: themeNotifier,
       builder: (_, ThemeMode currentMode, __) {
         return MaterialApp(
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [Locale('en'), Locale('pl')],
           navigatorKey: navigationService.navigatorKey,
           onGenerateRoute: AppRouter.generateRoute,
           debugShowCheckedModeBanner: false,
@@ -30,6 +37,7 @@ class MyApp extends StatelessWidget {
           theme: ThemeData.light(),
           darkTheme: ThemeData.dark(),
           themeMode: currentMode,
+
           home: const LoginForm(),
         );
       },

@@ -25,12 +25,12 @@ class _HomeMenuState extends State<HomeMenu> {
   @override
   Widget build(BuildContext context) {
     final items = [
-      {'icon': Icons.home, 'label': 'Home'},
-      {'icon': Icons.person, 'label': 'Profile'},
-      {'icon': Icons.message, 'label': 'Messages'},
-      {'icon': Icons.notifications, 'label': 'Alerts'},
-      {'icon': Icons.settings, 'label': 'Settings'},
-      {'icon': Icons.info, 'label': 'About'},
+      {'icon': Icons.home, 'label': 'Centrum'},
+      {'icon': Icons.person, 'label': 'Profil'},
+      {'icon': Icons.fitness_center, 'label': 'Siłownia'},
+      {'icon': Icons.notifications, 'label': 'Powiadomienia'},
+      {'icon': Icons.settings, 'label': 'Ustawienia'},
+      {'icon': Icons.info, 'label': 'Info'},
     ];
 
     return Scaffold(
