@@ -1,5 +1,7 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:gymapp_web/features/login/login_service.dart';
+import 'package:gymapp_web/features/home/home_screen.dart';
+import '../register/register_screen.dart';
+import 'login_api_service.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -15,8 +17,8 @@ class _LoginFormState extends State<LoginForm> {
   bool _obscure = true;
   bool _rememberMe = true;
   bool _isLoading = false;
-  final loginService = LoginService();
-  
+  final loginService = LoginApiService();
+
   @override
   void dispose() {
     _emailCtrl.dispose();
@@ -25,34 +27,34 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> _login() async {
-    // if (!_formKey.currentState!.validate()) return;
-    // setState(() => _isLoading = true);
-
-    await loginService.login(_emailCtrl.text, _passwordCtrl.text);
-    // setState(() => _isLoading = false);
-    //
-    // if (!mounted) return;
-    //
-    // if (_emailCtrl.text.trim() == 'demo@acme.com' &&
-    //     _passwordCtrl.text == 'demo1234') {
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(const SnackBar(content: Text('Zalogowano pomyślnie!')));
-    // } else {
-    //   ScaffoldMessenger.of(
-    //     context,
-    //   ).showSnackBar(const SnackBar(content: Text('Błędny e-mail lub hasło')));
-    // }
+    setState(() {
+      _isLoading = true;
+    });
+    dynamic result = await loginService.login(_emailCtrl.text, _passwordCtrl.text);
+    if (result is bool && true) {
+      await _navigationToHomeScreen();
+    }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _getUsers() async {
     await loginService.getUsers();
   }
-  
-  Future<void> _removeToken() async{
-    await loginService.removeToken();
+
+  Future<void> _navigationToRegister() async {
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterScreen()));
+  }
+
+  Future<void> _navigationToHomeScreen() async {
+    await Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
   }
   
+  Future<void> _removeToken() async {
+    await loginService.removeToken();
+  }
+
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
@@ -230,15 +232,7 @@ class _LoginFormState extends State<LoginForm> {
                       TextButton(
                         onPressed: _isLoading
                             ? null
-                            : () {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Nawigacja do rejestracji (demo)',
-                                    ),
-                                  ),
-                                );
-                              },
+                            : _navigationToRegister,
                         child: const Text('Zarejestruj się'),
                       ),
                     ],
@@ -248,34 +242,6 @@ class _LoginFormState extends State<LoginForm> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.10),
-                  Theme.of(context).colorScheme.tertiary.withOpacity(0.08),
-                ],
-              ),
-            ),
-          ),
-          const LoginForm(),
-        ],
       ),
     );
   }

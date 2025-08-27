@@ -2,14 +2,14 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gymapp_web/services/api_service.dart';
 
-class LoginService extends ChangeNotifier {
+class LoginApiService extends ChangeNotifier {
   final String baseUrl;
   final Map<String, String> defaultHeaders;
   final api = ApiService();
   final _storage = const FlutterSecureStorage();
   String? _token;
 
-  LoginService({
+  LoginApiService({
     this.baseUrl = '',
     this.defaultHeaders = const {
       'Content-Type': 'application/json',
@@ -17,7 +17,7 @@ class LoginService extends ChangeNotifier {
     },
   });
 
-  Future login(String email, String password) async {
+  Future<bool> login(String email, String password) async {
     final response = await api.post(
       "Auth/Login",
       body: {'email': '$email', 'password': '$password'},
@@ -43,6 +43,7 @@ class LoginService extends ChangeNotifier {
     await _storage.write(key: 'auth_token', value: token);
     api.setAuthToken(token);
     notifyListeners();
+    return true;
   }
 
   Future<void> getUsers() async {
