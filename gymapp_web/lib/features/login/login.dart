@@ -1,4 +1,5 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:gymapp_web/features/login/login_service.dart';
 
 class LoginForm extends StatefulWidget {
   const LoginForm({super.key});
@@ -14,7 +15,8 @@ class _LoginFormState extends State<LoginForm> {
   bool _obscure = true;
   bool _rememberMe = true;
   bool _isLoading = false;
-
+  final loginService = LoginService();
+  
   @override
   void dispose() {
     _emailCtrl.dispose();
@@ -23,27 +25,24 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> _login() async {
-    if (!_formKey.currentState!.validate()) return;
-    setState(() => _isLoading = true);
+    // if (!_formKey.currentState!.validate()) return;
+    // setState(() => _isLoading = true);
 
-    await Future.delayed(
-      const Duration(seconds: 2),
-    ); // TODO: podmień na prawdziwe API/Firebase
-
-    setState(() => _isLoading = false);
-
-    if (!mounted) return;
-
-    if (_emailCtrl.text.trim() == 'demo@acme.com' &&
-        _passwordCtrl.text == 'demo1234') {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Zalogowano pomyślnie!')));
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Błędny e-mail lub hasło')));
-    }
+    await loginService.login();
+    // setState(() => _isLoading = false);
+    //
+    // if (!mounted) return;
+    //
+    // if (_emailCtrl.text.trim() == 'demo@acme.com' &&
+    //     _passwordCtrl.text == 'demo1234') {
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(const SnackBar(content: Text('Zalogowano pomyślnie!')));
+    // } else {
+    //   ScaffoldMessenger.of(
+    //     context,
+    //   ).showSnackBar(const SnackBar(content: Text('Błędny e-mail lub hasło')));
+    // }
   }
 
   @override

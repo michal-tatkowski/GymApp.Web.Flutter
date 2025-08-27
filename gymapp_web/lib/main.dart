@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gymapp_web/features/authentication/screens/login/login.dart';
+import 'features/login/login.dart';
+
 
 void main() {
   runApp(const MyApp());
