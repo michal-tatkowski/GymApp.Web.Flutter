@@ -1,10 +1,12 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/providers.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       body: Stack(
         children: [
@@ -25,6 +27,14 @@ class SettingsScreen extends StatelessWidget {
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 children: [
+                  ElevatedButton(
+                    onPressed: () => ref.read(themeProvider.notifier).toggle(),
+                    child: const Text('Zmień motyw'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => ref.read(localeProvider.notifier).toggle(),
+                    child: const Text('Zmień język'),
+                  ),
                 ],
               ),
             ),

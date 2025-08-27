@@ -6,5 +6,9 @@
     "password": "Hasło",
     "loginButton": "Login",
     "registerButton": "Zarejestruj",
-    "forgotPassword": "Zapomniałeś hasła?"
+    "forgotPassword": "Zapomniałeś hasła?",
+    
+    "gym": "Siłownia",
+    
+    "settings": "Ustawienia"
 }

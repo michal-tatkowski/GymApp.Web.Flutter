@@ -1,46 +1,44 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gymapp_web/features/login/login_form.dart';
+import 'package:gymapp_web/providers/providers.dart';
 import 'package:gymapp_web/routing/app_router.dart';
 import 'package:gymapp_web/routing/routes.dart';
 import 'package:gymapp_web/services/navigation_service.dart';
-import 'package:gymapp_web/services/theme_service.dart';
+
+import 'l10n/app_localizations.dart';
 
 final NavigationService navigationService = NavigationService();
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await ThemeService.loadTheme();
-  runApp(const MyApp());
+  runApp(const ProviderScope(child: MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return ValueListenableBuilder<ThemeMode>(
-      valueListenable: themeNotifier,
-      builder: (_, ThemeMode currentMode, __) {
-        return MaterialApp(
-          localizationsDelegates: const [
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [Locale('en'), Locale('pl')],
-          navigatorKey: navigationService.navigatorKey,
-          onGenerateRoute: AppRouter.generateRoute,
-          debugShowCheckedModeBanner: false,
-          initialRoute: TRoutes.login,
-          title: 'Login',
-          theme: ThemeData.light(),
-          darkTheme: ThemeData.dark(),
-          themeMode: currentMode,
-
-          home: const LoginForm(),
-        );
-      },
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeProvider);
+    final locale = ref.watch(localeProvider);
+    return MaterialApp(
+      title: 'GymAppWeb',
+      navigatorKey: navigationService.navigatorKey,
+      onGenerateRoute: AppRouter.generateRoute,
+      debugShowCheckedModeBanner: false,
+      initialRoute: TRoutes.login,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      themeMode: themeMode,
+      locale: locale,
+      supportedLocales: const [Locale('en'), Locale('pl')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        AppLocalizations.delegate,
+      ],
     );
   }
 }

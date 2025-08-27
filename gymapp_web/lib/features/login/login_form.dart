@@ -2,6 +2,7 @@
 import 'package:gymapp_web/features/home/home_menu.dart';
 import 'package:gymapp_web/features/register/register_form.dart';
 import 'package:gymapp_web/services/jwt_token_service.dart';
+import '../../l10n/app_localizations.dart';
 import 'login_api_service.dart';
 
 class LoginForm extends StatefulWidget {
@@ -31,13 +32,50 @@ class _LoginFormState extends State<LoginForm> {
     setState(() {
       _isLoading = true;
     });
-    dynamic result = await loginService.login(_emailCtrl.text, _passwordCtrl.text);
-    if (result is bool && true) {
-      await _navigationToHomeScreen();
-    }else {  setState(() {
+
+    try {
+      final success = await loginService.login(
+        _emailCtrl.text,
+        _passwordCtrl.text,
+      );
+
+      if (success) {
+        await _navigationToHomeScreen();
+      } else {
+        _showErrorDialog('Niepoprawny email lub hasło.');
+      }
+    } catch (e, st) {
+      _showErrorDialog('Wystąpił błąd: $e');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Błąd'),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void handleError(Object error, StackTrace stackTrace) {
+    setState(() {
       _isLoading = false;
-    });}
-  
+    });
+    print('Błąd: $error');
   }
 
   Future<void> _getUsers() async {
@@ -45,11 +83,17 @@ class _LoginFormState extends State<LoginForm> {
   }
 
   Future<void> _navigationToRegister() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => const RegisterForm()));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const RegisterForm()),
+    );
   }
 
   Future<void> _navigationToHomeScreen() async {
-    await Navigator.push(context, MaterialPageRoute(builder: (context) => const HomeMenu()));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const HomeMenu()),
+    );
   }
 
   @override
@@ -104,8 +148,8 @@ class _LoginFormState extends State<LoginForm> {
                       AutofillHints.username,
                       AutofillHints.email,
                     ],
-                    decoration: const InputDecoration(
-                      labelText: 'E-mail',
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.email,
                       prefixIcon: Icon(Icons.alternate_email),
                     ),
                     validator: (v) {
@@ -212,7 +256,9 @@ class _LoginFormState extends State<LoginForm> {
                       ),
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: _isLoading ? null : JwtTokenService.instance.clearToken,
+                          onPressed: _isLoading
+                              ? null
+                              : JwtTokenService.instance.clearToken,
                           icon: const Icon(Icons.delete),
                           label: const Text('Wyczyść token'),
                         ),
@@ -227,9 +273,7 @@ class _LoginFormState extends State<LoginForm> {
                     children: [
                       const Text('Nie masz konta?'),
                       TextButton(
-                        onPressed: _isLoading
-                            ? null
-                            : _navigationToRegister,
+                        onPressed: _isLoading ? null : _navigationToRegister,
                         child: const Text('Zarejestruj się'),
                       ),
                     ],

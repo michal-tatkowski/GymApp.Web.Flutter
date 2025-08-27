@@ -28,4 +28,10 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get forgotPassword => 'Zapomniałeś hasła?';
+
+  @override
+  String get gym => 'Siłownia';
+
+  @override
+  String get settings => 'Ustawienia';
 }

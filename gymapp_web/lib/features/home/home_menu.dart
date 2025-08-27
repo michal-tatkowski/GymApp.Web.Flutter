@@ -1,17 +1,19 @@
 ﻿import 'package:flutter/material.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/app_localizations.dart';
 import '../../main.dart';
+import '../../providers/providers.dart';
+import '../../routing/routes.dart';
 import '../../services/jwt_token_service.dart';
-import '../../services/theme_service.dart';
 
-class HomeMenu extends StatefulWidget {
+class HomeMenu extends ConsumerStatefulWidget {
   const HomeMenu({super.key});
 
   @override
-  State<HomeMenu> createState() => _HomeMenuState();
+  ConsumerState<HomeMenu> createState() => _HomeMenuState();
 }
 
-class _HomeMenuState extends State<HomeMenu> {
+class _HomeMenuState extends ConsumerState<HomeMenu> {
   @override
   void dispose() {
     super.dispose();
@@ -24,13 +26,14 @@ class _HomeMenuState extends State<HomeMenu> {
 
   @override
   Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeProvider);
     final items = [
-      {'icon': Icons.home, 'label': 'Centrum'},
-      {'icon': Icons.person, 'label': 'Profil'},
-      {'icon': Icons.fitness_center, 'label': 'Siłownia'},
-      {'icon': Icons.notifications, 'label': 'Powiadomienia'},
-      {'icon': Icons.settings, 'label': 'Ustawienia'},
-      {'icon': Icons.info, 'label': 'Info'},
+      {'icon': Icons.home, 'label': 'Centrum', 'route': TRoutes.login},
+      {'icon': Icons.person, 'label': 'Profil', 'route': TRoutes.login},
+      {'icon': Icons.fitness_center, 'label': AppLocalizations.of(context)!.gym, 'route': TRoutes.login},
+      {'icon': Icons.notifications, 'label': AppLocalizations.of(context)!.settings, 'route': TRoutes.login},
+      {'icon': Icons.settings, 'label': 'Ustawienia', 'route': TRoutes.settings},
+      {'icon': Icons.info, 'label': 'Info', 'route': TRoutes.login},
     ];
 
     return Scaffold(
@@ -38,23 +41,17 @@ class _HomeMenuState extends State<HomeMenu> {
         title: const Text('GymAppWeb'),
         automaticallyImplyLeading: false,
         actions: [
-          ValueListenableBuilder<ThemeMode>(
-            valueListenable: themeNotifier,
-            builder: (_, ThemeMode currentMode, __) {
-              return IconButton(
-                icon: Icon(
-                  themeNotifier.value == ThemeMode.light
-                      ? Icons.dark_mode
-                      : Icons.light_mode,
-                ),
-                onPressed: () {
-                  final newMode = themeNotifier.value == ThemeMode.light
-                      ? ThemeMode.dark
-                      : ThemeMode.light;
-                  ThemeService.saveTheme(newMode);
-                },
-              );
+          IconButton(
+            icon: Icon(
+              themeMode == ThemeMode.light ? Icons.dark_mode : Icons.light_mode,
+            ),
+            onPressed: () {
+              ref.read(themeProvider.notifier).toggle();
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.language),
+            onPressed: () => ref.read(localeProvider.notifier).toggle(),
           ),
         ],
       ),
@@ -75,26 +72,9 @@ class _HomeMenuState extends State<HomeMenu> {
                     child: InkWell(
                       borderRadius: BorderRadius.circular(24),
                       onTap: () {
-                        final label = item['label'] as String;
-                        switch (label) {
-                          case 'Home':
-                            Navigator.pushNamed(context, '/login');
-                            break;
-                          case 'Profile':
-                            Navigator.pushNamed(context, '/profile');
-                            break;
-                          case 'Settings':
-                            Navigator.pushNamed(context, '/settings');
-                            break;
-                          case 'Messages':
-                            Navigator.pushNamed(context, '/messages');
-                            break;
-                          case 'Alerts':
-                            Navigator.pushNamed(context, '/alerts');
-                            break;
-                          case 'About':
-                            Navigator.pushNamed(context, '/about');
-                            break;
+                        final route = item['route'] as String?;
+                        if (route != null) {
+                          navigationService.navigateTo(route);
                         }
                       },
                       child: Column(

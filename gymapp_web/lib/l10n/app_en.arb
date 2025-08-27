@@ -6,5 +6,9 @@
     "password": "Password",
     "loginButton": "Login",
     "registerButton": "Register",
-    "forgotPassword": "Forgot password?"
+    "forgotPassword": "Forgot password?",
+    
+    "gym": "Gym",
+    
+    "settings": "Settings"
 }

@@ -28,4 +28,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get forgotPassword => 'Forgot password?';
+
+  @override
+  String get gym => 'Gym';
+
+  @override
+  String get settings => 'Settings';
 }
