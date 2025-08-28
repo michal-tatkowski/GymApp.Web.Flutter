@@ -31,7 +31,7 @@ class _RegisterFormState extends State<RegisterForm> {
   }
 
   Future<void> _register() async {
-    dynamic request = new RegisterRequest(
+    dynamic request = RegisterRequest(
       name: _nameCtrl.text,
       email: _emailCtrl.text,
       password: _passwordCtrl.text,
@@ -118,8 +118,9 @@ class _RegisterFormState extends State<RegisterForm> {
                       final value = (v ?? '').trim();
                       if (value.isEmpty) return 'Podaj e-mail';
                       final emailRegex = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                      if (!emailRegex.hasMatch(value))
+                      if (!emailRegex.hasMatch(value)) {
                         return 'Nieprawidłowy format e-mail';
+                      }
                       return null;
                     },
                   ),
@@ -143,8 +144,9 @@ class _RegisterFormState extends State<RegisterForm> {
                     validator: (v) {
                       final value = v ?? '';
                       if (value.isEmpty) return 'Podaj hasło';
-                      if (value.length < 6)
+                      if (value.length < 6) {
                         return 'Hasło musi mieć min. 6 znaków';
+                      }
                       return null;
                     },
                   ),

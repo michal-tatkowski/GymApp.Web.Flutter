@@ -7,8 +7,12 @@
     "loginButton": "Login",
     "registerButton": "Register",
     "forgotPassword": "Forgot password?",
-    
+    "or": "or",
+
     "gym": "Gym",
-    
-    "settings": "Settings"
+    "settings": "Settings",
+    "home": "Home",
+    "profile": "Profile",
+    "notifications": "Notifications",
+    "info": "Info"
 }

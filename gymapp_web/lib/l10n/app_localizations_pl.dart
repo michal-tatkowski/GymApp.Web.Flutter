@@ -9,7 +9,7 @@ class AppLocalizationsPl extends AppLocalizations {
   AppLocalizationsPl([String locale = 'pl']) : super(locale);
 
   @override
-  String get login => 'Login';
+  String get login => 'Zaloguj';
 
   @override
   String get logout => 'Wyloguj';
@@ -30,8 +30,23 @@ class AppLocalizationsPl extends AppLocalizations {
   String get forgotPassword => 'Zapomniałeś hasła?';
 
   @override
+  String get or => 'albo';
+
+  @override
   String get gym => 'Siłownia';
 
   @override
   String get settings => 'Ustawienia';
+
+  @override
+  String get home => 'Centrum';
+
+  @override
+  String get profile => 'Profil';
+
+  @override
+  String get notifications => 'Powiadomienia';
+
+  @override
+  String get info => 'Informacje';
 }

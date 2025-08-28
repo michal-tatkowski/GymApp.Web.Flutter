@@ -20,7 +20,7 @@ class LoginApiService extends ChangeNotifier {
   Future<(bool, String)> login(String email, String password) async {
     final response = await api.post(
       "Auth/Login",
-      body: {'email': '$email', 'password': '$password'},
+      body: {'email': email, 'password': password},
     );
 
     String? token;
@@ -28,7 +28,7 @@ class LoginApiService extends ChangeNotifier {
       token = response;
     } else if (response is Map) {
       final Map<String, dynamic> map = Map<String, dynamic>.from(
-        response as Map,
+        response,
       );
       token = map['token'] as String?;
     }

@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gymapp_web/l10n/app_localizations.dart';
 import '../../providers/login_state_provider.dart';
 import '../../routing/routes.dart';
 
@@ -54,12 +55,16 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             children: [
               TextField(
                 controller: _emailCtrl,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.email,
+                ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _passwordCtrl,
-                decoration: const InputDecoration(labelText: 'Hasło'),
+                decoration: InputDecoration(
+                  labelText: AppLocalizations.of(context)!.password,
+                ),
                 obscureText: true,
               ),
               const SizedBox(height: 24),
@@ -67,8 +72,20 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   ? const CircularProgressIndicator()
                   : ElevatedButton(
                       onPressed: _login,
-                      child: const Text('Zaloguj się'),
+                      child: Text(AppLocalizations.of(context)!.login),
                     ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Expanded(child: Divider()),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: Text(AppLocalizations.of(context)!.or),
+                  ),
+                  Expanded(child: Divider()),
+                ],
+              ),
+              const SizedBox(height: 16),
             ],
           ),
         ),

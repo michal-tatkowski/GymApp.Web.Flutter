@@ -1,5 +1,4 @@
 ﻿import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../services/jwt_token_service.dart';
 import 'jwt_token_provider.dart';
 import 'login_service_provider.dart';
 
@@ -20,6 +19,15 @@ class LoginNotifier extends StateNotifier<bool> {
       } else {
         throw Exception('Niepoprawny login lub hasło.');
       }
+    } finally {
+      state = false; // stop loading
+    }
+  }
+
+  Future<void> getUsers() async {
+    state = true;
+    try {
+      await ref.read(loginServiceProvider).getUsers();
     } finally {
       state = false; // stop loading
     }

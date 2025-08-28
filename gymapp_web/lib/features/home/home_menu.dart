@@ -28,12 +28,36 @@ class _HomeMenuState extends ConsumerState<HomeMenu> {
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeProvider);
     final items = [
-      {'icon': Icons.home, 'label': 'Centrum', 'route': TRoutes.login},
-      {'icon': Icons.person, 'label': 'Profil', 'route': TRoutes.login},
-      {'icon': Icons.fitness_center, 'label': AppLocalizations.of(context)!.gym, 'route': TRoutes.login},
-      {'icon': Icons.notifications, 'label': AppLocalizations.of(context)!.settings, 'route': TRoutes.login},
-      {'icon': Icons.settings, 'label': 'Ustawienia', 'route': TRoutes.settings},
-      {'icon': Icons.info, 'label': 'Info', 'route': TRoutes.login},
+      {
+        'icon': Icons.home,
+        'label': AppLocalizations.of(context)!.home,
+        'route': TRoutes.login,
+      },
+      {
+        'icon': Icons.person,
+        'label': AppLocalizations.of(context)!.profile,
+        'route': TRoutes.login,
+      },
+      {
+        'icon': Icons.fitness_center,
+        'label': AppLocalizations.of(context)!.gym,
+        'route': TRoutes.login,
+      },
+      {
+        'icon': Icons.notifications,
+        'label': AppLocalizations.of(context)!.notifications,
+        'route': TRoutes.login,
+      },
+      {
+        'icon': Icons.settings,
+        'label': AppLocalizations.of(context)!.settings,
+        'route': TRoutes.settings,
+      },
+      {
+        'icon': Icons.info,
+        'label': AppLocalizations.of(context)!.info,
+        'route': TRoutes.login,
+      },
     ];
 
     return Scaffold(
@@ -102,7 +126,7 @@ class _HomeMenuState extends ConsumerState<HomeMenu> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.logout),
-                label: const Text('Wyloguj'),
+                label: Text(AppLocalizations.of(context)!.logout),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(

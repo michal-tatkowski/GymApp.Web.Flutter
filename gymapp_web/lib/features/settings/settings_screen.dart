@@ -1,5 +1,6 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gymapp_web/l10n/app_localizations.dart';
 import '../../providers/providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -8,6 +9,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.settings)),
       body: Stack(
         children: [
           Container(

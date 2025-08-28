@@ -1,14 +1,18 @@
 ﻿{
     "@@locale": "pl",
-    "login": "Login",
+    "login": "Zaloguj",
     "logout": "Wyloguj",
     "email": "Email",
     "password": "Hasło",
     "loginButton": "Login",
     "registerButton": "Zarejestruj",
     "forgotPassword": "Zapomniałeś hasła?",
-    
+    "or": "albo",
+
     "gym": "Siłownia",
-    
-    "settings": "Ustawienia"
+    "settings": "Ustawienia",
+    "home": "Centrum",
+    "profile": "Profil",
+    "notifications": "Powiadomienia",
+    "info": "Informacje"
 }
