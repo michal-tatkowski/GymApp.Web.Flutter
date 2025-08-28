@@ -26,7 +26,7 @@ class MyApp extends ConsumerWidget {
       navigatorKey: navigationService.navigatorKey,
       onGenerateRoute: AppRouter.generateRoute,
       debugShowCheckedModeBanner: false,
-      initialRoute: TRoutes.login,
+      initialRoute: TRoutes.splash,
       theme: ThemeData.light(),
       darkTheme: ThemeData.dark(),
       themeMode: themeMode,

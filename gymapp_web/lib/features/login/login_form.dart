@@ -14,6 +14,7 @@ class LoginForm extends ConsumerStatefulWidget {
 class _LoginFormState extends ConsumerState<LoginForm> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
+  bool _rememberMe = false;
 
   void _showErrorDialog(String message) {
     showDialog(
@@ -35,7 +36,8 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     try {
       await ref
           .read(loginStateProvider.notifier)
-          .login(_emailCtrl.text, _passwordCtrl.text);
+          .login(_emailCtrl.text, _passwordCtrl.text, _rememberMe);
+
       Navigator.pushNamedAndRemoveUntil(context, TRoutes.home, (r) => false);
     } catch (e) {
       _showErrorDialog(e.toString());
@@ -66,6 +68,17 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                   labelText: AppLocalizations.of(context)!.password,
                 ),
                 obscureText: true,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Checkbox(
+                    value: _rememberMe,
+                    onChanged: (v) => setState(() => _rememberMe = v ?? false),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('Zapamiętaj mnie'),
+                ],
               ),
               const SizedBox(height: 24),
               isLoading

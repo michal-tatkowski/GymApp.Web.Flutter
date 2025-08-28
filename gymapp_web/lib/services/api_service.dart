@@ -21,8 +21,9 @@ class ApiService {
     Map<String, String>? headers,
   ) async {
     final Map<String, String> merged = {...defaultHeaders, ...?headers};
-    final token = JwtTokenService.instance.getToken();
-    if (token is String) {
+    var token = await JwtTokenService.instance.currentToken;
+    token ??= await JwtTokenService.instance.getToken();
+    if (token != null && token.isNotEmpty) {
       merged['Authorization'] = 'Bearer $token';
     }
     return merged;

@@ -2,6 +2,7 @@
 import 'package:gymapp_web/features/home/home_menu.dart';
 import 'package:gymapp_web/features/login/login_form.dart';
 import 'package:gymapp_web/features/settings/settings_screen.dart';
+import 'package:gymapp_web/features/splash/splash_screen.dart';
 import 'package:gymapp_web/routing/routes.dart';
 import '../features/register/register_form.dart';
 
@@ -16,6 +17,8 @@ class AppRouter {
         return MaterialPageRoute(builder: (_) => const RegisterForm());
       case TRoutes.settings:
         return MaterialPageRoute(builder: (_) => const SettingsScreen());
+      case TRoutes.splash:
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
       default:
         return MaterialPageRoute(
           builder: (_) =>
