@@ -44,6 +44,10 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     }
   }
 
+  Future<void> _register() async {
+    Navigator.pushNamedAndRemoveUntil(context, TRoutes.register, (r) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final isLoading = ref.watch(loginStateProvider);
@@ -77,7 +81,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                     onChanged: (v) => setState(() => _rememberMe = v ?? false),
                   ),
                   const SizedBox(width: 8),
-                  const Text('Zapamiętaj mnie'),
+                  Text(AppLocalizations.of(context)!.rememberMe),
                 ],
               ),
               const SizedBox(height: 24),
@@ -99,6 +103,10 @@ class _LoginFormState extends ConsumerState<LoginForm> {
                 ],
               ),
               const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _register,
+                child: Text(AppLocalizations.of(context)!.register),
+              ),
             ],
           ),
         ),

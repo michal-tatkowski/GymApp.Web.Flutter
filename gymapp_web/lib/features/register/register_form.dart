@@ -17,7 +17,6 @@ class _RegisterFormState extends State<RegisterForm> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  final _nameCtrl = TextEditingController();
   final registerService = RegisterApiService();
   bool _obscure = true;
   bool _isLoading = false;
@@ -26,13 +25,11 @@ class _RegisterFormState extends State<RegisterForm> {
   void dispose() {
     _emailCtrl.dispose();
     _passwordCtrl.dispose();
-    _nameCtrl.dispose();
     super.dispose();
   }
 
   Future<void> _register() async {
     dynamic request = RegisterRequest(
-      name: _nameCtrl.text,
       email: _emailCtrl.text,
       password: _passwordCtrl.text,
     );
@@ -82,27 +79,7 @@ class _RegisterFormState extends State<RegisterForm> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  TextFormField(
-                    controller: _nameCtrl,
-                    keyboardType: TextInputType.name,
-                    autofillHints: const [
-                      AutofillHints.username,
-                      AutofillHints.email,
-                    ],
-                    decoration: const InputDecoration(
-                      labelText: 'Imię',
-                      prefixIcon: Icon(Icons.drive_file_rename_outline),
-                    ),
-                    validator: (v) {
-                      final value = (v ?? '').trim();
-                      if (value.isEmpty) return 'Podaj imię';
-                      return null;
-                    },
-                  ),
                   const SizedBox(height: 16),
-
                   TextFormField(
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,

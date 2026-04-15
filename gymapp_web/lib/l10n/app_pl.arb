@@ -2,18 +2,28 @@
     "@@locale": "pl",
     "login": "Zaloguj",
     "logout": "Wyloguj",
+    "register": "Zarejestruj",
     "email": "Email",
     "password": "Hasło",
     "loginButton": "Login",
     "registerButton": "Zarejestruj",
     "forgotPassword": "Zapomniałeś hasła?",
     "or": "albo",
-
+    "rememberMe": "Zapamiętaj mnie",
+    
     "gym": "Siłownia",
     "settings": "Ustawienia",
     "home": "Centrum",
     "profile": "Profil",
     "notifications": "Powiadomienia",
     "info": "Informacje",
-    "social": "Społeczne"
+    "social": "Społeczne",
+    
+    "nickname": "Nazwa użytkownika",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "gender": "Płeć",
+    "height": "Wzrost",
+    "weight": "Waga",
+    "dateOfBirth": "Data urodzenia"
 }

@@ -107,6 +107,12 @@ abstract class AppLocalizations {
   /// **'Logout'**
   String get logout;
 
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
   /// No description provided for @email.
   ///
   /// In en, this message translates to:
@@ -142,6 +148,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'or'**
   String get or;
+
+  /// No description provided for @rememberMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me'**
+  String get rememberMe;
 
   /// No description provided for @gym.
   ///
@@ -184,6 +196,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Social'**
   String get social;
+
+  /// No description provided for @nickname.
+  ///
+  /// In en, this message translates to:
+  /// **'Nickname'**
+  String get nickname;
+
+  /// No description provided for @firstName.
+  ///
+  /// In en, this message translates to:
+  /// **'First name'**
+  String get firstName;
+
+  /// No description provided for @lastName.
+  ///
+  /// In en, this message translates to:
+  /// **'Last name'**
+  String get lastName;
+
+  /// No description provided for @gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// No description provided for @height.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get height;
+
+  /// No description provided for @weight.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight'**
+  String get weight;
+
+  /// No description provided for @dateOfBirth.
+  ///
+  /// In en, this message translates to:
+  /// **'Date of birth'**
+  String get dateOfBirth;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logout => 'Logout';
 
   @override
+  String get register => 'Register';
+
+  @override
   String get email => 'Email';
 
   @override
@@ -31,6 +34,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get or => 'or';
+
+  @override
+  String get rememberMe => 'Remember me';
 
   @override
   String get gym => 'Gym';
@@ -52,4 +58,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get social => 'Social';
+
+  @override
+  String get nickname => 'Nickname';
+
+  @override
+  String get firstName => 'First name';
+
+  @override
+  String get lastName => 'Last name';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get height => 'Height';
+
+  @override
+  String get weight => 'Weight';
+
+  @override
+  String get dateOfBirth => 'Date of birth';
 }
