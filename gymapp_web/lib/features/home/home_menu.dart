@@ -29,24 +29,24 @@ class _HomeMenuState extends ConsumerState<HomeMenu> {
     final themeMode = ref.watch(themeProvider);
     final items = [
       {
-        'icon': Icons.home,
-        'label': AppLocalizations.of(context)!.home,
-        'route': TRoutes.login,
+        'icon': Icons.group,
+        'label': AppLocalizations.of(context)!.social,
+        'route': TRoutes.social,
       },
       {
         'icon': Icons.person,
         'label': AppLocalizations.of(context)!.profile,
-        'route': TRoutes.login,
+        'route': TRoutes.profile,
       },
       {
         'icon': Icons.fitness_center,
         'label': AppLocalizations.of(context)!.gym,
-        'route': TRoutes.login,
+        'route': TRoutes.gym,
       },
       {
         'icon': Icons.notifications,
         'label': AppLocalizations.of(context)!.notifications,
-        'route': TRoutes.login,
+        'route': TRoutes.notifications,
       },
       {
         'icon': Icons.settings,
@@ -56,7 +56,7 @@ class _HomeMenuState extends ConsumerState<HomeMenu> {
       {
         'icon': Icons.info,
         'label': AppLocalizations.of(context)!.info,
-        'route': TRoutes.login,
+        'route': TRoutes.info,
       },
     ];
 

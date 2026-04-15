@@ -10,7 +10,8 @@ class ApiService {
   final Map<String, String> defaultHeaders;
 
   ApiService({
-    this.baseUrl = 'http://10.0.2.2:5035/api/',
+    //this.baseUrl = 'http://10.0.2.2:5035/api/',
+    this.baseUrl = 'http://localhost:5035/api/',
     this.defaultHeaders = const {
       'Content-Type': 'application/json',
       'Accept': 'application/json',

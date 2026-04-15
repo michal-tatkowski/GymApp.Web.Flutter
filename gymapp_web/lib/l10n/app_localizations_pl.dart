@@ -49,4 +49,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get info => 'Informacje';
+
+  @override
+  String get social => 'Społeczne';
 }
