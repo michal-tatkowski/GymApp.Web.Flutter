@@ -8,6 +8,7 @@ import 'models/auth_tokens.dart';
 /// This is the ONLY place that knows the URL paths for auth.
 class AuthApi {
   AuthApi(this._dio);
+
   final Dio _dio;
 
   Future<AuthTokens> login(LoginRequest req) async {
@@ -40,11 +41,12 @@ class AuthApi {
       return data['accessToken'] as String;
     }
     if (data is String && data.isNotEmpty) return data;
-    throw const FormatException('Brak accessToken w odpowiedzi z /Auth/Refresh.');
+    throw const FormatException(
+      'Brak accessToken w odpowiedzi z /Auth/Refresh.',
+    );
   }
 
   Future<void> logout() async {
-    // Optional server-side invalidation; failure here is non-critical.
     try {
       await _dio.post<dynamic>('Auth/Logout');
     } catch (_) {

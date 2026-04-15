@@ -70,7 +70,6 @@ class AuthInterceptor extends Interceptor {
 
     try {
       final newAccessToken = await _refreshAccessToken(refreshToken);
-      // Retry original request with new token.
       final retryOptions = err.requestOptions;
       retryOptions.headers['Authorization'] = 'Bearer $newAccessToken';
       final response = await dio.fetch<dynamic>(retryOptions);
@@ -83,7 +82,6 @@ class AuthInterceptor extends Interceptor {
   }
 
   Future<String> _refreshAccessToken(String refreshToken) {
-    // Coalesce concurrent refreshes.
     final pending = _refreshCompleter;
     if (pending != null) return pending.future;
 
