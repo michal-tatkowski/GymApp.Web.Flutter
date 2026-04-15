@@ -1,7 +1,8 @@
 name: gymapp_web
-description: "A new Flutter project."
+description: "GymApp — mobile app for gym & social features."
 publish_to: 'none'
 version: 1.0.0+1
+
 environment:
   sdk: ^3.9.0
 
@@ -9,12 +10,26 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_localizations:
-      sdk: flutter
-  http: ^1.1.0
-  flutter_secure_storage: 9.2.4
+    sdk: flutter
+
+  # State management
+  flutter_riverpod: ^2.5.1
+
+  # Networking
+  dio: ^5.7.0
+
+  # Routing
+  go_router: ^14.6.1
+
+  # Storage
+  flutter_secure_storage: ^9.2.4
+
+  # Logging
+  logger: ^2.4.0
+
+  # Utils
   intl: ^0.20.2
   cupertino_icons: ^1.0.8
-  flutter_riverpod: ^2.4.0
 
 dev_dependencies:
   flutter_test:

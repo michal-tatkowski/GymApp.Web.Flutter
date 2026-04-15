@@ -1,44 +1,72 @@
-﻿import 'package:flutter/material.dart';
-import 'package:gymapp_web/features/gym/gym_screen.dart';
-import 'package:gymapp_web/features/home/home_menu.dart';
-import 'package:gymapp_web/features/info/info_screen.dart';
-import 'package:gymapp_web/features/login/login_form.dart';
-import 'package:gymapp_web/features/notifications/notifications_screen.dart';
-import 'package:gymapp_web/features/profile/profile_screen.dart';
-import 'package:gymapp_web/features/settings/settings_screen.dart';
-import 'package:gymapp_web/features/social/social_screen.dart';
-import 'package:gymapp_web/features/splash/splash_screen.dart';
-import 'package:gymapp_web/routing/routes.dart';
-import '../features/register/register_form.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-class AppRouter {
-  static Route<dynamic> generateRoute(RouteSettings settings) {
-    switch (settings.name) {
-      case TRoutes.home:
-        return MaterialPageRoute(builder: (_) => const HomeMenu());
-      case TRoutes.login:
-        return MaterialPageRoute(builder: (_) => const LoginForm());
-      case TRoutes.register:
-        return MaterialPageRoute(builder: (_) => const RegisterForm());
-      case TRoutes.settings:
-        return MaterialPageRoute(builder: (_) => const SettingsScreen());
-      case TRoutes.splash:
-        return MaterialPageRoute(builder: (_) => const SplashScreen());
-      case TRoutes.profile:
-        return MaterialPageRoute(builder: (_) => const ProfileScreen());
-      case TRoutes.social:
-        return MaterialPageRoute(builder: (_) => const SocialScreen());
-      case TRoutes.notifications:
-        return MaterialPageRoute(builder: (_) => const NotificationsScreen());
-      case TRoutes.gym:
-        return MaterialPageRoute(builder: (_) => const GymScreen());
-      case TRoutes.info:
-        return MaterialPageRoute(builder: (_) => const InfoScreen());
-      default:
-        return MaterialPageRoute(
-          builder: (_) =>
-              const Scaffold(body: Center(child: Text('Nie znaleziono trasy'))),
-        );
-    }
-  }
-}
+import '../features/auth/presentation/auth_providers.dart';
+import '../features/auth/presentation/auth_state.dart';
+import '../features/auth/presentation/screens/login_screen.dart';
+import '../features/auth/presentation/screens/register_screen.dart';
+import '../features/auth/presentation/screens/splash_screen.dart';
+import '../features/gym/gym_screen.dart';
+import '../features/home/home_menu.dart';
+import '../features/info/info_screen.dart';
+import '../features/notifications/notifications_screen.dart';
+import '../features/profile/profile_screen.dart';
+import '../features/settings/settings_screen.dart';
+import '../features/social/social_screen.dart';
+import 'app_routes.dart';
+
+/// Builds a [GoRouter] wired to Riverpod auth state.
+///
+/// Unauthenticated users are redirected to /login. While auth state is loading
+/// (e.g., restoring session from secure storage on app start), the router
+/// shows /splash instead of letting the user see protected screens.
+final goRouterProvider = Provider<GoRouter>((ref) {
+  final authListenable = ValueNotifier<AsyncValue<AuthState>>(
+    ref.read(authControllerProvider),
+  );
+  ref.onDispose(authListenable.dispose);
+  ref.listen<AsyncValue<AuthState>>(
+    authControllerProvider,
+    (_, next) => authListenable.value = next,
+  );
+
+  return GoRouter(
+    initialLocation: AppRoutes.splash,
+    refreshListenable: authListenable,
+    debugLogDiagnostics: kDebugMode,
+    redirect: (context, state) {
+      final auth = ref.read(authControllerProvider);
+      final here = state.matchedLocation;
+
+      // Still restoring session → stay on splash.
+      if (auth.isLoading || !auth.hasValue) {
+        return here == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
+      final isAuthed = auth.value == AuthState.authenticated;
+      final isOnAuthRoute = here == AppRoutes.login ||
+          here == AppRoutes.register ||
+          here == AppRoutes.splash;
+
+      if (!isAuthed && !isOnAuthRoute) return AppRoutes.login;
+      if (isAuthed && isOnAuthRoute) return AppRoutes.home;
+      return null;
+    },
+    routes: [
+      GoRoute(path: AppRoutes.splash, builder: (_, __) => const SplashScreen()),
+      GoRoute(path: AppRoutes.login, builder: (_, __) => const LoginScreen()),
+      GoRoute(path: AppRoutes.register, builder: (_, __) => const RegisterScreen()),
+      GoRoute(path: AppRoutes.home, builder: (_, __) => const HomeMenu()),
+      GoRoute(path: AppRoutes.profile, builder: (_, __) => const ProfileScreen()),
+      GoRoute(path: AppRoutes.gym, builder: (_, __) => const GymScreen()),
+      GoRoute(path: AppRoutes.social, builder: (_, __) => const SocialScreen()),
+      GoRoute(
+        path: AppRoutes.notifications,
+        builder: (_, __) => const NotificationsScreen(),
+      ),
+      GoRoute(path: AppRoutes.settings, builder: (_, __) => const SettingsScreen()),
+      GoRoute(path: AppRoutes.info, builder: (_, __) => const InfoScreen()),
+    ],
+  );
+});

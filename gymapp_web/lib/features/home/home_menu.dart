@@ -1,77 +1,37 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../l10n/app_localizations.dart';
-import '../../main.dart';
-import '../../providers/providers.dart';
-import '../../routing/routes.dart';
-import '../../services/jwt_token_service.dart';
+import 'package:go_router/go_router.dart';
 
-class HomeMenu extends ConsumerStatefulWidget {
+import '../../l10n/app_localizations.dart';
+import '../../routing/app_routes.dart';
+import '../auth/presentation/auth_providers.dart';
+import '../settings/presentation/settings_providers.dart';
+
+class HomeMenu extends ConsumerWidget {
   const HomeMenu({super.key});
 
   @override
-  ConsumerState<HomeMenu> createState() => _HomeMenuState();
-}
-
-class _HomeMenuState extends ConsumerState<HomeMenu> {
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  void logout() {
-    JwtTokenService.instance.clearToken();
-    Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
     final themeMode = ref.watch(themeProvider);
-    final items = [
-      {
-        'icon': Icons.group,
-        'label': AppLocalizations.of(context)!.social,
-        'route': TRoutes.social,
-      },
-      {
-        'icon': Icons.person,
-        'label': AppLocalizations.of(context)!.profile,
-        'route': TRoutes.profile,
-      },
-      {
-        'icon': Icons.fitness_center,
-        'label': AppLocalizations.of(context)!.gym,
-        'route': TRoutes.gym,
-      },
-      {
-        'icon': Icons.notifications,
-        'label': AppLocalizations.of(context)!.notifications,
-        'route': TRoutes.notifications,
-      },
-      {
-        'icon': Icons.settings,
-        'label': AppLocalizations.of(context)!.settings,
-        'route': TRoutes.settings,
-      },
-      {
-        'icon': Icons.info,
-        'label': AppLocalizations.of(context)!.info,
-        'route': TRoutes.info,
-      },
+
+    final items = <_MenuItem>[
+      _MenuItem(Icons.group, t.social, AppRoutes.social),
+      _MenuItem(Icons.person, t.profile, AppRoutes.profile),
+      _MenuItem(Icons.fitness_center, t.gym, AppRoutes.gym),
+      _MenuItem(Icons.notifications, t.notifications, AppRoutes.notifications),
+      _MenuItem(Icons.settings, t.settings, AppRoutes.settings),
+      _MenuItem(Icons.info, t.info, AppRoutes.info),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('GymAppWeb'),
+        title: const Text('GymApp'),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: Icon(
-              themeMode == ThemeMode.light ? Icons.dark_mode : Icons.light_mode,
-            ),
-            onPressed: () {
-              ref.read(themeProvider.notifier).toggle();
-            },
+            icon: Icon(themeMode == ThemeMode.light ? Icons.dark_mode : Icons.light_mode),
+            onPressed: () => ref.read(themeProvider.notifier).toggle(),
           ),
           IconButton(
             icon: const Icon(Icons.language),
@@ -80,7 +40,7 @@ class _HomeMenuState extends ConsumerState<HomeMenu> {
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Expanded(
@@ -88,37 +48,9 @@ class _HomeMenuState extends ConsumerState<HomeMenu> {
                 crossAxisCount: 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                children: items.map((item) {
-                  return Material(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(24),
-                    elevation: 2,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(24),
-                      onTap: () {
-                        final route = item['route'] as String?;
-                        if (route != null) {
-                          navigationService.navigateTo(route);
-                        }
-                      },
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            item['icon'] as IconData,
-                            size: 48,
-                            color: const Color(0xFFEF6C00),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            item['label'] as String,
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }).toList(),
+                children: items
+                    .map((item) => _MenuTile(item: item))
+                    .toList(growable: false),
               ),
             ),
             const SizedBox(height: 16),
@@ -126,16 +58,48 @@ class _HomeMenuState extends ConsumerState<HomeMenu> {
               width: double.infinity,
               child: ElevatedButton.icon(
                 icon: const Icon(Icons.logout),
-                label: Text(AppLocalizations.of(context)!.logout),
+                label: Text(t.logout),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                 ),
-                onPressed: () => logout(),
+                onPressed: () =>
+                    ref.read(authControllerProvider.notifier).logout(),
               ),
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuItem {
+  const _MenuItem(this.icon, this.label, this.route);
+  final IconData icon;
+  final String label;
+  final String route;
+}
+
+class _MenuTile extends StatelessWidget {
+  const _MenuTile({required this.item});
+  final _MenuItem item;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
+      borderRadius: BorderRadius.circular(24),
+      elevation: 2,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(24),
+        onTap: () => context.go(item.route),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(item.icon, size: 48, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(height: 12),
+            Text(item.label, style: Theme.of(context).textTheme.titleMedium),
           ],
         ),
       ),
