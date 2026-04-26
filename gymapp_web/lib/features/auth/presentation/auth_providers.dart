@@ -31,9 +31,12 @@ final dioProvider = Provider<Dio>((ref) {
       dio: dio,
       tokenStorage: storage,
       refreshTokenCall: (refreshToken) async {
-        final newAccess = await refreshApi.refresh(refreshToken);
-        await storage.updateAccessToken(newAccess);
-        return newAccess;
+        final tokens = await refreshApi.refresh(refreshToken);
+        await storage.updateAccessToken(tokens.accessToken);
+        if (tokens.hasRefreshToken) {
+          await storage.saveRefreshToken(tokens.refreshToken!);
+        }
+        return tokens.accessToken;
       },
       onAuthFailure: () async {
         await storage.clear();

@@ -21,13 +21,14 @@ class AuthTokens {
       return AuthTokens(accessToken: data);
     }
     if (data is Map) {
-      final access = (data['accessToken'] ?? data['token']) as String?;
+      final access = (data['accessToken'] ?? data['AccessToken'] ?? data['token'] ?? data['Token']) as String?;
       if (access == null || access.isEmpty) {
         throw const FormatException('Brak tokenu dostępu w odpowiedzi.');
       }
+      final refresh = (data['refreshToken'] ?? data['RefreshToken']) as String?;
       return AuthTokens(
         accessToken: access,
-        refreshToken: data['refreshToken'] as String?,
+        refreshToken: refresh,
       );
     }
     throw const FormatException('Nieznany format odpowiedzi logowania.');
