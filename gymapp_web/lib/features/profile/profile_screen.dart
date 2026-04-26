@@ -403,18 +403,19 @@ class _EditForm extends StatelessWidget {
                   validator: _validatePositiveDecimal,
                 ),
                 const SizedBox(height: 12),
-                InkWell(
-                  onTap: isLoading ? null : onPickDate,
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: t.dateOfBirth,
-                      prefixIcon: const Icon(Icons.cake_outlined),
-                    ),
-                    child: Text(
-                      dateOfBirth != null
-                          ? DateFormat.yMMMd().format(dateOfBirth!)
-                          : t.notSpecified,
-                    ),
+                TextFormField(
+                  readOnly: true,
+                  enabled: !isLoading,
+                  onTap: onPickDate,
+                  decoration: InputDecoration(
+                    labelText: t.dateOfBirth,
+                    prefixIcon: const Icon(Icons.cake_outlined),
+                    suffixIcon: const Icon(Icons.calendar_today_outlined),
+                  ),
+                  controller: TextEditingController(
+                    text: dateOfBirth != null
+                        ? DateFormat.yMMMd().format(dateOfBirth!)
+                        : '',
                   ),
                 ),
                 const SizedBox(height: 24),

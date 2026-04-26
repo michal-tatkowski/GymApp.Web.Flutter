@@ -93,7 +93,7 @@ class _MenuTile extends StatelessWidget {
       elevation: 2,
       child: InkWell(
         borderRadius: BorderRadius.circular(24),
-        onTap: () => context.go(item.route),
+        onTap: () => context.push(item.route),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
