@@ -19,6 +19,11 @@ class GymScreen extends ConsumerWidget {
         route: AppRoutes.gymWeeklyPlan,
       ),
       _GymTile(
+        icon: Icons.fitness_center,
+        label: t.exercises,
+        route: AppRoutes.gymExercises,
+      ),
+      _GymTile(
         icon: Icons.bar_chart,
         label: t.charts,
         route: null, // not yet implemented

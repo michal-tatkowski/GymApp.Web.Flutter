@@ -118,4 +118,61 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get charts => 'Wykresy';
+
+  @override
+  String get exercises => 'Ćwiczenia';
+
+  @override
+  String get searchExercises => 'Szukaj ćwiczeń...';
+
+  @override
+  String get addExercise => 'Dodaj ćwiczenie';
+
+  @override
+  String get exerciseName => 'Nazwa ćwiczenia';
+
+  @override
+  String get category => 'Kategoria';
+
+  @override
+  String get description => 'Opis';
+
+  @override
+  String get descriptionOptional => 'Opis (opcjonalnie)';
+
+  @override
+  String get noExercisesFound => 'Brak ćwiczeń';
+
+  @override
+  String get exerciseAdded => 'Ćwiczenie zostało dodane';
+
+  @override
+  String get customExercise => 'Własne ćwiczenie';
+
+  @override
+  String get noDescription => 'Brak opisu';
+
+  @override
+  String get allCategories => 'Wszystkie';
+
+  @override
+  String get fieldRequired => 'To pole jest wymagane';
+
+  @override
+  String get catPush => 'Pchanie (Push)';
+
+  @override
+  String get catPull => 'Ciągnienie (Pull)';
+
+  @override
+  String get catLegs => 'Nogi';
+
+  @override
+  String get catCore => 'Brzuch / Core';
+
+  @override
+  String get catCardio => 'Cardio';
+
+  @override
+  String get catOther => 'Inne';
 }
