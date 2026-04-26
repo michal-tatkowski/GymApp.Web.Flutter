@@ -11,8 +11,8 @@ class AppRoutes {
   static const home = '/';
   static const profile = '/profile';
   static const gym = '/gym';
-  static const gymWeeklyPlan = '/gym/weekly-plan';
-  static const gymExercises = '/gym/exercises';
+    static const gymWeeklyPlan = '/gym/weekly-plan';
+    static const gymWorkouts = '/gym/workouts';
   static const social = '/social';
   static const notifications = '/notifications';
   static const settings = '/settings';

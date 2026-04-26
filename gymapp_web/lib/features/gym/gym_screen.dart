@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,7 +26,12 @@ class GymScreen extends ConsumerWidget {
       _GymTile(
         icon: Icons.bar_chart,
         label: t.charts,
-        route: null, // not yet implemented
+        route: null, 
+      ),
+      _GymTile(
+        icon: Icons.sports_gymnastics,
+        label: t.workouts,
+        route: AppRoutes.gymWorkouts,
       ),
     ];
 

@@ -252,25 +252,7 @@ abstract class AppLocalizations {
   String get bmi;
   String get weeklyPlan;
   String get charts;
-  String get exercises;
-  String get searchExercises;
-  String get addExercise;
-  String get exerciseName;
-  String get category;
-  String get description;
-  String get descriptionOptional;
-  String get noExercisesFound;
-  String get exerciseAdded;
-  String get customExercise;
-  String get noDescription;
-  String get allCategories;
-  String get fieldRequired;
-  String get catPush;
-  String get catPull;
-  String get catLegs;
-  String get catCore;
-  String get catCardio;
-  String get catOther;
+  String get workouts;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
