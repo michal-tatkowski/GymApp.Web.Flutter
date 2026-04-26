@@ -112,4 +112,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bmi => 'BMI';
+
+  @override
+  String get weeklyPlan => 'Weekly plan';
+
+  @override
+  String get charts => 'Charts';
 }

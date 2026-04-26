@@ -250,6 +250,8 @@ abstract class AppLocalizations {
   String get profileSaved;
   String get profileLoadError;
   String get bmi;
+  String get weeklyPlan;
+  String get charts;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
