@@ -28,22 +28,15 @@ class AuthApi {
     );
   }
 
-  /// Exchange refresh token for a new access token.
-  /// Backend contract expected: POST /Auth/Refresh { refreshToken } -> { accessToken }
-  Future<String> refresh(String refreshToken) async {
+  /// Exchange refresh token for a new access+refresh token pair.
+  /// Backend contract: POST /Auth/Refresh { refreshToken } -> { accessToken, refreshToken }
+  Future<AuthTokens> refresh(String refreshToken) async {
     final res = await _dio.post<dynamic>(
       'Auth/Refresh',
       data: {'refreshToken': refreshToken},
       options: AuthOptions.skipAuth(),
     );
-    final data = res.data;
-    if (data is Map && data['accessToken'] is String) {
-      return data['accessToken'] as String;
-    }
-    if (data is String && data.isNotEmpty) return data;
-    throw const FormatException(
-      'Brak accessToken w odpowiedzi z /Auth/Refresh.',
-    );
+    return AuthTokens.fromResponse(res.data);
   }
 
   Future<void> logout() async {

@@ -53,6 +53,15 @@ class AuthLocalStorage {
   Future<String?> getRefreshToken() async =>
       _cached?.refreshToken ?? await _storage.read(key: StorageKeys.refreshToken);
 
+  Future<void> saveRefreshToken(String newRefreshToken) async {
+    final access = _cached?.accessToken ?? await _storage.read(key: StorageKeys.accessToken) ?? '';
+    _cached = AuthTokens(accessToken: access, refreshToken: newRefreshToken);
+    final remember = await _storage.read(key: StorageKeys.rememberMe);
+    if (remember == 'true') {
+      await _storage.write(key: StorageKeys.refreshToken, value: newRefreshToken);
+    }
+  }
+
   Future<void> updateAccessToken(String newAccessToken) async {
     final refresh = _cached?.refreshToken ?? await _storage.read(key: StorageKeys.refreshToken);
     _cached = AuthTokens(accessToken: newAccessToken, refreshToken: refresh);
