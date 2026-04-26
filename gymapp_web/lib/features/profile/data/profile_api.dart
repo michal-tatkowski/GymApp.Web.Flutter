@@ -19,7 +19,6 @@ class ProfileApi {
     if (data is Map<String, dynamic>) {
       return UserProfile.fromJson(data);
     }
-    // 204, null, or empty string — re-fetch to get authoritative state.
     return getProfile();
   }
 }
