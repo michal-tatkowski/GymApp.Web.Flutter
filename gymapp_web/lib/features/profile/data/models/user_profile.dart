@@ -1,5 +1,5 @@
-// Values map to C# enum: Male=0, Female=1, Other=2
-enum Gender { male, female, other }
+// Values map to C# enum: NotSpecified=0, Male=1, Female=2, Other=3
+enum Gender { notSpecified, male, female, other }
 
 extension GenderJson on Gender {
   static Gender? fromJson(dynamic v) {

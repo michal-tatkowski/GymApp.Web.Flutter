@@ -5,7 +5,7 @@ class UpdateProfileRequest {
     this.nickname,
     this.firstName,
     this.lastName,
-    this.gender,
+    this.gender = Gender.notSpecified,
     this.height,
     this.weight,
     this.dateOfBirth,
@@ -14,7 +14,7 @@ class UpdateProfileRequest {
   final String? nickname;
   final String? firstName;
   final String? lastName;
-  final Gender? gender;
+  final Gender gender;
   final double? height;
   final double? weight;
   final DateTime? dateOfBirth;
@@ -23,7 +23,7 @@ class UpdateProfileRequest {
         nickname: p.nickname,
         firstName: p.firstName,
         lastName: p.lastName,
-        gender: p.gender,
+        gender: p.gender ?? Gender.notSpecified,
         height: p.height,
         weight: p.weight,
         dateOfBirth: p.dateOfBirth,
@@ -33,7 +33,7 @@ class UpdateProfileRequest {
         'nickname': nickname,
         'firstName': firstName,
         'lastName': lastName,
-        'gender': gender?.toJson(),
+        'gender': gender.toJson(),
         'height': height,
         'weight': weight,
         'dateOfBirth': dateOfBirth?.toIso8601String(),
