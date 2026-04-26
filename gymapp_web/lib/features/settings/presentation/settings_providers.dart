@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../core/storage/secure_storage_keys.dart';
 
@@ -15,10 +15,9 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
     _restore();
   }
 
-  final _storage = const FlutterSecureStorage();
-
   Future<void> _restore() async {
-    final value = await _storage.read(key: StorageKeys.themeMode);
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(StorageKeys.themeMode);
     state = value == 'dark' ? ThemeMode.dark : ThemeMode.light;
   }
 
@@ -28,9 +27,10 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
 
   Future<void> set(ThemeMode mode) async {
     state = mode;
-    await _storage.write(
-      key: StorageKeys.themeMode,
-      value: mode == ThemeMode.dark ? 'dark' : 'light',
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      StorageKeys.themeMode,
+      mode == ThemeMode.dark ? 'dark' : 'light',
     );
   }
 }
@@ -46,10 +46,9 @@ class LocaleNotifier extends StateNotifier<Locale> {
     _restore();
   }
 
-  final _storage = const FlutterSecureStorage();
-
   Future<void> _restore() async {
-    final code = await _storage.read(key: StorageKeys.locale);
+    final prefs = await SharedPreferences.getInstance();
+    final code = prefs.getString(StorageKeys.locale);
     if (code != null) state = Locale(code);
   }
 
@@ -59,6 +58,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
 
   Future<void> set(Locale locale) async {
     state = locale;
-    await _storage.write(key: StorageKeys.locale, value: locale.languageCode);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(StorageKeys.locale, locale.languageCode);
   }
 }
