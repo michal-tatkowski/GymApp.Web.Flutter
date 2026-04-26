@@ -79,4 +79,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dateOfBirth => 'Date of birth';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get edit => 'Edit';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get other => 'Other';
+
+  @override
+  String get notSpecified => 'Not specified';
+
+  @override
+  String get retry => 'Try again';
+
+  @override
+  String get profileSaved => 'Profile saved';
+
+  @override
+  String get profileLoadError => 'Failed to load profile';
 }

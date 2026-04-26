@@ -79,4 +79,34 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get dateOfBirth => 'Data urodzenia';
+
+  @override
+  String get save => 'Zapisz';
+
+  @override
+  String get cancel => 'Anuluj';
+
+  @override
+  String get edit => 'Edytuj';
+
+  @override
+  String get male => 'Mężczyzna';
+
+  @override
+  String get female => 'Kobieta';
+
+  @override
+  String get other => 'Inne';
+
+  @override
+  String get notSpecified => 'Nie podano';
+
+  @override
+  String get retry => 'Spróbuj ponownie';
+
+  @override
+  String get profileSaved => 'Profil został zapisany';
+
+  @override
+  String get profileLoadError => 'Nie udało się załadować profilu';
 }
