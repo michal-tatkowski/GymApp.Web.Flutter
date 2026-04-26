@@ -244,6 +244,10 @@ class _ProfileView extends StatelessWidget {
                     ? DateFormat.yMMMd().format(profile.dateOfBirth!)
                     : null,
               ),
+              _InfoTile(
+                label: t.bmi,
+                value: profile.bmi != null ? profile.bmi!.toStringAsFixed(1) : null,
+              ),
             ],
           ),
         ),

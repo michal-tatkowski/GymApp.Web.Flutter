@@ -20,6 +20,7 @@ class UserProfile {
     this.height,
     this.weight,
     this.dateOfBirth,
+    this.bmi,
   });
 
   final String? nickname;
@@ -29,18 +30,20 @@ class UserProfile {
   final double? height;
   final double? weight;
   final DateTime? dateOfBirth;
+  final double? bmi;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => UserProfile(
-        nickname: json['nickname'] as String?,
-        firstName: json['firstName'] as String?,
-        lastName: json['lastName'] as String?,
-        gender: GenderJson.fromJson(json['gender']),
-        height: (json['height'] as num?)?.toDouble(),
-        weight: (json['weight'] as num?)?.toDouble(),
-        dateOfBirth: json['dateOfBirth'] == null
-            ? null
-            : DateTime.tryParse(json['dateOfBirth'] as String),
-      );
+    nickname: json['nickname'] as String?,
+    firstName: json['firstName'] as String?,
+    lastName: json['lastName'] as String?,
+    gender: GenderJson.fromJson(json['gender']),
+    height: (json['height'] as num?)?.toDouble(),
+    weight: (json['weight'] as num?)?.toDouble(),
+    dateOfBirth: json['dateOfBirth'] == null
+        ? null
+        : DateTime.tryParse(json['dateOfBirth'] as String),
+    bmi: (json['bmi'] as num?)?.toDouble(),
+  );
 
   UserProfile copyWith({
     String? nickname,
@@ -52,14 +55,13 @@ class UserProfile {
     DateTime? dateOfBirth,
     bool clearGender = false,
     bool clearDateOfBirth = false,
-  }) =>
-      UserProfile(
-        nickname: nickname ?? this.nickname,
-        firstName: firstName ?? this.firstName,
-        lastName: lastName ?? this.lastName,
-        gender: clearGender ? null : (gender ?? this.gender),
-        height: height ?? this.height,
-        weight: weight ?? this.weight,
-        dateOfBirth: clearDateOfBirth ? null : (dateOfBirth ?? this.dateOfBirth),
-      );
+  }) => UserProfile(
+    nickname: nickname ?? this.nickname,
+    firstName: firstName ?? this.firstName,
+    lastName: lastName ?? this.lastName,
+    gender: clearGender ? null : (gender ?? this.gender),
+    height: height ?? this.height,
+    weight: weight ?? this.weight,
+    dateOfBirth: clearDateOfBirth ? null : (dateOfBirth ?? this.dateOfBirth),
+  );
 }
