@@ -1,23 +1,11 @@
+// Values map to C# enum: Male=0, Female=1, Other=2
 enum Gender { male, female, other }
 
 extension GenderJson on Gender {
   static Gender? fromJson(dynamic v) {
     if (v == null) return null;
-    if (v is int) {
-      return Gender.values.elementAtOrNull(v);
-    }
-    switch (v.toString().toLowerCase()) {
-      case 'male':
-      case '0':
-        return Gender.male;
-      case 'female':
-      case '1':
-        return Gender.female;
-      case 'other':
-      case '2':
-        return Gender.other;
-    }
-    return null;
+    final i = v is int ? v : int.tryParse(v.toString());
+    return Gender.values.elementAtOrNull(i ?? -1);
   }
 
   int toJson() => index;

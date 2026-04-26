@@ -39,15 +39,21 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       final auth = ref.read(authControllerProvider);
       final here = state.matchedLocation;
 
-      // Still restoring session → stay on splash.
-      if (auth.isLoading || !auth.hasValue) {
+      // No value yet = initial session restore in progress → show splash.
+      // Do NOT redirect to splash during login/register (isLoading + hasValue),
+      // so the user stays on the auth screen while the request is in flight.
+      if (!auth.hasValue) {
         return here == AppRoutes.splash ? null : AppRoutes.splash;
       }
 
+      // Once we have a value, always leave splash immediately.
       final isAuthed = auth.value == AuthState.authenticated;
-      final isOnAuthRoute = here == AppRoutes.login ||
-          here == AppRoutes.register ||
-          here == AppRoutes.splash;
+      if (here == AppRoutes.splash) {
+        return isAuthed ? AppRoutes.home : AppRoutes.login;
+      }
+
+      final isOnAuthRoute =
+          here == AppRoutes.login || here == AppRoutes.register;
 
       if (!isAuthed && !isOnAuthRoute) return AppRoutes.login;
       if (isAuthed && isOnAuthRoute) return AppRoutes.home;
