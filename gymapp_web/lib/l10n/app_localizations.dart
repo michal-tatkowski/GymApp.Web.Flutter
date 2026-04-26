@@ -249,6 +249,7 @@ abstract class AppLocalizations {
   String get retry;
   String get profileSaved;
   String get profileLoadError;
+  String get bmi;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

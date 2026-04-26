@@ -109,4 +109,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profileLoadError => 'Failed to load profile';
+
+  @override
+  String get bmi => 'BMI';
 }
