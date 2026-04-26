@@ -28,11 +28,6 @@ class GymScreen extends ConsumerWidget {
         label: t.charts,
         route: null, 
       ),
-      _GymTile(
-        icon: Icons.sports_gymnastics,
-        label: t.workouts,
-        route: AppRoutes.gymWorkouts,
-      ),
     ];
 
     return Scaffold(
