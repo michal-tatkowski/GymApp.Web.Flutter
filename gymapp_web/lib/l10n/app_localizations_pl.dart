@@ -118,4 +118,7 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get charts => 'Wykresy';
+
+  @override
+  String get workouts => 'Ćwiczenia';
 }

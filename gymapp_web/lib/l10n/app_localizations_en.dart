@@ -118,4 +118,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get charts => 'Charts';
+
+  @override
+  String get workouts => 'Workout';
 }

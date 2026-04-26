@@ -252,6 +252,7 @@ abstract class AppLocalizations {
   String get bmi;
   String get weeklyPlan;
   String get charts;
+  String get workouts;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
