@@ -15,11 +15,11 @@ class ProfileApi {
 
   Future<UserProfile> updateProfile(UpdateProfileRequest req) async {
     final res = await _dio.put<dynamic>('Profile', data: req.toJson());
-    // Backend may return 204 (no body) or the updated profile.
-    if (res.statusCode == 204 || res.data == null) {
-      // Re-fetch to get the authoritative state.
-      return getProfile();
+    final data = res.data;
+    if (data is Map<String, dynamic>) {
+      return UserProfile.fromJson(data);
     }
-    return UserProfile.fromJson(res.data as Map<String, dynamic>);
+    // 204, null, or empty string — re-fetch to get authoritative state.
+    return getProfile();
   }
 }
