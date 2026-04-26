@@ -24,7 +24,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   final _heightCtrl = TextEditingController();
   final _weightCtrl = TextEditingController();
 
-  Gender? _gender;
+  Gender _gender = Gender.notSpecified;
   DateTime? _dateOfBirth;
   bool _editing = false;
 
@@ -44,7 +44,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     _lastNameCtrl.text = p.lastName ?? '';
     _heightCtrl.text = p.height != null ? _fmt(p.height!) : '';
     _weightCtrl.text = p.weight != null ? _fmt(p.weight!) : '';
-    _gender = p.gender;
+    _gender = p.gender ?? Gender.notSpecified;
     _dateOfBirth = p.dateOfBirth;
   }
 
@@ -174,7 +174,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         weightCtrl: _weightCtrl,
                         gender: _gender,
                         dateOfBirth: _dateOfBirth,
-                        onGenderChanged: (g) => setState(() => _gender = g),
+                        onGenderChanged: (g) => setState(() => _gender = g ?? Gender.notSpecified),
                         onPickDate: _pickDate,
                         isLoading: isLoading,
                       )
@@ -226,7 +226,9 @@ class _ProfileView extends StatelessWidget {
               _InfoTile(label: t.lastName, value: profile.lastName),
               _InfoTile(
                 label: t.gender,
-                value: profile.gender != null ? _genderLabel(context, profile.gender!) : null,
+                value: profile.gender != null && profile.gender != Gender.notSpecified
+                    ? _genderLabel(context, profile.gender!)
+                    : null,
               ),
               _InfoTile(
                 label: t.height,
@@ -318,9 +320,9 @@ class _EditForm extends StatelessWidget {
   final TextEditingController lastNameCtrl;
   final TextEditingController heightCtrl;
   final TextEditingController weightCtrl;
-  final Gender? gender;
+  final Gender gender;
   final DateTime? dateOfBirth;
-  final ValueChanged<Gender?> onGenderChanged;
+  final ValueChanged<Gender> onGenderChanged;
   final VoidCallback onPickDate;
   final bool isLoading;
 
@@ -364,19 +366,19 @@ class _EditForm extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 12),
-                DropdownButtonFormField<Gender?>(
-                  value: gender,
+                DropdownButtonFormField<Gender>(
+                  value: gender ?? Gender.notSpecified,
                   decoration: InputDecoration(
                     labelText: t.gender,
                     prefixIcon: const Icon(Icons.wc),
                   ),
                   items: [
-                    DropdownMenuItem(value: null, child: Text(t.notSpecified)),
+                    DropdownMenuItem(value: Gender.notSpecified, child: Text(t.notSpecified)),
                     DropdownMenuItem(value: Gender.male, child: Text(t.male)),
                     DropdownMenuItem(value: Gender.female, child: Text(t.female)),
                     DropdownMenuItem(value: Gender.other, child: Text(t.other)),
                   ],
-                  onChanged: isLoading ? null : onGenderChanged,
+                  onChanged: isLoading ? null : (v) => onGenderChanged(v ?? Gender.notSpecified),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -463,6 +465,7 @@ class _ErrorView extends StatelessWidget {
 String _genderLabel(BuildContext context, Gender gender) {
   final t = AppLocalizations.of(context)!;
   return switch (gender) {
+    Gender.notSpecified => t.notSpecified,
     Gender.male => t.male,
     Gender.female => t.female,
     Gender.other => t.other,
