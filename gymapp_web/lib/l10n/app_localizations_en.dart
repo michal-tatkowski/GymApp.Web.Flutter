@@ -121,4 +121,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get workouts => 'Workout';
+
+  @override
+  String get exercises => 'Exercises';
+
+  @override
+  String get searchExercises => 'Search exercises';
+
+  @override
+  String get addExercise => 'Add exercise';
+
+  @override
+  String get exerciseName => 'Exercise name';
+
+  @override
+  String get category => 'Category';
+
+  @override
+  String get description => 'Description';
+
+  @override
+  String get descriptionOptional => 'Description (optional)';
+
+  @override
+  String get noExercisesFound => 'No exercises found';
+
+  @override
+  String get exerciseAdded => 'Exercise added';
+
+  @override
+  String get customExercise => 'Custom';
+
+  @override
+  String get noDescription => 'No description';
+
+  @override
+  String get allCategories => 'All';
+
+  @override
+  String get fieldRequired => 'This field is required';
+
+  @override
+  String get catPush => 'Push';
+
+  @override
+  String get catPull => 'Pull';
+
+  @override
+  String get catLegs => 'Legs';
+
+  @override
+  String get catCore => 'Core';
+
+  @override
+  String get catCardio => 'Cardio';
+
+  @override
+  String get catOther => 'Other';
 }
