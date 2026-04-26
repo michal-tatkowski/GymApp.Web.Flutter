@@ -238,6 +238,17 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Date of birth'**
   String get dateOfBirth;
+
+  String get save;
+  String get cancel;
+  String get edit;
+  String get male;
+  String get female;
+  String get other;
+  String get notSpecified;
+  String get retry;
+  String get profileSaved;
+  String get profileLoadError;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
