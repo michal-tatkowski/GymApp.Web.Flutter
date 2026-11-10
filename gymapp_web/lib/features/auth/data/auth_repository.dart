@@ -40,7 +40,7 @@ class AuthRepository {
   }
 
   Future<void> logout() async {
-    await api.logout();
+    await api.logout(await storage.getRefreshToken());
     await storage.clear();
   }
 

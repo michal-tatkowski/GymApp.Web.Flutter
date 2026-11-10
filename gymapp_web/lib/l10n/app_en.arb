@@ -97,5 +97,9 @@
       "status": { "type": "int" }
     }
   },
+  "errForbidden": "You don't have access to this.",
+  "errNotFound": "Not found.",
+  "errConflict": "This already exists.",
+  "errTooManyRequests": "Too many attempts. Wait a minute and try again.",
   "errUnknown": "An unexpected error occurred."
 }

@@ -22,7 +22,7 @@ void main() {
   });
 
   test('blank server message falls back to the default', () {
-    expect(describeError(en, const TimeoutFailure('  ')), en.errTimeout);
+    expect(describeError(en, const ValidationFailure('  ')), en.errValidation);
   });
 
   test('non-Failure errors never leak technical details', () {

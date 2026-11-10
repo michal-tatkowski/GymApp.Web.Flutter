@@ -17,6 +17,10 @@ String describeError(AppLocalizations t, Object? error) {
     TimeoutFailure() => t.errTimeout,
     CancelledFailure() => t.errCancelled,
     UnauthorizedFailure() => t.errSessionExpired,
+    ForbiddenFailure() => t.errForbidden,
+    NotFoundFailure() => t.errNotFound,
+    ConflictFailure() => t.errConflict,
+    RateLimitedFailure() => t.errTooManyRequests,
     ValidationFailure() => t.errValidation,
     ServerFailure(statusCode: final int status) => t.errServer(status),
     ServerFailure() => t.errUnknown, // np. nieczytelna odpowiedź serwera

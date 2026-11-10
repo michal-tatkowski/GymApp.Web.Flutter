@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../l10n/app_localizations.dart';
 import '../data/models/exercise.dart';
-import 'exercises_screen.dart';
+import 'category_ui.dart';
 
 class ExerciseDetailScreen extends StatelessWidget {
   const ExerciseDetailScreen({super.key, required this.exercise});
@@ -24,8 +24,8 @@ class ExerciseDetailScreen extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  theme.colorScheme.primary.withOpacity(0.15),
-                  theme.colorScheme.secondary.withOpacity(0.10),
+                  theme.colorScheme.primary.withValues(alpha: 0.15),
+                  theme.colorScheme.secondary.withValues(alpha: 0.10),
                 ],
               ),
             ),
@@ -46,7 +46,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                           backgroundColor:
                               theme.colorScheme.primaryContainer,
                           child: Icon(
-                            _categoryIcon(exercise.category),
+                            categoryIcon(exercise.category),
                             size: 40,
                             color: theme.colorScheme.onPrimaryContainer,
                           ),
@@ -57,11 +57,11 @@ class ExerciseDetailScreen extends StatelessWidget {
                       Center(
                         child: Chip(
                           avatar: Icon(
-                            _categoryIcon(exercise.category),
+                            categoryIcon(exercise.category),
                             size: 16,
                             color: theme.colorScheme.onSecondaryContainer,
                           ),
-                          label: Text(_categoryLabel(context, exercise.category)),
+                          label: Text(categoryLabel(context, exercise.category)),
                           backgroundColor: theme.colorScheme.secondaryContainer,
                           labelStyle: theme.textTheme.labelLarge?.copyWith(
                             color: theme.colorScheme.onSecondaryContainer,
@@ -78,7 +78,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                             label: Text(t.customExercise),
                             backgroundColor:
                                 theme.colorScheme.primaryContainer
-                                    .withOpacity(0.5),
+                                    .withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -87,7 +87,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                       Text(
                         t.description,
                         style: theme.textTheme.labelLarge?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -95,7 +95,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surface.withOpacity(0.85),
+                          color: theme.colorScheme.surface.withValues(alpha: 0.85),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Text(
@@ -118,23 +118,3 @@ class ExerciseDetailScreen extends StatelessWidget {
 }
 
 // re-use helpers from exercises_screen.dart via export or duplicate
-IconData _categoryIcon(ExerciseCategory cat) => switch (cat) {
-      ExerciseCategory.push => Icons.arrow_upward,
-      ExerciseCategory.pull => Icons.arrow_downward,
-      ExerciseCategory.legs => Icons.directions_run,
-      ExerciseCategory.core => Icons.rotate_right,
-      ExerciseCategory.cardio => Icons.favorite_outline,
-      ExerciseCategory.other => Icons.fitness_center,
-    };
-
-String _categoryLabel(BuildContext context, ExerciseCategory cat) {
-  final t = AppLocalizations.of(context)!;
-  return switch (cat) {
-    ExerciseCategory.push => t.catPush,
-    ExerciseCategory.pull => t.catPull,
-    ExerciseCategory.legs => t.catLegs,
-    ExerciseCategory.core => t.catCore,
-    ExerciseCategory.cardio => t.catCardio,
-    ExerciseCategory.other => t.catOther,
-  };
-}

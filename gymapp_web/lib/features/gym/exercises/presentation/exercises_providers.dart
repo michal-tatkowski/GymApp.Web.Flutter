@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../features/auth/presentation/auth_providers.dart';
@@ -55,15 +57,17 @@ class ExercisesState {
         hasMore: hasMore ?? this.hasMore,
         error: clearError ? null : (error ?? this.error),
         query: query ?? this.query,
-        categoryFilter:
-            clearCategory ? null : (categoryFilter ?? this.categoryFilter),
+        categoryFilter: clearCategory ? null : (categoryFilter ?? this.categoryFilter),
       );
 }
 
 // ─── Notifier ─────────────────────────────────────────────────────────────────
 
-const _pageSize = 20;
+const exercisesPageSize = 20;
+const searchDebounce = Duration(milliseconds: 300);
 
+/// Paged exercise list. Search and category filter are applied by the API,
+/// so "load more" continues the same filtered list.
 class ExercisesNotifier extends StateNotifier<ExercisesState> {
   ExercisesNotifier(this._repo) : super(const ExercisesState()) {
     load();
@@ -71,87 +75,89 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
 
   final ExerciseRepository _repo;
   int _page = 1;
+  Timer? _debounce;
 
-  String? get _categoryParam => state.categoryFilter?.toJson().toString();
+  /// Incremented on every new query — responses for an older query are dropped,
+  /// so a slow "push" response cannot overwrite a newer "pull" list.
+  int _generation = 0;
+
+  Future<List<Exercise>> _fetch(int page) => _repo.getExercises(
+        category: state.categoryFilter,
+        search: state.query,
+        page: page,
+        pageSize: exercisesPageSize,
+      );
 
   Future<void> load() async {
+    final generation = ++_generation;
     _page = 1;
-    state = state.copyWith(isLoading: true, hasMore: true, clearError: true);
+    state = state.copyWith(isLoading: true, isLoadingMore: false, hasMore: true, clearError: true);
     try {
-      final items = await _repo.getExercises(
-        category: _categoryParam,
-        page: _page,
-        pageSize: _pageSize,
-      );
+      final items = await _fetch(1);
+      if (generation != _generation || !mounted) return;
       state = state.copyWith(
-        items: _applyQuery(items),
+        items: items,
         isLoading: false,
-        // If we got fewer items than pageSize, there are no more pages.
-        hasMore: items.length >= _pageSize,
+        hasMore: items.length >= exercisesPageSize,
       );
     } catch (e) {
-      state = state.copyWith(isLoading: false, error: e);
+      if (generation != _generation || !mounted) return;
+      state = state.copyWith(items: const [], isLoading: false, error: e);
     }
   }
 
   Future<void> loadMore() async {
-    if (state.isLoadingMore || !state.hasMore) return;
-    state = state.copyWith(isLoadingMore: true);
-    _page++;
+    if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
+    final generation = _generation;
+    state = state.copyWith(isLoadingMore: true, clearError: true);
     try {
-      final more = await _repo.getExercises(
-        category: _categoryParam,
-        page: _page,
-        pageSize: _pageSize,
-      );
+      final more = await _fetch(_page + 1);
+      if (generation != _generation || !mounted) return;
+      _page++;
+      final known = state.items.map((e) => e.id).toSet();
       state = state.copyWith(
-        items: [...state.items, ..._applyQuery(more)],
+        items: [...state.items, ...more.where((e) => !known.contains(e.id))],
         isLoadingMore: false,
-        hasMore: more.length >= _pageSize,
+        hasMore: more.length >= exercisesPageSize,
       );
     } catch (e) {
-      _page--;
+      if (generation != _generation || !mounted) return;
       state = state.copyWith(isLoadingMore: false, error: e);
     }
   }
 
+  /// Debounced server-side search.
   void setQuery(String q) {
+    if (q == state.query) return;
     state = state.copyWith(query: q);
+    _debounce?.cancel();
+    _debounce = Timer(searchDebounce, load);
   }
 
   Future<void> setCategory(ExerciseCategory? cat) async {
     if (cat == state.categoryFilter) return;
-    state = state.copyWith(
-      categoryFilter: cat,
-      clearCategory: cat == null,
-    );
+    state = state.copyWith(categoryFilter: cat, clearCategory: cat == null);
     await load();
   }
 
-  Future<Exercise?> addExercise(CreateExerciseRequest req) async {
-    try {
-      final created = await _repo.createExercise(req);
-      // Prepend to list so it's immediately visible.
-      state = state.copyWith(items: [created, ...state.items]);
-      return created;
-    } catch (e) {
-      state = state.copyWith(error: e);
-      return null;
+  /// Creates the exercise and shows it at the top when it matches the current filter.
+  /// Throws a Failure — the caller (add sheet) shows the error.
+  Future<Exercise> addExercise(CreateExerciseRequest req) async {
+    final created = await _repo.createExercise(req);
+    final filter = state.categoryFilter;
+    final query = state.query.trim().toLowerCase();
+    final matches = (filter == null || filter == created.category) &&
+        (query.isEmpty || created.name.toLowerCase().contains(query));
+    if (matches && mounted) {
+      state = state.copyWith(items: [created, ...state.items.where((e) => e.id != created.id)]);
     }
+    return created;
   }
 
-  // Client-side query filter applied on top of backend results.
-  List<Exercise> _applyQuery(List<Exercise> items) {
-    final q = state.query.toLowerCase().trim();
-    if (q.isEmpty) return items;
-    return items.where((e) => e.name.toLowerCase().contains(q)).toList();
-  }
-
-  // Filtered view for the UI (re-applies query on current items).
-  List<Exercise> get filtered {
-    final q = state.query.toLowerCase().trim();
-    if (q.isEmpty) return state.items;
-    return state.items.where((e) => e.name.toLowerCase().contains(q)).toList();
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
   }
 }
 

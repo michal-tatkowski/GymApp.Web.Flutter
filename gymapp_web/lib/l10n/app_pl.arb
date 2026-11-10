@@ -81,5 +81,9 @@
   "errCancelled": "Żądanie zostało anulowane.",
   "errValidation": "Nieprawidłowe dane.",
   "errServer": "Błąd serwera ({status}).",
+  "errForbidden": "Nie masz do tego dostępu.",
+  "errNotFound": "Nie znaleziono.",
+  "errConflict": "To już istnieje.",
+  "errTooManyRequests": "Zbyt wiele prób. Odczekaj minutę i spróbuj ponownie.",
   "errUnknown": "Wystąpił nieoczekiwany błąd."
 }
