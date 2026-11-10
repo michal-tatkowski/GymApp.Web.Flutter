@@ -8,6 +8,7 @@ import '../../../../core/widgets/gradient_background.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../data/workout_models.dart';
 import 'widgets/progress_chart.dart';
+import 'rest_timer.dart';
 import 'widgets/workout_entry_sheet.dart';
 import 'workout_providers.dart';
 
@@ -24,21 +25,66 @@ class ExerciseWorkoutsScreen extends ConsumerWidget {
     String exerciseId, {
     WorkoutEntry? entry,
     List<WorkoutSet>? prefill,
-  }) =>
-      showModalBottomSheet<void>(
-        context: context,
-        isScrollControlled: true,
-        useSafeArea: true,
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-        builder: (_) => WorkoutEntrySheet(
-          initial: entry,
-          prefillSets: prefill,
-          onSave: (req) {
-            final log = ref.read(workoutLogProvider(exerciseId).notifier);
-            return entry == null ? log.add(req) : log.edit(entry.id, req);
-          },
-        ),
+  }) {
+    final actions = WorkoutActions.of(context);
+    final timer = ref.read(restTimerProvider.notifier);
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+      builder: (_) => WorkoutEntrySheet(
+        initial: entry,
+        prefillSets: prefill,
+        onSave: (req) async {
+          if (entry != null) {
+            await actions.edit(exerciseId, entry.id, req);
+            return;
+          }
+          await actions.add(exerciseId, req);
+          timer.startAfterSet();
+        },
+      ),
+    );
+  }
+
+  /// One tap: saves [sets] for today, starts the rest timer, offers "Undo".
+  static Future<void> repeatLast(BuildContext context, WidgetRef ref, String exerciseId, List<WorkoutSet> sets) async {
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final actions = WorkoutActions.of(context);
+    final timer = ref.read(restTimerProvider.notifier);
+    try {
+      final created = await actions.add(
+        exerciseId,
+        WorkoutEntryRequest(date: DateUtils.dateOnly(DateTime.now()), sets: sets),
       );
+      timer.startAfterSet();
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(t.workoutSaved),
+            action: SnackBarAction(label: t.undo, onPressed: () => actions.delete(exerciseId, created.id)),
+          ),
+        );
+    } catch (e) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(describeError(t, e))));
+    }
+  }
+
+  /// "3 × 10 × 100 kg" when all sets are equal, otherwise "10×100, 10×100, 8×105 kg".
+  static String describeSets(List<WorkoutSet> sets) {
+    String one(WorkoutSet s) => s.weight == 0 ? '${s.reps}' : '${s.reps}×${formatValue(s.weight)}';
+    if (sets.length > 1 && sets.every((s) => s == sets.first)) {
+      final s = sets.first;
+      return s.weight == 0 ? '${sets.length} × ${s.reps}' : '${sets.length} × ${s.reps} × ${formatValue(s.weight)} kg';
+    }
+    final text = sets.map(one).join(', ');
+    return sets.any((s) => s.weight > 0) ? '$text kg' : text;
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -59,10 +105,8 @@ class ExerciseWorkoutsScreen extends ConsumerWidget {
         child: SafeArea(
           child: logAsync.when(
             loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) => ErrorView(
-              message: describeError(t, e),
-              onRetry: () => ref.invalidate(workoutLogProvider(exerciseId)),
-            ),
+            error: (e, _) =>
+                ErrorView(message: describeError(t, e), onRetry: () => ref.invalidate(workoutLogProvider(exerciseId))),
             data: (log) => ListView(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
               children: [
@@ -83,6 +127,15 @@ class ExerciseWorkoutsScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
+                if (lastSets != null) ...[
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    key: const Key('workout.repeat'),
+                    onPressed: () => repeatLast(context, ref, exerciseId, lastSets),
+                    icon: const Icon(Icons.replay),
+                    label: Text(t.repeatLast(describeSets(lastSets))),
+                  ),
+                ],
                 const SizedBox(height: 16),
                 Text(t.workoutHistory, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: 8),
@@ -107,34 +160,28 @@ class _EntryTile extends ConsumerWidget {
   final String exerciseId;
   final WorkoutEntry entry;
 
-  /// "3 × 10 × 100 kg" when all sets are equal, otherwise "10×100, 10×100, 8×105".
-  static String describeSets(List<WorkoutSet> sets) {
-    String one(WorkoutSet s) => s.weight == 0 ? '${s.reps}' : '${s.reps}×${formatValue(s.weight)}';
-    if (sets.length > 1 && sets.every((s) => s == sets.first)) {
-      final s = sets.first;
-      return s.weight == 0 ? '${sets.length} × ${s.reps}' : '${sets.length} × ${s.reps} × ${formatValue(s.weight)} kg';
-    }
-    final text = sets.map(one).join(', ');
-    return sets.any((s) => s.weight > 0) ? '$text kg' : text;
-  }
+  static String describeSets(List<WorkoutSet> sets) => ExerciseWorkoutsScreen.describeSets(sets);
 
+  /// Deletes right away and offers "Undo" (re-creates the entry) — no confirmation
+  /// dialog: the action is reversible, so it should not interrupt.
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
     final t = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(t.deleteEntryQuestion),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.delete)),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
+    final actions = WorkoutActions.of(context);
     try {
-      await ref.read(workoutLogProvider(exerciseId).notifier).delete(entry.id);
-      messenger.showSnackBar(SnackBar(content: Text(t.entryDeleted)));
+      await actions.delete(exerciseId, entry.id);
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            content: Text(t.entryDeleted),
+            action: SnackBarAction(
+              label: t.undo,
+              onPressed: () =>
+                  actions.add(exerciseId, WorkoutEntryRequest(date: entry.date, sets: entry.sets, notes: entry.notes)),
+            ),
+          ),
+        );
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(describeError(t, e))));
     }

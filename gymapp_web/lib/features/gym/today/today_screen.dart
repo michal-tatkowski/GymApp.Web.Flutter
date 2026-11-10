@@ -31,8 +31,7 @@ class TodayScreen extends ConsumerWidget {
     try {
       final log = await ref.read(workoutLogProvider(exercise.id).future);
       if (!context.mounted) return;
-      await ExerciseWorkoutsScreen.openEntrySheet(context, ref, exercise.id,
-          prefill: log.entries.firstOrNull?.sets);
+      await ExerciseWorkoutsScreen.openEntrySheet(context, ref, exercise.id, prefill: log.entries.firstOrNull?.sets);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(describeError(t, e))));
@@ -42,9 +41,24 @@ class TodayScreen extends ConsumerWidget {
     }
   }
 
+  /// One tap: the last workout of this exercise again, today (with "Undo").
+  Future<void> _repeat(BuildContext context, WidgetRef ref, Exercise exercise) async {
+    final keepAlive = ref.listenManual(workoutLogProvider(exercise.id), (_, __) {});
+    try {
+      final last = (await ref.read(workoutLogProvider(exercise.id).future)).entries.firstOrNull;
+      if (last != null && context.mounted) {
+        await ExerciseWorkoutsScreen.repeatLast(context, ref, exercise.id, last.sets);
+      }
+    } finally {
+      keepAlive.close();
+    }
+  }
+
   void _openLog(BuildContext context, String id, String name) => Navigator.of(context).push(
-        MaterialPageRoute<void>(builder: (_) => ExerciseWorkoutsScreen(exerciseId: id, exerciseName: name)),
-      );
+    MaterialPageRoute<void>(
+      builder: (_) => ExerciseWorkoutsScreen(exerciseId: id, exerciseName: name),
+    ),
+  );
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -142,6 +156,7 @@ class TodayScreen extends ConsumerWidget {
                               locale: locale,
                               onOpen: () => _openLog(context, e.id, e.name),
                               onLog: () => _quickLog(context, ref, e),
+                              onRepeat: () => _repeat(context, ref, e),
                             ),
                         ],
                       ),
@@ -161,9 +176,9 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
-        child: Text(text, style: Theme.of(context).textTheme.titleMedium),
-      );
+    padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
+    child: Text(text, style: Theme.of(context).textTheme.titleMedium),
+  );
 }
 
 class _QuickLogTile extends StatelessWidget {
@@ -173,6 +188,7 @@ class _QuickLogTile extends StatelessWidget {
     required this.locale,
     required this.onOpen,
     required this.onLog,
+    required this.onRepeat,
   });
 
   final Exercise exercise;
@@ -180,6 +196,7 @@ class _QuickLogTile extends StatelessWidget {
   final String locale;
   final VoidCallback onOpen;
   final VoidCallback onLog;
+  final VoidCallback onRepeat;
 
   @override
   Widget build(BuildContext context) {
@@ -188,15 +205,29 @@ class _QuickLogTile extends StatelessWidget {
     return ListTile(
       leading: Icon(categoryIcon(exercise.category)),
       title: Text(exercise.name),
-      subtitle: Text(s == null
-          ? t.notTrainedYet
-          : '${t.lastWorkout(DateFormat.MMMd(locale).format(s.lastDate))} · '
-              '${s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : t.volumeValue(formatValue(s.lastVolume))}'),
-      trailing: IconButton.filledTonal(
-        key: Key('today.log.${exercise.id}'),
-        tooltip: t.logWorkout,
-        icon: const Icon(Icons.add),
-        onPressed: onLog,
+      subtitle: Text(
+        s == null
+            ? t.notTrainedYet
+            : '${t.lastWorkout(DateFormat.MMMd(locale).format(s.lastDate))} · '
+                  '${s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : t.volumeValue(formatValue(s.lastVolume))}',
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (s != null)
+            IconButton(
+              key: Key('today.repeat.${exercise.id}'),
+              tooltip: t.repeatLastShort,
+              icon: const Icon(Icons.replay),
+              onPressed: onRepeat,
+            ),
+          IconButton.filledTonal(
+            key: Key('today.log.${exercise.id}'),
+            tooltip: t.logWorkout,
+            icon: const Icon(Icons.add),
+            onPressed: onLog,
+          ),
+        ],
       ),
       onTap: onOpen,
     );

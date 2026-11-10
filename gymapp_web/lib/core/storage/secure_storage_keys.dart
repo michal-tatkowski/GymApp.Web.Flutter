@@ -11,4 +11,5 @@ class StorageKeys {
   // Shared preferences (shared_preferences)
   static const themeMode = 'settings.theme_mode';
   static const locale = 'settings.locale';
+  static const restTimerSeconds = 'settings.rest_timer_seconds';
 }

@@ -470,6 +470,72 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get today;
 
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get off;
+
+  /// No description provided for @repeatLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat last: {sets}'**
+  String repeatLast(String sets);
+
+  /// No description provided for @repeatLastShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat last workout'**
+  String get repeatLastShort;
+
+  /// No description provided for @decreaseBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease by {step}'**
+  String decreaseBy(String step);
+
+  /// No description provided for @increaseBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase by {step}'**
+  String increaseBy(String step);
+
+  /// No description provided for @restTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest timer'**
+  String get restTimer;
+
+  /// No description provided for @restTimerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts automatically after you log a workout.'**
+  String get restTimerHint;
+
+  /// No description provided for @restRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest {time}'**
+  String restRemaining(String time);
+
+  /// No description provided for @restOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest is over — next set!'**
+  String get restOver;
+
   /// No description provided for @quickLog.
   ///
   /// In en, this message translates to:
@@ -607,12 +673,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Workout deleted'**
   String get entryDeleted;
-
-  /// No description provided for @deleteEntryQuestion.
-  ///
-  /// In en, this message translates to:
-  /// **'Delete this workout?'**
-  String get deleteEntryQuestion;
 
   /// No description provided for @delete.
   ///

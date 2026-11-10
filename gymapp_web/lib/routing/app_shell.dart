@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/gym/workouts/presentation/rest_timer.dart';
 import '../l10n/app_localizations.dart';
 
 /// Main layout after login: bottom NavigationBar on phones, NavigationRail on
@@ -15,10 +16,10 @@ class AppShell extends StatelessWidget {
   static const wideBreakpoint = 840.0;
 
   void _select(int index) => navigationShell.goBranch(
-        index,
-        // Tapping the active tab again goes back to its first screen.
-        initialLocation: index == navigationShell.currentIndex,
-      );
+    index,
+    // Tapping the active tab again goes back to its first screen.
+    initialLocation: index == navigationShell.currentIndex,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +45,14 @@ class AppShell extends StatelessWidget {
               ],
             ),
             const VerticalDivider(width: 1),
-            Expanded(child: navigationShell),
+            Expanded(
+              child: Column(
+                children: [
+                  Expanded(child: navigationShell),
+                  const RestTimerBar(),
+                ],
+              ),
+            ),
           ],
         ),
       );
@@ -52,12 +60,19 @@ class AppShell extends StatelessWidget {
 
     return Scaffold(
       body: navigationShell,
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: navigationShell.currentIndex,
-        onDestinationSelected: _select,
-        destinations: [
-          for (final (icon, selected, label) in destinations)
-            NavigationDestination(icon: Icon(icon), selectedIcon: Icon(selected), label: label),
+      // Rest timer sits right above the tabs, visible on every screen.
+      bottomNavigationBar: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const RestTimerBar(),
+          NavigationBar(
+            selectedIndex: navigationShell.currentIndex,
+            onDestinationSelected: _select,
+            destinations: [
+              for (final (icon, selected, label) in destinations)
+                NavigationDestination(icon: Icon(icon), selectedIcon: Icon(selected), label: label),
+            ],
+          ),
         ],
       ),
     );

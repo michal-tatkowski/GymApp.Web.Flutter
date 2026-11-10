@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers/retry.dart';
@@ -5,9 +6,7 @@ import '../../../auth/presentation/auth_providers.dart';
 import '../data/workout_models.dart';
 import '../data/workout_repository.dart';
 
-final workoutRepositoryProvider = Provider<WorkoutRepository>(
-  (ref) => WorkoutRepository(ref.watch(dioProvider)),
-);
+final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) => WorkoutRepository(ref.watch(dioProvider)));
 
 /// "My workouts": exercises the user has trained, newest first.
 final workoutSummariesProvider = FutureProvider.autoDispose<List<WorkoutSummary>>(
@@ -21,44 +20,48 @@ final workoutProgressProvider = FutureProvider.autoDispose.family<List<ProgressP
   retry: noRetry,
 );
 
-/// Entries of one exercise + add / edit / delete. Every change refreshes the chart
-/// and the "My workouts" list, which are computed by the API.
-final workoutLogProvider =
-    AsyncNotifierProvider.autoDispose.family<WorkoutLogController, WorkoutLog, String>(
-  WorkoutLogController.new,
+/// Entries of one exercise, newest first. Changes go through [WorkoutActions].
+final workoutLogProvider = FutureProvider.autoDispose.family<WorkoutLog, String>(
+  (ref, exerciseId) => ref.watch(workoutRepositoryProvider).getLog(exerciseId),
   retry: noRetry,
 );
 
-class WorkoutLogController extends AsyncNotifier<WorkoutLog> {
-  WorkoutLogController(this.exerciseId);
+/// Add / edit / delete entries, then refresh everything computed from them
+/// (log, chart, "My workouts", "Today").
+///
+/// Works on the app's ProviderContainer, not on a widget's ref or a notifier:
+/// "Undo" in a snackbar runs after the form closed or the screen was left, and
+/// a provider nobody watches may already be disposed by then.
+class WorkoutActions {
+  WorkoutActions(this._container);
 
-  final String exerciseId;
+  factory WorkoutActions.of(BuildContext context) => WorkoutActions(ProviderScope.containerOf(context, listen: false));
 
-  WorkoutRepository get _repo => ref.read(workoutRepositoryProvider);
+  final ProviderContainer _container;
 
-  @override
-  Future<WorkoutLog> build() => ref.watch(workoutRepositoryProvider).getLog(exerciseId);
+  WorkoutRepository get _repo => _container.read(workoutRepositoryProvider);
 
-  /// Throws a Failure (the form shows it and stays open).
-  Future<void> add(WorkoutEntryRequest req) async {
-    await _repo.addEntry(exerciseId, req);
-    await _reload();
+  /// Throws a Failure. Returns the created entry (for "Undo").
+  Future<WorkoutEntry> add(String exerciseId, WorkoutEntryRequest req) async {
+    final created = await _repo.addEntry(exerciseId, req);
+    _refresh(exerciseId);
+    return created;
   }
 
-  Future<void> edit(String entryId, WorkoutEntryRequest req) async {
-    await _repo.updateEntry(exerciseId, entryId, req);
-    await _reload();
+  Future<WorkoutEntry> edit(String exerciseId, String entryId, WorkoutEntryRequest req) async {
+    final updated = await _repo.updateEntry(exerciseId, entryId, req);
+    _refresh(exerciseId);
+    return updated;
   }
 
-  Future<void> delete(String entryId) async {
+  Future<void> delete(String exerciseId, String entryId) async {
     await _repo.deleteEntry(exerciseId, entryId);
-    await _reload();
+    _refresh(exerciseId);
   }
 
-  Future<void> _reload() async {
-    ref.invalidate(workoutProgressProvider(exerciseId));
-    ref.invalidate(workoutSummariesProvider);
-    final log = await _repo.getLog(exerciseId);
-    if (ref.mounted) state = AsyncData(log);
+  void _refresh(String exerciseId) {
+    _container.invalidate(workoutLogProvider(exerciseId));
+    _container.invalidate(workoutProgressProvider(exerciseId));
+    _container.invalidate(workoutSummariesProvider);
   }
 }

@@ -196,6 +196,47 @@ class AppLocalizationsPl extends AppLocalizations {
   String get today => 'Dziś';
 
   @override
+  String get undo => 'Cofnij';
+
+  @override
+  String get close => 'Zamknij';
+
+  @override
+  String get off => 'Wył.';
+
+  @override
+  String repeatLast(String sets) {
+    return 'Powtórz ostatni: $sets';
+  }
+
+  @override
+  String get repeatLastShort => 'Powtórz ostatni trening';
+
+  @override
+  String decreaseBy(String step) {
+    return 'Zmniejsz o $step';
+  }
+
+  @override
+  String increaseBy(String step) {
+    return 'Zwiększ o $step';
+  }
+
+  @override
+  String get restTimer => 'Timer przerwy';
+
+  @override
+  String get restTimerHint => 'Startuje sam po zapisaniu treningu.';
+
+  @override
+  String restRemaining(String time) {
+    return 'Przerwa $time';
+  }
+
+  @override
+  String get restOver => 'Koniec przerwy — następna seria!';
+
+  @override
   String get quickLog => 'Szybki zapis';
 
   @override
@@ -268,9 +309,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get entryDeleted => 'Trening usunięty';
-
-  @override
-  String get deleteEntryQuestion => 'Usunąć ten trening?';
 
   @override
   String get delete => 'Usuń';

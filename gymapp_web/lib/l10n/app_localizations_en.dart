@@ -196,6 +196,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get today => 'Today';
 
   @override
+  String get undo => 'Undo';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get off => 'Off';
+
+  @override
+  String repeatLast(String sets) {
+    return 'Repeat last: $sets';
+  }
+
+  @override
+  String get repeatLastShort => 'Repeat last workout';
+
+  @override
+  String decreaseBy(String step) {
+    return 'Decrease by $step';
+  }
+
+  @override
+  String increaseBy(String step) {
+    return 'Increase by $step';
+  }
+
+  @override
+  String get restTimer => 'Rest timer';
+
+  @override
+  String get restTimerHint => 'Starts automatically after you log a workout.';
+
+  @override
+  String restRemaining(String time) {
+    return 'Rest $time';
+  }
+
+  @override
+  String get restOver => 'Rest is over — next set!';
+
+  @override
   String get quickLog => 'Quick log';
 
   @override
@@ -268,9 +309,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get entryDeleted => 'Workout deleted';
-
-  @override
-  String get deleteEntryQuestion => 'Delete this workout?';
 
   @override
   String get delete => 'Delete';

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
+import '../gym/workouts/presentation/rest_timer.dart';
 import 'presentation/settings_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -31,6 +32,28 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(t.language),
               subtitle: Text(locale.languageCode.toUpperCase()),
               onTap: () => ref.read(localeProvider.notifier).toggle(),
+            ),
+            const Divider(),
+            ListTile(
+              leading: const Icon(Icons.timer_outlined),
+              title: Text(t.restTimer),
+              subtitle: Text(t.restTimerHint),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SegmentedButton<int>(
+                key: const Key('settings.rest'),
+                showSelectedIcon: false,
+                segments: [
+                  for (final s in restTimerOptions)
+                    ButtonSegment(
+                      value: s,
+                      label: Text(s == 0 ? t.off : formatRest(Duration(seconds: s))),
+                    ),
+                ],
+                selected: {ref.watch(restDurationProvider)},
+                onSelectionChanged: (v) => ref.read(restDurationProvider.notifier).set(v.single),
+              ),
             ),
             const Divider(),
             ListTile(
