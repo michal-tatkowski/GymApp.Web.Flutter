@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_client.dart';
 import '../../../core/network/interceptors/auth_interceptor.dart';
+import '../../../core/network/interceptors/locale_interceptor.dart';
+import '../../settings/presentation/settings_providers.dart';
 import '../data/auth_api.dart';
 import '../data/auth_local_storage.dart';
 import '../data/auth_repository.dart';
@@ -21,9 +23,15 @@ final dioProvider = Provider<Dio>((ref) {
   final dio = DioClient.create();
   final storage = ref.watch(authLocalStorageProvider);
 
+  // API error messages follow the app language. `read`, not `watch`:
+  // a language change must not rebuild Dio (and drop in-flight state).
+  String currentLanguage() => ref.read(localeProvider).languageCode;
+  dio.interceptors.add(LocaleInterceptor(currentLanguage));
+
   // Separate Dio for refresh calls so the refresh request itself never
   // triggers the auth interceptor (which would cause recursion).
-  final refreshDio = DioClient.create();
+  final refreshDio = DioClient.create()
+    ..interceptors.add(LocaleInterceptor(currentLanguage));
   final refreshApi = AuthApi(refreshDio);
 
   dio.interceptors.add(
