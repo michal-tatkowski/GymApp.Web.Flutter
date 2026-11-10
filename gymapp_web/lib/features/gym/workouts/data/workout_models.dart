@@ -40,6 +40,7 @@ class WorkoutEntry {
     this.volume = 0,
     this.totalReps = 0,
     this.maxWeight = 0,
+    this.estimatedOneRepMax = 0,
   });
 
   final String id;
@@ -50,6 +51,9 @@ class WorkoutEntry {
   final int totalReps;
   final double maxWeight;
 
+  /// Best Epley estimate of the sets (weight × (1 + reps / 30)); 0 for bodyweight.
+  final double estimatedOneRepMax;
+
   factory WorkoutEntry.fromJson(Map<String, dynamic> json) => WorkoutEntry(
         id: json['id'].toString(),
         date: fromApiDate(json['date'] as String),
@@ -58,6 +62,7 @@ class WorkoutEntry {
         volume: _num(json['volume']),
         totalReps: (json['totalReps'] as num?)?.toInt() ?? 0,
         maxWeight: _num(json['maxWeight']),
+        estimatedOneRepMax: _num(json['estimatedOneRepMax']),
       );
 }
 
@@ -141,6 +146,7 @@ class ProgressPoint {
     required this.totalReps,
     required this.maxWeight,
     required this.sets,
+    this.estimatedOneRepMax = 0,
   });
 
   final DateTime date;
@@ -149,11 +155,15 @@ class ProgressPoint {
   final double maxWeight;
   final int sets;
 
+  /// Best estimated one-rep max of the day (Epley).
+  final double estimatedOneRepMax;
+
   factory ProgressPoint.fromJson(Map<String, dynamic> json) => ProgressPoint(
         date: fromApiDate(json['date'] as String),
         volume: _num(json['volume']),
         totalReps: (json['totalReps'] as num).toInt(),
         maxWeight: _num(json['maxWeight']),
         sets: (json['sets'] as num).toInt(),
+        estimatedOneRepMax: _num(json['estimatedOneRepMax']),
       );
 }

@@ -39,10 +39,11 @@ void main() {
     });
 
     expect(find.byKey(const Key('progress.chart')), findsOneWidget);
-    expect(find.text('1000 → 1200'), findsOneWidget);
+    expect(find.text('1200 kg'), findsWidgets); // latest value (big number) and newest history entry
+    expect(find.text('+20%'), findsOneWidget);
     expect(find.byIcon(Icons.trending_up), findsOneWidget);
-    expect(find.text('Volume (kg)'), findsOneWidget);
-    expect(find.text('1200 kg'), findsOneWidget); // newest entry on top of the history
+    expect(find.widgetWithText(SegmentedButton<ProgressMetric>, 'Volume'), findsOneWidget);
+    expect(find.text('1200 kg'), findsNWidgets(2)); // big number + newest history entry
   });
 
   testWidgets('empty log: hint instead of a chart, "Log workout" saves the first entry', (tester) async {
@@ -175,8 +176,10 @@ void main() {
       r.seed(bench, today, [const WorkoutSet(reps: 25, weight: 0)]);
     });
 
-    expect(find.text('Reps (bodyweight)'), findsOneWidget);
-    expect(find.text('20 → 25'), findsOneWidget);
+    expect(find.byKey(const Key('progress.metric')), findsNothing); // reps is the only metric
+    expect(find.byKey(const Key('progress.value')), findsOneWidget);
+    expect(tester.widget<Text>(find.byKey(const Key('progress.value'))).data, '25');
+    expect(find.text('+25%'), findsOneWidget);
     expect(find.text('25 reps'), findsOneWidget);
   });
 

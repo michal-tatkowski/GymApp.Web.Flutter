@@ -196,6 +196,45 @@ class AppLocalizationsPl extends AppLocalizations {
   String get today => 'Dziś';
 
   @override
+  String get metricVolume => 'Objętość';
+
+  @override
+  String get metricOneRepMax => '1RM';
+
+  @override
+  String get metricMaxWeight => 'Maks.';
+
+  @override
+  String get metricReps => 'Powt.';
+
+  @override
+  String get range1M => '1M';
+
+  @override
+  String get range3M => '3M';
+
+  @override
+  String get range1Y => '1R';
+
+  @override
+  String get rangeAll => 'Wszystko';
+
+  @override
+  String get personalRecord => '🏆 Rekord';
+
+  @override
+  String get newRecordVolume => '🏆 Nowy rekord: największa objętość!';
+
+  @override
+  String get newRecordOneRepMax =>
+      '🏆 Nowy rekord: najsilniej do tej pory (szac. 1RM)!';
+
+  @override
+  String chartSemantics(String metric, String first, String last, int days) {
+    return 'Wykres $metric: od $first do $last, $days dni treningowych';
+  }
+
+  @override
   String get undo => 'Cofnij';
 
   @override
@@ -270,12 +309,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get progress => 'Postęp';
-
-  @override
-  String get progressVolume => 'Objętość (kg)';
-
-  @override
-  String get progressReps => 'Powtórzenia (masa ciała)';
 
   @override
   String get progressNeedsMoreDays =>
