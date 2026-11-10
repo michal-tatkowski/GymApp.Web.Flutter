@@ -7,6 +7,7 @@ import '../data/models/exercise.dart';
 import 'add_exercise_sheet.dart';
 import 'category_ui.dart';
 import 'exercise_detail_screen.dart';
+import 'favorite_button.dart';
 import 'exercises_providers.dart';
 
 class ExercisesScreen extends ConsumerStatefulWidget {
@@ -37,6 +38,18 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
     if (_scrollCtrl.position.pixels >=
         _scrollCtrl.position.maxScrollExtent - 200) {
       ref.read(exercisesProvider.notifier).loadMore();
+    }
+  }
+
+  Future<void> _toggleFavorite(String exerciseId) async {
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(exercisesProvider.notifier).toggleFavorite(exerciseId);
+    } catch (e) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(describeError(t, e))));
     }
   }
 
@@ -126,6 +139,8 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
                       _CategoryChips(
                         selected: state.categoryFilter,
                         onSelected: notifier.setCategory,
+                        favoritesOnly: state.favoritesOnly,
+                        onFavoritesOnlyChanged: notifier.setFavoritesOnly,
                       ),
                     ],
                   ),
@@ -152,6 +167,7 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
                                 }
                                 return _ExerciseTile(
                                   exercise: exercises[i],
+                                  onToggleFavorite: () => _toggleFavorite(exercises[i].id),
                                   onTap: () => Navigator.of(context).push(
                                     MaterialPageRoute<void>(
                                       builder: (_) => ExerciseDetailScreen(
@@ -175,10 +191,17 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
 // ─── Category chips ───────────────────────────────────────────────────────────
 
 class _CategoryChips extends StatelessWidget {
-  const _CategoryChips({required this.selected, required this.onSelected});
+  const _CategoryChips({
+    required this.selected,
+    required this.onSelected,
+    required this.favoritesOnly,
+    required this.onFavoritesOnlyChanged,
+  });
 
   final ExerciseCategory? selected;
   final ValueChanged<ExerciseCategory?> onSelected;
+  final bool favoritesOnly;
+  final ValueChanged<bool> onFavoritesOnlyChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -187,6 +210,12 @@ class _CategoryChips extends StatelessWidget {
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: [
+          _Chip(
+            label: AppLocalizations.of(context)!.favorites,
+            icon: favoritesOnly ? Icons.star : Icons.star_border,
+            isSelected: favoritesOnly,
+            onTap: () => onFavoritesOnlyChanged(!favoritesOnly),
+          ),
           _Chip(
             label: AppLocalizations.of(context)!.allCategories,
             isSelected: selected == null,
@@ -209,11 +238,13 @@ class _Chip extends StatelessWidget {
     required this.label,
     required this.isSelected,
     required this.onTap,
+    this.icon,
   });
 
   final String label;
   final bool isSelected;
   final VoidCallback onTap;
+  final IconData? icon;
 
   @override
   Widget build(BuildContext context) {
@@ -221,6 +252,8 @@ class _Chip extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
+        avatar: icon == null ? null : Icon(icon, size: 18),
+        showCheckmark: icon == null,
         label: Text(label),
         selected: isSelected,
         onSelected: (_) => onTap(),
@@ -236,10 +269,11 @@ class _Chip extends StatelessWidget {
 // ─── Exercise tile ────────────────────────────────────────────────────────────
 
 class _ExerciseTile extends StatelessWidget {
-  const _ExerciseTile({required this.exercise, required this.onTap});
+  const _ExerciseTile({required this.exercise, required this.onTap, required this.onToggleFavorite});
 
   final Exercise exercise;
   final VoidCallback onTap;
+  final VoidCallback onToggleFavorite;
 
   @override
   Widget build(BuildContext context) {
@@ -274,6 +308,7 @@ class _ExerciseTile extends StatelessWidget {
                     size: 16,
                     color: theme.colorScheme.primary.withValues(alpha: 0.7)),
               ),
+            FavoriteButton(isFavorite: exercise.isFavorite, onPressed: onToggleFavorite),
             const Icon(Icons.chevron_right),
           ],
         ),

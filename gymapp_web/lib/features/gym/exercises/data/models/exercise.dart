@@ -33,6 +33,7 @@ class Exercise {
     this.source = ExerciseSource.system,
     this.createdByUserId,
     this.isCustom = false,
+    this.isFavorite = false,
   });
 
   final String id;
@@ -46,6 +47,22 @@ class Exercise {
 
   /// Created by the current user.
   final bool isCustom;
+
+  /// Starred by the current user (favorites come first in the list).
+  final bool isFavorite;
+
+  Exercise copyWith({bool? isFavorite}) => Exercise(
+        id: id,
+        name: name,
+        category: category,
+        description: description,
+        imageUrl: imageUrl,
+        popularityCount: popularityCount,
+        source: source,
+        createdByUserId: createdByUserId,
+        isCustom: isCustom,
+        isFavorite: isFavorite ?? this.isFavorite,
+      );
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
     final description = json['description'] as String?;
@@ -61,6 +78,7 @@ class Exercise {
           : ExerciseSource.system,
       createdByUserId: json['createdByUserId']?.toString(),
       isCustom: (json['isCustom'] as bool?) ?? false,
+      isFavorite: (json['isFavorite'] as bool?) ?? false,
     );
   }
 }

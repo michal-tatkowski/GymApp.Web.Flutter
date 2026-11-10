@@ -181,6 +181,15 @@ class AppLocalizationsPl extends AppLocalizations {
   String get catOther => 'Inne';
 
   @override
+  String get favorites => 'Ulubione';
+
+  @override
+  String get addToFavorites => 'Dodaj do ulubionych';
+
+  @override
+  String get removeFromFavorites => 'Usuń z ulubionych';
+
+  @override
   String get emailRequired => 'Podaj e-mail';
 
   @override

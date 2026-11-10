@@ -181,6 +181,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catOther => 'Other';
 
   @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from favorites';
+
+  @override
   String get emailRequired => 'Enter your email';
 
   @override

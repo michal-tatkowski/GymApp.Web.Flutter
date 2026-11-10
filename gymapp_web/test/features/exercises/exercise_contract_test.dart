@@ -23,7 +23,7 @@ class _FakeRepo extends ExerciseRepository {
   Object? createError;
 
   @override
-  Future<List<Exercise>> getExercises({ExerciseCategory? category, String? search, int page = 1, int pageSize = 20}) async {
+  Future<List<Exercise>> getExercises({ExerciseCategory? category, String? search, bool favoritesOnly = false, int page = 1, int pageSize = 20}) async {
     calls.add((category: category, search: search, page: page));
     final delay = delays[search ?? ''];
     if (delay != null) await Future<void>.delayed(delay);

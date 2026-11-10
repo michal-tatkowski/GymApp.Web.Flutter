@@ -57,6 +57,9 @@
   "catCore": "Core",
   "catCardio": "Cardio",
   "catOther": "Inne",
+  "favorites": "Ulubione",
+  "addToFavorites": "Dodaj do ulubionych",
+  "removeFromFavorites": "Usuń z ulubionych",
 
   "emailRequired": "Podaj e-mail",
   "emailInvalid": "Nieprawidłowy format e-mail",
