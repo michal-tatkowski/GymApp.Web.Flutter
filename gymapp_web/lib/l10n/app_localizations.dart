@@ -470,6 +470,78 @@ abstract class AppLocalizations {
   /// **'Today'**
   String get today;
 
+  /// No description provided for @metricVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get metricVolume;
+
+  /// No description provided for @metricOneRepMax.
+  ///
+  /// In en, this message translates to:
+  /// **'1RM'**
+  String get metricOneRepMax;
+
+  /// No description provided for @metricMaxWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get metricMaxWeight;
+
+  /// No description provided for @metricReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get metricReps;
+
+  /// No description provided for @range1M.
+  ///
+  /// In en, this message translates to:
+  /// **'1M'**
+  String get range1M;
+
+  /// No description provided for @range3M.
+  ///
+  /// In en, this message translates to:
+  /// **'3M'**
+  String get range3M;
+
+  /// No description provided for @range1Y.
+  ///
+  /// In en, this message translates to:
+  /// **'1Y'**
+  String get range1Y;
+
+  /// No description provided for @rangeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get rangeAll;
+
+  /// No description provided for @personalRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'🏆 Personal record'**
+  String get personalRecord;
+
+  /// No description provided for @newRecordVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'🏆 New record: best volume so far!'**
+  String get newRecordVolume;
+
+  /// No description provided for @newRecordOneRepMax.
+  ///
+  /// In en, this message translates to:
+  /// **'🏆 New record: strongest so far (est. 1RM)!'**
+  String get newRecordOneRepMax;
+
+  /// No description provided for @chartSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{metric} chart: from {first} to {last} over {days} training days'**
+  String chartSemantics(String metric, String first, String last, int days);
+
   /// No description provided for @undo.
   ///
   /// In en, this message translates to:
@@ -601,18 +673,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Progress'**
   String get progress;
-
-  /// No description provided for @progressVolume.
-  ///
-  /// In en, this message translates to:
-  /// **'Volume (kg)'**
-  String get progressVolume;
-
-  /// No description provided for @progressReps.
-  ///
-  /// In en, this message translates to:
-  /// **'Reps (bodyweight)'**
-  String get progressReps;
 
   /// No description provided for @progressNeedsMoreDays.
   ///

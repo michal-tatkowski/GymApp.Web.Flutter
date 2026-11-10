@@ -16,7 +16,8 @@ const kMinSetWeight = 0, kMaxSetWeight = 1000;
 const kWeightStep = 2.5;
 
 /// Bottom sheet for a new or edited entry: date + sets (reps × kg) + notes.
-/// [onSave] sends the request; on a Failure the sheet stays open and shows it.
+/// [onSave] sends the request and may return a message to show instead of
+/// "Workout saved" (e.g. "New record!"); on a Failure the sheet stays open and shows it.
 class WorkoutEntrySheet extends StatefulWidget {
   const WorkoutEntrySheet({super.key, this.initial, this.prefillSets, required this.onSave});
 
@@ -27,7 +28,7 @@ class WorkoutEntrySheet extends StatefulWidget {
   /// the last workout is one tap.
   final List<WorkoutSet>? prefillSets;
 
-  final Future<void> Function(WorkoutEntryRequest) onSave;
+  final Future<String?> Function(WorkoutEntryRequest) onSave;
 
   @override
   State<WorkoutEntrySheet> createState() => _WorkoutEntrySheetState();
@@ -108,10 +109,10 @@ class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
 
     setState(() => _saving = true);
     try {
-      await widget.onSave(req);
+      final message = await widget.onSave(req);
       if (!mounted) return;
       navigator.pop();
-      messenger.showSnackBar(SnackBar(content: Text(t.workoutSaved)));
+      messenger.showSnackBar(SnackBar(content: Text(message ?? t.workoutSaved)));
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);

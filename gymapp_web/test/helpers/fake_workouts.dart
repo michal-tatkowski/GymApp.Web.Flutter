@@ -20,7 +20,12 @@ class FakeWorkoutRepository extends WorkoutRepository {
         volume: sets.fold(0.0, (v, s) => v + s.reps * s.weight),
         totalReps: sets.fold(0, (v, s) => v + s.reps),
         maxWeight: sets.map((s) => s.weight).fold(0.0, (a, b) => a > b ? a : b),
+        estimatedOneRepMax: sets.map(oneRepMax).fold(0.0, (a, b) => a > b ? a : b),
       );
+
+  /// Epley, like the API.
+  static double oneRepMax(WorkoutSet s) =>
+      s.weight <= 0 ? 0 : s.reps <= 1 ? s.weight : ((s.weight * (1 + s.reps / 30)) * 10).round() / 10;
 
   void seed(String exerciseId, DateTime date, List<WorkoutSet> sets) =>
       (entries[exerciseId] ??= []).add(entryOf('e${_id++}', date, sets, null));
@@ -46,6 +51,7 @@ class FakeWorkoutRepository extends WorkoutRepository {
           totalReps: byDay[d]!.fold(0, (v, e) => v + e.totalReps),
           maxWeight: byDay[d]!.map((e) => e.maxWeight).fold(0.0, (a, b) => a > b ? a : b),
           sets: byDay[d]!.fold(0, (v, e) => v + e.sets.length),
+          estimatedOneRepMax: byDay[d]!.map((e) => e.estimatedOneRepMax).fold(0.0, (a, b) => a > b ? a : b),
         ),
     ];
   }

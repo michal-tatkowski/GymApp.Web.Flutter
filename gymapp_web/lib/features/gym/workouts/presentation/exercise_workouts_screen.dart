@@ -26,6 +26,7 @@ class ExerciseWorkoutsScreen extends ConsumerWidget {
     WorkoutEntry? entry,
     List<WorkoutSet>? prefill,
   }) {
+    final t = AppLocalizations.of(context)!;
     final actions = WorkoutActions.of(context);
     final timer = ref.read(restTimerProvider.notifier);
     return showModalBottomSheet<void>(
@@ -39,10 +40,11 @@ class ExerciseWorkoutsScreen extends ConsumerWidget {
         onSave: (req) async {
           if (entry != null) {
             await actions.edit(exerciseId, entry.id, req);
-            return;
+            return null;
           }
-          await actions.add(exerciseId, req);
+          final (_, record) = await actions.addAndCheckRecord(exerciseId, req);
           timer.startAfterSet();
+          return recordMessage(t, record);
         },
       ),
     );
@@ -55,7 +57,7 @@ class ExerciseWorkoutsScreen extends ConsumerWidget {
     final actions = WorkoutActions.of(context);
     final timer = ref.read(restTimerProvider.notifier);
     try {
-      final created = await actions.add(
+      final (created, record) = await actions.addAndCheckRecord(
         exerciseId,
         WorkoutEntryRequest(date: DateUtils.dateOnly(DateTime.now()), sets: sets),
       );
@@ -64,7 +66,11 @@ class ExerciseWorkoutsScreen extends ConsumerWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(t.workoutSaved),
+            content: Text(recordMessage(t, record) ?? t.workoutSaved),
+            // With an action Flutter keeps the snackbar until tapped (persist defaults to true);
+            // "Undo" is optional, so let it go away and uncover the rest timer.
+            persist: false,
+            duration: const Duration(seconds: 5),
             action: SnackBarAction(label: t.undo, onPressed: () => actions.delete(exerciseId, created.id)),
           ),
         );
@@ -175,6 +181,10 @@ class _EntryTile extends ConsumerWidget {
         ..showSnackBar(
           SnackBar(
             content: Text(t.entryDeleted),
+            // With an action Flutter keeps the snackbar until tapped (persist defaults to true);
+            // "Undo" is optional, so let it go away and uncover the rest timer.
+            persist: false,
+            duration: const Duration(seconds: 5),
             action: SnackBarAction(
               label: t.undo,
               onPressed: () =>
@@ -218,3 +228,10 @@ class _EntryTile extends ConsumerWidget {
     );
   }
 }
+
+/// "New record!" texts for the snackbar after saving; null = no record.
+String? recordMessage(AppLocalizations t, NewRecord? record) => switch (record) {
+      NewRecord.oneRepMax => t.newRecordOneRepMax,
+      NewRecord.volume => t.newRecordVolume,
+      null => null,
+    };

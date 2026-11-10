@@ -196,6 +196,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get today => 'Today';
 
   @override
+  String get metricVolume => 'Volume';
+
+  @override
+  String get metricOneRepMax => '1RM';
+
+  @override
+  String get metricMaxWeight => 'Max';
+
+  @override
+  String get metricReps => 'Reps';
+
+  @override
+  String get range1M => '1M';
+
+  @override
+  String get range3M => '3M';
+
+  @override
+  String get range1Y => '1Y';
+
+  @override
+  String get rangeAll => 'All';
+
+  @override
+  String get personalRecord => '🏆 Personal record';
+
+  @override
+  String get newRecordVolume => '🏆 New record: best volume so far!';
+
+  @override
+  String get newRecordOneRepMax =>
+      '🏆 New record: strongest so far (est. 1RM)!';
+
+  @override
+  String chartSemantics(String metric, String first, String last, int days) {
+    return '$metric chart: from $first to $last over $days training days';
+  }
+
+  @override
   String get undo => 'Undo';
 
   @override
@@ -270,12 +309,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get progress => 'Progress';
-
-  @override
-  String get progressVolume => 'Volume (kg)';
-
-  @override
-  String get progressReps => 'Reps (bodyweight)';
 
   @override
   String get progressNeedsMoreDays =>

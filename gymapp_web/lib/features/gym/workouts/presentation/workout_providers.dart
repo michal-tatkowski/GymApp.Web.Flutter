@@ -5,6 +5,7 @@ import '../../../../core/providers/retry.dart';
 import '../../../auth/presentation/auth_providers.dart';
 import '../data/workout_models.dart';
 import '../data/workout_repository.dart';
+import 'widgets/progress_chart.dart';
 
 final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) => WorkoutRepository(ref.watch(dioProvider)));
 
@@ -46,6 +47,14 @@ class WorkoutActions {
     final created = await _repo.addEntry(exerciseId, req);
     _refresh(exerciseId);
     return created;
+  }
+
+  /// Like [add], plus whether the entry beats the previous best (volume of the day or
+  /// estimated 1RM) — for the "New record!" message. Costs one extra progress request.
+  Future<(WorkoutEntry, NewRecord?)> addAndCheckRecord(String exerciseId, WorkoutEntryRequest req) async {
+    final before = await _repo.getProgress(exerciseId);
+    final created = await add(exerciseId, req);
+    return (created, newRecordFor(before, created));
   }
 
   Future<WorkoutEntry> edit(String exerciseId, String entryId, WorkoutEntryRequest req) async {

@@ -63,6 +63,26 @@
 
   "myWorkouts": "My workouts",
   "today": "Today",
+  "metricVolume": "Volume",
+  "metricOneRepMax": "1RM",
+  "metricMaxWeight": "Max",
+  "metricReps": "Reps",
+  "range1M": "1M",
+  "range3M": "3M",
+  "range1Y": "1Y",
+  "rangeAll": "All",
+  "personalRecord": "🏆 Personal record",
+  "newRecordVolume": "🏆 New record: best volume so far!",
+  "newRecordOneRepMax": "🏆 New record: strongest so far (est. 1RM)!",
+  "chartSemantics": "{metric} chart: from {first} to {last} over {days} training days",
+  "@chartSemantics": {
+    "placeholders": {
+      "metric": { "type": "String" },
+      "first": { "type": "String" },
+      "last": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
   "undo": "Undo",
   "close": "Close",
   "off": "Off",
@@ -89,8 +109,6 @@
   "noWorkoutsYet": "No workouts yet. Open an exercise and tap \"Log workout\".",
   "noEntriesForExercise": "No workouts for this exercise yet.",
   "progress": "Progress",
-  "progressVolume": "Volume (kg)",
-  "progressReps": "Reps (bodyweight)",
   "progressNeedsMoreDays": "Log at least two training days to see the trend.",
   "setNumber": "Set {number}",
   "@setNumber": { "placeholders": { "number": { "type": "int" } } },
