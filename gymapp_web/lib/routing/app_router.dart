@@ -10,6 +10,7 @@ import '../features/auth/presentation/screens/splash_screen.dart';
 import '../features/gym/gym_screen.dart';
 import '../features/gym/exercises/presentation/exercises_screen.dart';
 import '../features/gym/weekly_plan/weekly_plan_screen.dart';
+import '../features/gym/workouts/presentation/my_workouts_screen.dart';
 import '../features/home/home_menu.dart';
 import '../features/info/info_screen.dart';
 import '../features/notifications/notifications_screen.dart';
@@ -70,6 +71,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.gym, builder: (_, __) => const GymScreen()),
       GoRoute(path: AppRoutes.gymWeeklyPlan, builder: (_, __) => const WeeklyPlanScreen()),
       GoRoute(path: AppRoutes.gymExercises, builder: (_, __) => const ExercisesScreen()),
+      GoRoute(path: AppRoutes.gymWorkouts, builder: (_, __) => const MyWorkoutsScreen()),
       GoRoute(path: AppRoutes.social, builder: (_, __) => const SocialScreen()),
       GoRoute(
         path: AppRoutes.notifications,

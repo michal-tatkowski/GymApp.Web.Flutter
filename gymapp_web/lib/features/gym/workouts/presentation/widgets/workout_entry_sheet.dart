@@ -1,0 +1,220 @@
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+
+import '../../../../../core/errors/failure_messages.dart';
+import '../../../../../core/validation/validators.dart';
+import '../../../../../l10n/app_localizations.dart';
+import '../../data/workout_models.dart';
+
+/// Must match the API (WorkoutRules).
+const kMaxSets = 30;
+const kMinReps = 1, kMaxReps = 1000;
+const kMinSetWeight = 0, kMaxSetWeight = 1000;
+
+/// Bottom sheet for a new or edited entry: date + sets (reps × kg) + notes.
+/// [onSave] sends the request; on a Failure the sheet stays open and shows it.
+class WorkoutEntrySheet extends StatefulWidget {
+  const WorkoutEntrySheet({super.key, this.initial, this.prefillSets, required this.onSave});
+
+  /// Entry being edited; null = new entry (today, prefilled from [prefillSets]).
+  final WorkoutEntry? initial;
+
+  /// Sets of the most recent entry — a new entry starts from them, so repeating
+  /// the last workout is one tap.
+  final List<WorkoutSet>? prefillSets;
+
+  final Future<void> Function(WorkoutEntryRequest) onSave;
+
+  @override
+  State<WorkoutEntrySheet> createState() => _WorkoutEntrySheetState();
+}
+
+class _SetRow {
+  _SetRow(WorkoutSet? s)
+      : reps = TextEditingController(text: s == null ? '' : '${s.reps}'),
+        weight = TextEditingController(text: s == null ? '' : _fmt(s.weight));
+
+  final TextEditingController reps;
+  final TextEditingController weight;
+
+  static String _fmt(double v) => v == v.roundToDouble() ? '${v.toInt()}' : '$v';
+
+  void dispose() {
+    reps.dispose();
+    weight.dispose();
+  }
+}
+
+class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
+  final _formKey = GlobalKey<FormState>();
+  late DateTime _date = widget.initial?.date ?? DateUtils.dateOnly(DateTime.now());
+  late final List<_SetRow> _rows = [
+    for (final s in widget.initial?.sets ?? widget.prefillSets ?? const [WorkoutSet(reps: 10, weight: 0)])
+      _SetRow(s),
+  ];
+  late final _notes = TextEditingController(text: widget.initial?.notes ?? '');
+  bool _saving = false;
+
+  @override
+  void dispose() {
+    for (final r in _rows) {
+      r.dispose();
+    }
+    _notes.dispose();
+    super.dispose();
+  }
+
+  void _addSet() => setState(() {
+        // A new set copies the last one — the usual case is "same again".
+        final last = _rows.isEmpty ? null : _rows.last;
+        _rows.add(_SetRow(last == null
+            ? null
+            : WorkoutSet(reps: int.tryParse(last.reps.text) ?? 0, weight: parseDecimal(last.weight.text) ?? 0)));
+      });
+
+  void _removeSet(int i) => setState(() => _rows.removeAt(i).dispose());
+
+  Future<void> _pickDate() async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: _date,
+      firstDate: DateTime(1900),
+      lastDate: DateUtils.dateOnly(DateTime.now()),
+    );
+    if (picked != null) setState(() => _date = picked);
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final navigator = Navigator.of(context);
+
+    final req = WorkoutEntryRequest(
+      date: _date,
+      sets: [
+        for (final r in _rows) WorkoutSet(reps: int.parse(r.reps.text.trim()), weight: parseDecimal(r.weight.text) ?? 0),
+      ],
+      notes: _notes.text,
+    );
+
+    setState(() => _saving = true);
+    try {
+      await widget.onSave(req);
+      if (!mounted) return;
+      navigator.pop();
+      messenger.showSnackBar(SnackBar(content: Text(t.workoutSaved)));
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(describeError(t, e))));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final locale = Localizations.localeOf(context).toString();
+
+    return Padding(
+      padding: EdgeInsets.fromLTRB(20, 16, 20, MediaQuery.viewInsetsOf(context).bottom + 16),
+      child: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(widget.initial == null ? t.logWorkout : t.editWorkout, style: theme.textTheme.titleLarge),
+              const SizedBox(height: 12),
+              ListTile(
+                key: const Key('workout.date'),
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.event),
+                title: Text(t.date),
+                subtitle: Text(DateFormat.yMMMMEEEEd(locale).format(_date)),
+                onTap: _saving ? null : _pickDate,
+              ),
+              const Divider(),
+              for (var i = 0; i < _rows.length; i++)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(
+                        width: 64,
+                        child: Padding(
+                          padding: const EdgeInsets.only(top: 16),
+                          child: Text(t.setNumber(i + 1), style: theme.textTheme.labelLarge),
+                        ),
+                      ),
+                      Expanded(
+                        child: TextFormField(
+                          key: Key('workout.set$i.reps'),
+                          controller: _rows[i].reps,
+                          enabled: !_saving,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          decoration: InputDecoration(labelText: t.reps),
+                          validator: (v) {
+                            final n = int.tryParse((v ?? '').trim());
+                            if (n == null) return t.invalidNumber;
+                            if (n < kMinReps || n > kMaxReps) return t.numberOutOfRange(kMinReps, kMaxReps);
+                            return null;
+                          },
+                        ),
+                      ),
+                      const Padding(padding: EdgeInsets.fromLTRB(8, 16, 8, 0), child: Text('×')),
+                      Expanded(
+                        child: TextFormField(
+                          key: Key('workout.set$i.weight'),
+                          controller: _rows[i].weight,
+                          enabled: !_saving,
+                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                          decoration: InputDecoration(labelText: t.weightKgShort, hintText: '0'),
+                          validator: (v) => validateOptionalNumber(t, v, min: kMinSetWeight, max: kMaxSetWeight),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: t.removeSet,
+                        onPressed: _saving || _rows.length == 1 ? null : () => _removeSet(i),
+                        icon: const Icon(Icons.remove_circle_outline),
+                      ),
+                    ],
+                  ),
+                ),
+              Align(
+                alignment: Alignment.centerLeft,
+                child: TextButton.icon(
+                  onPressed: _saving || _rows.length >= kMaxSets ? null : _addSet,
+                  icon: const Icon(Icons.add),
+                  label: Text(t.addSet),
+                ),
+              ),
+              TextFormField(
+                controller: _notes,
+                enabled: !_saving,
+                maxLength: 500,
+                decoration: InputDecoration(labelText: t.notesOptional),
+              ),
+              const SizedBox(height: 8),
+              FilledButton.icon(
+                key: const Key('workout.save'),
+                onPressed: _saving ? null : _save,
+                icon: _saving
+                    ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.check),
+                label: Text(t.save),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
