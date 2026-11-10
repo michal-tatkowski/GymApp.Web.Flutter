@@ -13,7 +13,7 @@ class CreateExerciseRequest {
 
   Map<String, dynamic> toJson() => {
         'name': name,
-        'category': category.toJson().toString(),
+        'category': category.apiName,
         'description': description,
       };
 }

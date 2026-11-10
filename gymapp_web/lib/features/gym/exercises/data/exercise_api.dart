@@ -8,19 +8,20 @@ class ExerciseApi {
 
   final Dio _dio;
 
-  /// Returns exercises sorted by popularity.
-  /// Supports optional [category] filter and [page]/[pageSize] for pagination.
-  /// If the backend does not support pagination it will return all results —
-  /// the repository handles that gracefully.
+  /// One page of exercises, sorted by popularity. Filtering by [category] and
+  /// searching by name ([search]) happen on the server, so pages stay consistent.
+  /// The last page has fewer than [pageSize] items.
   Future<List<Exercise>> getExercises({
-    String? category,
+    ExerciseCategory? category,
+    String? search,
     int page = 1,
     int pageSize = 20,
   }) async {
     final res = await _dio.get<dynamic>(
       'Exercise',
       queryParameters: {
-        if (category != null) 'category': category,
+        if (category != null) 'category': category.apiName,
+        if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
         'page': page,
         'pageSize': pageSize,
       },
@@ -32,8 +33,13 @@ class ExerciseApi {
         .toList(growable: false);
   }
 
+  /// Creates a custom exercise; the API returns it in the same shape as the list.
   Future<Exercise> createExercise(CreateExerciseRequest req) async {
     final res = await _dio.post<dynamic>('Exercise', data: req.toJson());
-    return Exercise.fromJson(res.data as Map<String, dynamic>);
+    final data = res.data;
+    if (data is! Map<String, dynamic>) {
+      throw const FormatException('Unexpected create exercise response');
+    }
+    return Exercise.fromJson(data);
   }
 }

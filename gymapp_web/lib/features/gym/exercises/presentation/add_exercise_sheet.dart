@@ -6,7 +6,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../data/models/create_exercise_request.dart';
 import '../data/models/exercise.dart';
 import 'exercises_providers.dart';
-import 'exercises_screen.dart';
+import 'category_ui.dart';
 
 class AddExerciseSheet extends ConsumerStatefulWidget {
   const AddExerciseSheet({super.key});
@@ -39,25 +39,22 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
       description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
     );
 
-    final created =
-        await ref.read(exercisesProvider.notifier).addExercise(req);
-
-    if (!mounted) return;
-    setState(() => _saving = false);
-
-    if (created != null) {
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(exercisesProvider.notifier).addExercise(req);
+      if (!mounted) return;
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context)
+      messenger
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(context)!.exerciseAdded),
-        ));
-    } else {
-      final err = ref.read(exercisesProvider).error;
-      final msg = describeError(AppLocalizations.of(context)!, err);
-      ScaffoldMessenger.of(context)
+        ..showSnackBar(SnackBar(content: Text(t.exerciseAdded)));
+    } catch (e) {
+      // e.g. 409 "You already have an exercise with this name" — the sheet stays open.
+      if (!mounted) return;
+      setState(() => _saving = false);
+      messenger
         ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(msg)));
+        ..showSnackBar(SnackBar(content: Text(describeError(t, e))));
     }
   }
 
@@ -119,7 +116,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
               items: ExerciseCategory.values
                   .map((cat) => DropdownMenuItem(
                         value: cat,
-                        child: Text(_categoryLabel(context, cat)),
+                        child: Text(categoryLabel(context, cat)),
                       ))
                   .toList(),
               onChanged: _saving
@@ -157,16 +154,4 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
       ),
     );
   }
-}
-
-String _categoryLabel(BuildContext context, ExerciseCategory cat) {
-  final t = AppLocalizations.of(context)!;
-  return switch (cat) {
-    ExerciseCategory.push => t.catPush,
-    ExerciseCategory.pull => t.catPull,
-    ExerciseCategory.legs => t.catLegs,
-    ExerciseCategory.core => t.catCore,
-    ExerciseCategory.cardio => t.catCardio,
-    ExerciseCategory.other => t.catOther,
-  };
 }

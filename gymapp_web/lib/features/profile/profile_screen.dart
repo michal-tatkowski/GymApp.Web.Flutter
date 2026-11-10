@@ -65,28 +65,25 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
+    // Text fields always sent ("" clears them on the server); empty number = unchanged.
     final req = UpdateProfileRequest(
-      nickname: _nicknameCtrl.text.trim().isEmpty ? null : _nicknameCtrl.text.trim(),
-      firstName: _firstNameCtrl.text.trim().isEmpty ? null : _firstNameCtrl.text.trim(),
-      lastName: _lastNameCtrl.text.trim().isEmpty ? null : _lastNameCtrl.text.trim(),
+      nickname: _nicknameCtrl.text.trim(),
+      firstName: _firstNameCtrl.text.trim(),
+      lastName: _lastNameCtrl.text.trim(),
       gender: _gender,
-      height: _heightCtrl.text.isEmpty
-          ? null
-          : parseDecimal(_heightCtrl.text),
-      weight: _weightCtrl.text.isEmpty
-          ? null
-          : parseDecimal(_weightCtrl.text),
+      height: parseDecimal(_heightCtrl.text),
+      weight: parseDecimal(_weightCtrl.text),
       dateOfBirth: _dateOfBirth,
     );
 
-    final ok = await ref.read(profileControllerProvider.notifier).save(req);
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final error = await ref.read(profileControllerProvider.notifier).save(req);
     if (!mounted) return;
-    if (ok) {
-      setState(() => _editing = false);
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.profileSaved)));
-    }
+    if (error == null) setState(() => _editing = false);
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(error == null ? t.profileSaved : describeError(t, error))));
   }
 
   @override
@@ -95,22 +92,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     final profileAsync = ref.watch(profileControllerProvider);
     final isLoading = profileAsync.isLoading;
 
-    ref.listen(profileControllerProvider, (_, next) {
-      next.whenOrNull(
-        error: (err, _) {
-          final msg = describeError(t, err);
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(SnackBar(content: Text(msg)));
-        },
-      );
-    });
-
     return Scaffold(
       appBar: AppBar(
         title: Text(t.profile),
         actions: [
-          if (profileAsync.hasValue && profileAsync.value != null) ...[
+          if (profileAsync.hasValue) ...[
             if (_editing) ...[
               TextButton(
                 onPressed: isLoading
@@ -159,12 +145,6 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 onRetry: () => ref.read(profileControllerProvider.notifier).load(),
               ),
               data: (profile) {
-                if (profile == null) {
-                  return _ErrorView(
-                    message: t.profileLoadError,
-                    onRetry: () => ref.read(profileControllerProvider.notifier).load(),
-                  );
-                }
                 return _editing
                     ? _EditForm(
                         formKey: _formKey,
@@ -175,7 +155,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         weightCtrl: _weightCtrl,
                         gender: _gender,
                         dateOfBirth: _dateOfBirth,
-                        onGenderChanged: (g) => setState(() => _gender = g ?? Gender.notSpecified),
+                        onGenderChanged: (g) => setState(() => _gender = g),
                         onPickDate: _pickDate,
                         isLoading: isLoading,
                       )
@@ -372,7 +352,7 @@ class _EditForm extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<Gender>(
-                  value: gender ?? Gender.notSpecified,
+                  initialValue: gender,
                   decoration: InputDecoration(
                     labelText: t.gender,
                     prefixIcon: const Icon(Icons.wc),
@@ -408,7 +388,10 @@ class _EditForm extends StatelessWidget {
                   validator: (v) => validateOptionalNumber(t, v, min: 20, max: 500),
                 ),
                 const SizedBox(height: 12),
+                // Key = date: the field is rebuilt with the new value instead of
+                // creating a new TextEditingController on every build (leak).
                 TextFormField(
+                  key: ValueKey(dateOfBirth),
                   readOnly: true,
                   enabled: !isLoading,
                   onTap: onPickDate,
@@ -417,11 +400,9 @@ class _EditForm extends StatelessWidget {
                     prefixIcon: const Icon(Icons.cake_outlined),
                     suffixIcon: const Icon(Icons.calendar_today_outlined),
                   ),
-                  controller: TextEditingController(
-                    text: dateOfBirth != null
-                        ? DateFormat.yMMMd().format(dateOfBirth!)
-                        : '',
-                  ),
+                  initialValue: dateOfBirth != null
+                      ? DateFormat.yMMMd(Localizations.localeOf(context).toString()).format(dateOfBirth!)
+                      : '',
                 ),
                 const SizedBox(height: 24),
               ],

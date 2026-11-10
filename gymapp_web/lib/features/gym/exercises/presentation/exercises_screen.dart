@@ -5,6 +5,7 @@ import '../../../../core/errors/failure_messages.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../data/models/exercise.dart';
 import 'add_exercise_sheet.dart';
+import 'category_ui.dart';
 import 'exercise_detail_screen.dart';
 import 'exercises_providers.dart';
 
@@ -58,8 +59,8 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
     final notifier = ref.read(exercisesProvider.notifier);
 
     // Show error snackbar
-    ref.listen(exercisesProvider, (_, next) {
-      if (next.error != null) {
+    ref.listen(exercisesProvider, (prev, next) {
+      if (next.error != null && next.error != prev?.error) {
         final msg = describeError(t, next.error);
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
@@ -67,7 +68,7 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
       }
     });
 
-    final exercises = notifier.filtered;
+    final exercises = state.items;
 
     return Scaffold(
       appBar: AppBar(title: Text(t.exercises)),
@@ -193,7 +194,7 @@ class _CategoryChips extends StatelessWidget {
           ),
           for (final cat in ExerciseCategory.values)
             _Chip(
-              label: _categoryLabel(context, cat),
+              label: categoryLabel(context, cat),
               isSelected: selected == cat,
               onTap: () => onSelected(cat),
             ),
@@ -253,14 +254,14 @@ class _ExerciseTile extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Icon(
-            _categoryIcon(exercise.category),
+            categoryIcon(exercise.category),
             color: theme.colorScheme.onPrimaryContainer,
             size: 20,
           ),
         ),
         title: Text(exercise.name),
         subtitle: Text(
-          _categoryLabel(context, exercise.category),
+          categoryLabel(context, exercise.category),
           style: theme.textTheme.bodySmall,
         ),
         trailing: Row(
@@ -315,24 +316,3 @@ class _EmptyState extends StatelessWidget {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-String _categoryLabel(BuildContext context, ExerciseCategory cat) {
-  final t = AppLocalizations.of(context)!;
-  return switch (cat) {
-    ExerciseCategory.push => t.catPush,
-    ExerciseCategory.pull => t.catPull,
-    ExerciseCategory.legs => t.catLegs,
-    ExerciseCategory.core => t.catCore,
-    ExerciseCategory.cardio => t.catCardio,
-    ExerciseCategory.other => t.catOther,
-  };
-}
-
-IconData _categoryIcon(ExerciseCategory cat) => switch (cat) {
-      ExerciseCategory.push => Icons.arrow_upward,
-      ExerciseCategory.pull => Icons.arrow_downward,
-      ExerciseCategory.legs => Icons.directions_run,
-      ExerciseCategory.core => Icons.rotate_right,
-      ExerciseCategory.cardio => Icons.favorite_outline,
-      ExerciseCategory.other => Icons.fitness_center,
-    };
