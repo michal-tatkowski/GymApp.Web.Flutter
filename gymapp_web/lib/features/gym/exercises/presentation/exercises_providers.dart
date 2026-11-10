@@ -29,6 +29,7 @@ class ExercisesState {
     this.error,
     this.query = '',
     this.categoryFilter,
+    this.favoritesOnly = false,
   });
 
   final List<Exercise> items;
@@ -38,6 +39,9 @@ class ExercisesState {
   final Object? error;
   final String query;
   final ExerciseCategory? categoryFilter;
+
+  /// Only starred exercises (filtered on the server).
+  final bool favoritesOnly;
 
   ExercisesState copyWith({
     List<Exercise>? items,
@@ -49,6 +53,7 @@ class ExercisesState {
     String? query,
     ExerciseCategory? categoryFilter,
     bool clearCategory = false,
+    bool? favoritesOnly,
   }) =>
       ExercisesState(
         items: items ?? this.items,
@@ -58,6 +63,7 @@ class ExercisesState {
         error: clearError ? null : (error ?? this.error),
         query: query ?? this.query,
         categoryFilter: clearCategory ? null : (categoryFilter ?? this.categoryFilter),
+        favoritesOnly: favoritesOnly ?? this.favoritesOnly,
       );
 }
 
@@ -88,6 +94,7 @@ class ExercisesNotifier extends Notifier<ExercisesState> {
   Future<List<Exercise>> _fetch(int page) => _repo.getExercises(
         category: state.categoryFilter,
         search: state.query,
+        favoritesOnly: state.favoritesOnly,
         page: page,
         pageSize: exercisesPageSize,
       );
@@ -142,6 +149,39 @@ class ExercisesNotifier extends Notifier<ExercisesState> {
     if (cat == state.categoryFilter) return;
     state = state.copyWith(categoryFilter: cat, clearCategory: cat == null);
     await load();
+  }
+
+  Future<void> setFavoritesOnly(bool value) async {
+    if (value == state.favoritesOnly) return;
+    state = state.copyWith(favoritesOnly: value);
+    await load();
+  }
+
+  /// Stars / unstars an exercise. The star flips immediately; if the API call
+  /// fails it flips back and the Failure is rethrown for the caller to show.
+  /// The list is not re-sorted on the spot (no jumping rows) — favorites move
+  /// to the top on the next load. In "favorites only" mode an unstarred row
+  /// disappears right away.
+  Future<void> toggleFavorite(String exerciseId) async {
+    final current = state.items.where((e) => e.id == exerciseId).firstOrNull;
+    if (current == null) return;
+    final target = !current.isFavorite;
+
+    _replace(exerciseId, (e) => e.copyWith(isFavorite: target));
+    try {
+      await _repo.setFavorite(exerciseId, target);
+      if (ref.mounted && state.favoritesOnly && !target) {
+        state = state.copyWith(items: state.items.where((e) => e.id != exerciseId).toList());
+      }
+    } catch (_) {
+      if (ref.mounted) _replace(exerciseId, (e) => e.copyWith(isFavorite: !target));
+      rethrow;
+    }
+  }
+
+  void _replace(String id, Exercise Function(Exercise) update) {
+    if (!ref.mounted) return;
+    state = state.copyWith(items: [for (final e in state.items) e.id == id ? update(e) : e]);
   }
 
   /// Creates the exercise and shows it at the top when it matches the current filter.

@@ -181,6 +181,113 @@ class AppLocalizationsEn extends AppLocalizations {
   String get catOther => 'Other';
 
   @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from favorites';
+
+  @override
+  String get myWorkouts => 'My workouts';
+
+  @override
+  String get logWorkout => 'Log workout';
+
+  @override
+  String get editWorkout => 'Edit workout';
+
+  @override
+  String get workoutHistory => 'History';
+
+  @override
+  String get noWorkoutsYet =>
+      'No workouts yet. Open an exercise and tap \"Log workout\".';
+
+  @override
+  String get noEntriesForExercise => 'No workouts for this exercise yet.';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String get progressVolume => 'Volume (kg)';
+
+  @override
+  String get progressReps => 'Reps (bodyweight)';
+
+  @override
+  String get progressNeedsMoreDays =>
+      'Log at least two training days to see the trend.';
+
+  @override
+  String setNumber(int number) {
+    return 'Set $number';
+  }
+
+  @override
+  String get reps => 'Reps';
+
+  @override
+  String get weightKgShort => 'kg';
+
+  @override
+  String get addSet => 'Add set';
+
+  @override
+  String get removeSet => 'Remove set';
+
+  @override
+  String get notesOptional => 'Notes (optional)';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get workoutSaved => 'Workout saved';
+
+  @override
+  String get entryDeleted => 'Workout deleted';
+
+  @override
+  String get deleteEntryQuestion => 'Delete this workout?';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String lastWorkout(String date) {
+    return 'Last: $date';
+  }
+
+  @override
+  String trainingDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count training days',
+      one: '1 training day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String volumeValue(String value) {
+    return '$value kg';
+  }
+
+  @override
+  String bestValue(String value) {
+    return 'best $value';
+  }
+
+  @override
+  String repsValue(int count) {
+    return '$count reps';
+  }
+
+  @override
   String get emailRequired => 'Enter your email';
 
   @override

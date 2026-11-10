@@ -88,15 +88,29 @@ class FakeExerciseRepository extends ExerciseRepository {
   final queries = <({ExerciseCategory? category, String? search, int page})>[];
 
   @override
-  Future<List<Exercise>> getExercises({ExerciseCategory? category, String? search, int page = 1, int pageSize = 20}) async {
+  Future<List<Exercise>> getExercises({ExerciseCategory? category, String? search, bool favoritesOnly = false, int page = 1, int pageSize = 20}) async {
     queries.add((category: category, search: search, page: page));
     final q = (search ?? '').toLowerCase();
-    return exercises
+    // Like the API: favorites first, then the original order.
+    final sorted = [...exercises.where((e) => e.isFavorite), ...exercises.where((e) => !e.isFavorite)];
+    return sorted
         .where((e) => category == null || e.category == category)
         .where((e) => q.isEmpty || e.name.toLowerCase().contains(q))
+        .where((e) => !favoritesOnly || e.isFavorite)
         .skip((page - 1) * pageSize)
         .take(pageSize)
         .toList();
+  }
+
+  Object? favoriteError;
+  final favoriteCalls = <(String, bool)>[];
+
+  @override
+  Future<void> setFavorite(String exerciseId, bool favorite) async {
+    favoriteCalls.add((exerciseId, favorite));
+    if (favoriteError != null) throw favoriteError!;
+    final i = exercises.indexWhere((e) => e.id == exerciseId);
+    if (i >= 0) exercises[i] = exercises[i].copyWith(isFavorite: favorite);
   }
 
   @override

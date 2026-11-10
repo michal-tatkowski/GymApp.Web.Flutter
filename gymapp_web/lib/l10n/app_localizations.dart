@@ -440,6 +440,180 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get catOther;
 
+  /// No description provided for @favorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favorites;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get addToFavorites;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get removeFromFavorites;
+
+  /// No description provided for @myWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'My workouts'**
+  String get myWorkouts;
+
+  /// No description provided for @logWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log workout'**
+  String get logWorkout;
+
+  /// No description provided for @editWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit workout'**
+  String get editWorkout;
+
+  /// No description provided for @workoutHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get workoutHistory;
+
+  /// No description provided for @noWorkoutsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts yet. Open an exercise and tap \"Log workout\".'**
+  String get noWorkoutsYet;
+
+  /// No description provided for @noEntriesForExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts for this exercise yet.'**
+  String get noEntriesForExercise;
+
+  /// No description provided for @progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progress;
+
+  /// No description provided for @progressVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume (kg)'**
+  String get progressVolume;
+
+  /// No description provided for @progressReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps (bodyweight)'**
+  String get progressReps;
+
+  /// No description provided for @progressNeedsMoreDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Log at least two training days to see the trend.'**
+  String get progressNeedsMoreDays;
+
+  /// No description provided for @setNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {number}'**
+  String setNumber(int number);
+
+  /// No description provided for @reps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get reps;
+
+  /// No description provided for @weightKgShort.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get weightKgShort;
+
+  /// No description provided for @addSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add set'**
+  String get addSet;
+
+  /// No description provided for @removeSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove set'**
+  String get removeSet;
+
+  /// No description provided for @notesOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get notesOptional;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @workoutSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout saved'**
+  String get workoutSaved;
+
+  /// No description provided for @entryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout deleted'**
+  String get entryDeleted;
+
+  /// No description provided for @deleteEntryQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this workout?'**
+  String get deleteEntryQuestion;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @lastWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Last: {date}'**
+  String lastWorkout(String date);
+
+  /// No description provided for @trainingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 training day} other{{count} training days}}'**
+  String trainingDays(int count);
+
+  /// No description provided for @volumeValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} kg'**
+  String volumeValue(String value);
+
+  /// No description provided for @bestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'best {value}'**
+  String bestValue(String value);
+
+  /// No description provided for @repsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} reps'**
+  String repsValue(int count);
+
   /// No description provided for @emailRequired.
   ///
   /// In en, this message translates to:
