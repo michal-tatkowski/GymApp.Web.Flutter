@@ -55,8 +55,8 @@ class _WeeklyPlanScreenState extends State<WeeklyPlanScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  theme.colorScheme.primary.withOpacity(0.15),
-                  theme.colorScheme.secondary.withOpacity(0.10),
+                  theme.colorScheme.primary.withValues(alpha: 0.15),
+                  theme.colorScheme.secondary.withValues(alpha: 0.10),
                 ],
               ),
             ),
@@ -132,7 +132,7 @@ class _WeekHeader extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withOpacity(0.85),
+        color: theme.colorScheme.surface.withValues(alpha: 0.85),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Row(
@@ -201,7 +201,7 @@ class _DayTile extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: isToday
                       ? theme.colorScheme.primary
-                      : theme.colorScheme.primary.withOpacity(0.12),
+                      : theme.colorScheme.primary.withValues(alpha: 0.12),
                 ),
                 alignment: Alignment.center,
                 child: Text(
@@ -229,7 +229,7 @@ class _DayTile extends StatelessWidget {
                     Text(
                       dayDate,
                       style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.colorScheme.onSurface.withOpacity(0.6),
+                        color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
                     ),
                   ],
@@ -237,7 +237,7 @@ class _DayTile extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right,
-                color: theme.colorScheme.onSurface.withOpacity(0.4),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
               ),
             ],
           ),

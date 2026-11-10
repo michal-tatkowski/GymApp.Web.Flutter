@@ -1,6 +1,8 @@
 # Miscellaneous
 *.class
 *.lock
+# Aplikacja (nie biblioteka) — lockfile w repo, żeby CI i każdy dev budowali na tych samych wersjach.
+!gymapp_web/pubspec.lock
 *.log
 *.pyc
 *.swp

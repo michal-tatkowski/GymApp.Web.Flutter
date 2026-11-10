@@ -82,7 +82,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: theme.colorScheme.outline.withOpacity(0.4),
+                  color: theme.colorScheme.outline.withValues(alpha: 0.4),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -108,7 +108,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
             const SizedBox(height: 12),
             // ── Category ──────────────────────────────────────────────
             DropdownButtonFormField<ExerciseCategory>(
-              value: _category,
+              initialValue: _category,
               decoration: InputDecoration(
                 labelText: t.category,
                 prefixIcon: const Icon(Icons.category_outlined),

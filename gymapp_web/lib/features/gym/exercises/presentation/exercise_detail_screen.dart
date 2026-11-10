@@ -24,8 +24,8 @@ class ExerciseDetailScreen extends StatelessWidget {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  theme.colorScheme.primary.withOpacity(0.15),
-                  theme.colorScheme.secondary.withOpacity(0.10),
+                  theme.colorScheme.primary.withValues(alpha: 0.15),
+                  theme.colorScheme.secondary.withValues(alpha: 0.10),
                 ],
               ),
             ),
@@ -78,7 +78,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                             label: Text(t.customExercise),
                             backgroundColor:
                                 theme.colorScheme.primaryContainer
-                                    .withOpacity(0.5),
+                                    .withValues(alpha: 0.5),
                           ),
                         ),
                       ],
@@ -87,7 +87,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                       Text(
                         t.description,
                         style: theme.textTheme.labelLarge?.copyWith(
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
+                          color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -95,7 +95,7 @@ class ExerciseDetailScreen extends StatelessWidget {
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surface.withOpacity(0.85),
+                          color: theme.colorScheme.surface.withValues(alpha: 0.85),
                           borderRadius: BorderRadius.circular(14),
                         ),
                         child: Text(
