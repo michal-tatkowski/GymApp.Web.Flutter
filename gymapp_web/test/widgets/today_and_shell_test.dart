@@ -139,6 +139,29 @@ void main() {
       expect(find.byKey(const Key('exercise.openWorkouts')), findsOneWidget);
     });
 
+    testWidgets('Android Back: pops the tab stack, then goes to Today, then leaves the app', (tester) async {
+      await pumpApp(tester, const Size(400, 800));
+      Future<bool> systemBack() async {
+        final handled = await tester.binding.handlePopRoute();
+        await tester.pumpAndSettle();
+        return handled;
+      }
+
+      await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Exercises')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Barbell row'));
+      await tester.pumpAndSettle();
+
+      expect(await systemBack(), isTrue); // details -> list
+      expect(find.byKey(const Key('exercise.openWorkouts')), findsNothing);
+      expect(find.text('Barbell row'), findsOneWidget);
+
+      expect(await systemBack(), isTrue); // Exercises -> Today, app stays open
+      expect(find.text('Quick log'), findsOneWidget);
+
+      expect(await systemBack(), isFalse); // Today: Android closes the app
+    });
+
     testWidgets('wide screen: navigation rail instead of the bottom bar', (tester) async {
       await pumpApp(tester, const Size(1200, 800));
 

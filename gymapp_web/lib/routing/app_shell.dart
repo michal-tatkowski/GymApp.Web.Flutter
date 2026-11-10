@@ -22,7 +22,20 @@ class AppShell extends StatelessWidget {
   );
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) =>
+      // Android Back on another tab's first screen goes to Today instead of
+      // closing the app (Material navigation guidance). Back inside a tab's
+      // stack still pops that tab's screen first — go_router handles that
+      // before this scope is asked.
+      PopScope(
+        canPop: navigationShell.currentIndex == 0,
+        onPopInvokedWithResult: (didPop, _) {
+          if (!didPop) navigationShell.goBranch(0);
+        },
+        child: _layout(context),
+      );
+
+  Widget _layout(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final destinations = [
       (Icons.today_outlined, Icons.today, t.today),
