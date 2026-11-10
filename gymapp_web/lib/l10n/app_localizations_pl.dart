@@ -196,6 +196,86 @@ class AppLocalizationsPl extends AppLocalizations {
   String get today => 'Dziś';
 
   @override
+  String get metricVolume => 'Objętość';
+
+  @override
+  String get metricOneRepMax => '1RM';
+
+  @override
+  String get metricMaxWeight => 'Maks.';
+
+  @override
+  String get metricReps => 'Powt.';
+
+  @override
+  String get range1M => '1M';
+
+  @override
+  String get range3M => '3M';
+
+  @override
+  String get range1Y => '1R';
+
+  @override
+  String get rangeAll => 'Wszystko';
+
+  @override
+  String get personalRecord => '🏆 Rekord';
+
+  @override
+  String get newRecordVolume => '🏆 Nowy rekord: największa objętość!';
+
+  @override
+  String get newRecordOneRepMax =>
+      '🏆 Nowy rekord: najsilniej do tej pory (szac. 1RM)!';
+
+  @override
+  String chartSemantics(String metric, String first, String last, int days) {
+    return 'Wykres $metric: od $first do $last, $days dni treningowych';
+  }
+
+  @override
+  String get undo => 'Cofnij';
+
+  @override
+  String get close => 'Zamknij';
+
+  @override
+  String get off => 'Wył.';
+
+  @override
+  String repeatLast(String sets) {
+    return 'Powtórz ostatni: $sets';
+  }
+
+  @override
+  String get repeatLastShort => 'Powtórz ostatni trening';
+
+  @override
+  String decreaseBy(String step) {
+    return 'Zmniejsz o $step';
+  }
+
+  @override
+  String increaseBy(String step) {
+    return 'Zwiększ o $step';
+  }
+
+  @override
+  String get restTimer => 'Timer przerwy';
+
+  @override
+  String get restTimerHint => 'Startuje sam po zapisaniu treningu.';
+
+  @override
+  String restRemaining(String time) {
+    return 'Przerwa $time';
+  }
+
+  @override
+  String get restOver => 'Koniec przerwy — następna seria!';
+
+  @override
   String get quickLog => 'Szybki zapis';
 
   @override
@@ -231,12 +311,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get progress => 'Postęp';
 
   @override
-  String get progressVolume => 'Objętość (kg)';
-
-  @override
-  String get progressReps => 'Powtórzenia (masa ciała)';
-
-  @override
   String get progressNeedsMoreDays =>
       'Zapisz co najmniej dwa dni treningowe, żeby zobaczyć trend.';
 
@@ -268,9 +342,6 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get entryDeleted => 'Trening usunięty';
-
-  @override
-  String get deleteEntryQuestion => 'Usunąć ten trening?';
 
   @override
   String get delete => 'Usuń';

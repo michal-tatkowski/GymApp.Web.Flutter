@@ -196,6 +196,86 @@ class AppLocalizationsEn extends AppLocalizations {
   String get today => 'Today';
 
   @override
+  String get metricVolume => 'Volume';
+
+  @override
+  String get metricOneRepMax => '1RM';
+
+  @override
+  String get metricMaxWeight => 'Max';
+
+  @override
+  String get metricReps => 'Reps';
+
+  @override
+  String get range1M => '1M';
+
+  @override
+  String get range3M => '3M';
+
+  @override
+  String get range1Y => '1Y';
+
+  @override
+  String get rangeAll => 'All';
+
+  @override
+  String get personalRecord => '🏆 Personal record';
+
+  @override
+  String get newRecordVolume => '🏆 New record: best volume so far!';
+
+  @override
+  String get newRecordOneRepMax =>
+      '🏆 New record: strongest so far (est. 1RM)!';
+
+  @override
+  String chartSemantics(String metric, String first, String last, int days) {
+    return '$metric chart: from $first to $last over $days training days';
+  }
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get off => 'Off';
+
+  @override
+  String repeatLast(String sets) {
+    return 'Repeat last: $sets';
+  }
+
+  @override
+  String get repeatLastShort => 'Repeat last workout';
+
+  @override
+  String decreaseBy(String step) {
+    return 'Decrease by $step';
+  }
+
+  @override
+  String increaseBy(String step) {
+    return 'Increase by $step';
+  }
+
+  @override
+  String get restTimer => 'Rest timer';
+
+  @override
+  String get restTimerHint => 'Starts automatically after you log a workout.';
+
+  @override
+  String restRemaining(String time) {
+    return 'Rest $time';
+  }
+
+  @override
+  String get restOver => 'Rest is over — next set!';
+
+  @override
   String get quickLog => 'Quick log';
 
   @override
@@ -231,12 +311,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get progress => 'Progress';
 
   @override
-  String get progressVolume => 'Volume (kg)';
-
-  @override
-  String get progressReps => 'Reps (bodyweight)';
-
-  @override
   String get progressNeedsMoreDays =>
       'Log at least two training days to see the trend.';
 
@@ -268,9 +342,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get entryDeleted => 'Workout deleted';
-
-  @override
-  String get deleteEntryQuestion => 'Delete this workout?';
 
   @override
   String get delete => 'Delete';

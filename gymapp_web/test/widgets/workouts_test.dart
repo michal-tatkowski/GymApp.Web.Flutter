@@ -39,10 +39,11 @@ void main() {
     });
 
     expect(find.byKey(const Key('progress.chart')), findsOneWidget);
-    expect(find.text('1000 → 1200'), findsOneWidget);
+    expect(find.text('1200 kg'), findsWidgets); // latest value (big number) and newest history entry
+    expect(find.text('+20%'), findsOneWidget);
     expect(find.byIcon(Icons.trending_up), findsOneWidget);
-    expect(find.text('Volume (kg)'), findsOneWidget);
-    expect(find.text('1200 kg'), findsOneWidget); // newest entry on top of the history
+    expect(find.widgetWithText(SegmentedButton<ProgressMetric>, 'Volume'), findsOneWidget);
+    expect(find.text('1200 kg'), findsNWidgets(2)); // big number + newest history entry
   });
 
   testWidgets('empty log: hint instead of a chart, "Log workout" saves the first entry', (tester) async {
@@ -118,17 +119,55 @@ void main() {
     expect(find.text('12×100 kg'), findsOneWidget);
   });
 
-  testWidgets('delete asks for confirmation', (tester) async {
+  testWidgets('delete is immediate and can be undone', (tester) async {
     final repo = await pumpLog(tester, (r) => r.seed(bench, today, [const WorkoutSet(reps: 10, weight: 100)]));
 
     await tester.tap(find.byTooltip('Delete'));
     await tester.pumpAndSettle();
-    expect(find.text('Delete this workout?'), findsOneWidget);
-    await tester.tap(find.widgetWithText(FilledButton, 'Delete'));
-    await tester.pumpAndSettle();
 
+    expect(find.byType(AlertDialog), findsNothing); // no confirmation dialog
     expect(repo.entries[bench], isEmpty);
     expect(find.text('Workout deleted'), findsOneWidget);
+    expect(find.text('10×100 kg'), findsNothing);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+
+    expect(repo.entries[bench]!.single.sets, const [WorkoutSet(reps: 10, weight: 100)]);
+    expect(find.text('10×100 kg'), findsOneWidget);
+  });
+
+  testWidgets('"Repeat last" saves today in one tap and can be undone', (tester) async {
+    final repo = await pumpLog(tester,
+        (r) => r.seed(bench, today.subtract(const Duration(days: 1)), [const WorkoutSet(reps: 12, weight: 100)]));
+
+    expect(find.text('Repeat last: 12×100 kg'), findsOneWidget);
+    await tester.tap(find.byKey(const Key('workout.repeat')));
+    await tester.pumpAndSettle();
+
+    expect(repo.entries[bench]!.length, 2);
+    expect(repo.entries[bench]!.last.date, today);
+    expect(find.text('Workout saved'), findsOneWidget);
+
+    await tester.tap(find.text('Undo'));
+    await tester.pumpAndSettle();
+    expect(repo.entries[bench]!.length, 1);
+  });
+
+  testWidgets('−/+ change reps by 1 and weight by 2.5 kg', (tester) async {
+    await pumpLog(tester, (r) => r.seed(bench, today, [const WorkoutSet(reps: 10, weight: 100)]));
+
+    await tester.tap(find.byKey(const Key('workout.log')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Increase by 1').first);
+    await tester.tap(find.byTooltip('Increase by 2.5').first);
+    await tester.tap(find.byTooltip('Increase by 2.5').first);
+    await tester.tap(find.byTooltip('Decrease by 1').first);
+    await tester.tap(find.byTooltip('Decrease by 1').first);
+    await tester.pump();
+
+    expect(tester.widget<TextFormField>(find.byKey(const Key('workout.set0.reps'))).controller!.text, '9');
+    expect(tester.widget<TextFormField>(find.byKey(const Key('workout.set0.weight'))).controller!.text, '105');
   });
 
   testWidgets('bodyweight exercise charts reps', (tester) async {
@@ -137,8 +176,10 @@ void main() {
       r.seed(bench, today, [const WorkoutSet(reps: 25, weight: 0)]);
     });
 
-    expect(find.text('Reps (bodyweight)'), findsOneWidget);
-    expect(find.text('20 → 25'), findsOneWidget);
+    expect(find.byKey(const Key('progress.metric')), findsNothing); // reps is the only metric
+    expect(find.byKey(const Key('progress.value')), findsOneWidget);
+    expect(tester.widget<Text>(find.byKey(const Key('progress.value'))).data, '25');
+    expect(find.text('+25%'), findsOneWidget);
     expect(find.text('25 reps'), findsOneWidget);
   });
 
