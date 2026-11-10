@@ -28,6 +28,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Gender _gender = Gender.notSpecified;
   DateTime? _dateOfBirth;
   bool _editing = false;
+  bool _saving = false;
 
   @override
   void dispose() {
@@ -78,7 +79,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
 
     final t = AppLocalizations.of(context)!;
     final messenger = ScaffoldMessenger.of(context);
+    setState(() => _saving = true);
     final error = await ref.read(profileControllerProvider.notifier).save(req);
+    if (mounted) setState(() => _saving = false);
     if (!mounted) return;
     if (error == null) setState(() => _editing = false);
     messenger
@@ -90,7 +93,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final profileAsync = ref.watch(profileControllerProvider);
-    final isLoading = profileAsync.isLoading;
+    final isLoading = profileAsync.isLoading || _saving;
 
     return Scaffold(
       appBar: AppBar(

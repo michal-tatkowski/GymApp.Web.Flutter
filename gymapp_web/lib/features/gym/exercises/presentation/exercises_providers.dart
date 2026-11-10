@@ -68,18 +68,22 @@ const searchDebounce = Duration(milliseconds: 300);
 
 /// Paged exercise list. Search and category filter are applied by the API,
 /// so "load more" continues the same filtered list.
-class ExercisesNotifier extends StateNotifier<ExercisesState> {
-  ExercisesNotifier(this._repo) : super(const ExercisesState()) {
-    load();
-  }
-
-  final ExerciseRepository _repo;
+class ExercisesNotifier extends Notifier<ExercisesState> {
+  late ExerciseRepository _repo;
   int _page = 1;
   Timer? _debounce;
 
   /// Incremented on every new query — responses for an older query are dropped,
   /// so a slow "push" response cannot overwrite a newer "pull" list.
   int _generation = 0;
+
+  @override
+  ExercisesState build() {
+    _repo = ref.watch(exerciseRepositoryProvider);
+    ref.onDispose(() => _debounce?.cancel());
+    Future.microtask(load);
+    return const ExercisesState(isLoading: true);
+  }
 
   Future<List<Exercise>> _fetch(int page) => _repo.getExercises(
         category: state.categoryFilter,
@@ -94,14 +98,14 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
     state = state.copyWith(isLoading: true, isLoadingMore: false, hasMore: true, clearError: true);
     try {
       final items = await _fetch(1);
-      if (generation != _generation || !mounted) return;
+      if (generation != _generation || !ref.mounted) return;
       state = state.copyWith(
         items: items,
         isLoading: false,
         hasMore: items.length >= exercisesPageSize,
       );
     } catch (e) {
-      if (generation != _generation || !mounted) return;
+      if (generation != _generation || !ref.mounted) return;
       state = state.copyWith(items: const [], isLoading: false, error: e);
     }
   }
@@ -112,7 +116,7 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
     state = state.copyWith(isLoadingMore: true, clearError: true);
     try {
       final more = await _fetch(_page + 1);
-      if (generation != _generation || !mounted) return;
+      if (generation != _generation || !ref.mounted) return;
       _page++;
       final known = state.items.map((e) => e.id).toSet();
       state = state.copyWith(
@@ -121,7 +125,7 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
         hasMore: more.length >= exercisesPageSize,
       );
     } catch (e) {
-      if (generation != _generation || !mounted) return;
+      if (generation != _generation || !ref.mounted) return;
       state = state.copyWith(isLoadingMore: false, error: e);
     }
   }
@@ -148,20 +152,12 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
     final query = state.query.trim().toLowerCase();
     final matches = (filter == null || filter == created.category) &&
         (query.isEmpty || created.name.toLowerCase().contains(query));
-    if (matches && mounted) {
+    if (matches && ref.mounted) {
       state = state.copyWith(items: [created, ...state.items.where((e) => e.id != created.id)]);
     }
     return created;
   }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
-  }
 }
 
 final exercisesProvider =
-    StateNotifierProvider.autoDispose<ExercisesNotifier, ExercisesState>(
-  (ref) => ExercisesNotifier(ref.watch(exerciseRepositoryProvider)),
-);
+    NotifierProvider.autoDispose<ExercisesNotifier, ExercisesState>(ExercisesNotifier.new);
