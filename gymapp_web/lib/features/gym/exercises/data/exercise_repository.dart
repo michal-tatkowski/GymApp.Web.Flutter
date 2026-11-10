@@ -6,24 +6,26 @@ import 'exercise_api.dart';
 import 'models/create_exercise_request.dart';
 import 'models/exercise.dart';
 
+/// Throws [Failure] subclasses — never raw Dio exceptions.
 class ExerciseRepository {
   ExerciseRepository({required this.api});
 
   final ExerciseApi api;
 
   Future<List<Exercise>> getExercises({
-    String? category,
+    ExerciseCategory? category,
+    String? search,
     int page = 1,
     int pageSize = 20,
   }) async {
     try {
-      return await api.getExercises(
-        category: category,
-        page: page,
-        pageSize: pageSize,
-      );
+      return await api.getExercises(category: category, search: search, page: page, pageSize: pageSize);
     } on DioException catch (e) {
       throw mapDioErrorToFailure(e);
+    } on FormatException {
+      throw const ServerFailure();
+    } on TypeError {
+      throw const ServerFailure();
     }
   }
 
@@ -33,6 +35,8 @@ class ExerciseRepository {
     } on DioException catch (e) {
       throw mapDioErrorToFailure(e);
     } on FormatException {
+      throw const ServerFailure();
+    } on TypeError {
       throw const ServerFailure();
     }
   }

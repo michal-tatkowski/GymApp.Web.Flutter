@@ -16,9 +16,10 @@ class AppConfig {
   /// Request/receive timeout for HTTP calls.
   static const Duration httpTimeout = Duration(seconds: 15);
 
-  /// Whether to log full request/response bodies. Disable in production.
+  /// Whether to log requests (method, URL, status). On by default in debug/profile,
+  /// off in release builds; override with --dart-define=ENABLE_NETWORK_LOGS=true|false.
   static const bool enableNetworkLogs = bool.fromEnvironment(
     'ENABLE_NETWORK_LOGS',
-    defaultValue: true,
+    defaultValue: !bool.fromEnvironment('dart.vm.product'),
   );
 }
