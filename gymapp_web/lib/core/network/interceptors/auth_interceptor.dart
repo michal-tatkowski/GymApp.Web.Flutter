@@ -10,12 +10,21 @@ import '../../logging/app_logger.dart';
 ///
 /// Contract:
 ///  - [tokenStorage] persists and retrieves access/refresh tokens.
-///  - [refreshTokenCall] is a callback that POSTs the refresh token to the
-///    backend and returns the new access token (or throws on failure).
-///  - [onAuthFailure] is invoked when refresh fails (sign the user out).
+///  - [refreshTokenCall] POSTs the refresh token to the backend, stores the new
+///    pair and returns the new access token (or throws on failure).
+///  - [onAuthFailure] is invoked when the session is definitely gone
+///    (the server rejected the refresh token) — sign the user out.
 ///
-/// The interceptor is decoupled from the repository layer to keep the core/
-/// layer free of auth feature imports other than the token storage.
+/// Rules:
+///  - Requests marked with [AuthOptions.skipAuth] (login, register, refresh,
+///    logout) never get a token and never trigger a refresh — a 401 from login
+///    means "wrong password", not "session expired".
+///  - A request is retried at most once ([_retriedKey]), so a server that keeps
+///    answering 401 cannot cause an endless refresh loop.
+///  - Concurrent 401s share one refresh call. A 401 for a token that has
+///    already been replaced is simply retried with the current token — the old
+///    refresh token was rotated by the API and would be rejected.
+///  - Network/server errors during refresh do NOT sign the user out.
 class AuthInterceptor extends Interceptor {
   AuthInterceptor({
     required this.tokenStorage,
@@ -29,22 +38,23 @@ class AuthInterceptor extends Interceptor {
   final Future<void> Function() onAuthFailure;
   final Dio dio;
 
-  // Serialize refresh attempts — if many requests 401 at once, only refresh once.
   Completer<String>? _refreshCompleter;
 
-  static const _skipAuthHeader = 'x-skip-auth';
+  static const skipAuthKey = 'skipAuth';
+  static const _retriedKey = 'authRetried';
+  static const _sentTokenKey = 'authSentToken';
 
   @override
   Future<void> onRequest(
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    if (options.headers.remove(_skipAuthHeader) != null) {
-      return handler.next(options);
-    }
+    if (options.extra[skipAuthKey] == true) return handler.next(options);
+
     final token = await tokenStorage.getAccessToken();
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
+      options.extra[_sentTokenKey] = token;
     }
     handler.next(options);
   }
@@ -54,29 +64,46 @@ class AuthInterceptor extends Interceptor {
     DioException err,
     ErrorInterceptorHandler handler,
   ) async {
-    final statusCode = err.response?.statusCode;
-    final requestPath = err.requestOptions.path;
-    final isRefreshCall = requestPath.contains('Auth/Refresh');
-
-    if (statusCode != 401 || isRefreshCall) {
-      return handler.next(err);
-    }
-
-    final refreshToken = await tokenStorage.getRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty) {
-      await onAuthFailure();
+    final options = err.requestOptions;
+    if (err.response?.statusCode != 401 ||
+        options.extra[skipAuthKey] == true ||
+        options.extra[_retriedKey] == true) {
       return handler.next(err);
     }
 
     try {
-      final newAccessToken = await _refreshAccessToken(refreshToken);
-      final retryOptions = err.requestOptions;
-      retryOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-      final response = await dio.fetch<dynamic>(retryOptions);
-      return handler.resolve(response);
-    } catch (refreshError, st) {
-      log.e('Token refresh failed', error: refreshError, stackTrace: st);
-      await onAuthFailure();
+      final sentToken = options.extra[_sentTokenKey] as String?;
+      final currentToken = await tokenStorage.getAccessToken();
+
+      // Someone else already refreshed while this request was in flight.
+      final String newAccessToken;
+      if (currentToken != null && currentToken.isNotEmpty && currentToken != sentToken) {
+        newAccessToken = currentToken;
+      } else {
+        final refreshToken = await tokenStorage.getRefreshToken();
+        if (refreshToken == null || refreshToken.isEmpty) {
+          await onAuthFailure();
+          return handler.next(err);
+        }
+        newAccessToken = await _refreshAccessToken(refreshToken);
+      }
+
+      options.extra[_retriedKey] = true;
+      options.headers['Authorization'] = 'Bearer $newAccessToken';
+      options.extra[_sentTokenKey] = newAccessToken;
+      return handler.resolve(await dio.fetch<dynamic>(options));
+    } on DioException catch (refreshOrRetryError, st) {
+      final refreshRejected = refreshOrRetryError.requestOptions.extra[skipAuthKey] == true &&
+          const [400, 401, 403].contains(refreshOrRetryError.response?.statusCode);
+      if (refreshRejected) {
+        log.w('Refresh token rejected — signing out');
+        await onAuthFailure();
+        return handler.next(err);
+      }
+      log.e('Token refresh / retry failed', error: refreshOrRetryError, stackTrace: st);
+      return handler.next(refreshOrRetryError);
+    } catch (e, st) {
+      log.e('Token refresh failed', error: e, stackTrace: st);
       return handler.next(err);
     }
   }
@@ -89,7 +116,7 @@ class AuthInterceptor extends Interceptor {
     _refreshCompleter = completer;
 
     refreshTokenCall(refreshToken)
-        .then((token) => completer.complete(token))
+        .then(completer.complete)
         .catchError((Object e, StackTrace s) => completer.completeError(e, s))
         .whenComplete(() => _refreshCompleter = null);
 
@@ -97,11 +124,11 @@ class AuthInterceptor extends Interceptor {
   }
 }
 
-/// Helper to mark a request as not requiring auth (e.g., login, register).
+/// Helper to mark a request as not requiring auth (login, register, refresh, logout).
 extension AuthOptions on Options {
   static Options skipAuth([Options? base]) {
-    final headers = Map<String, dynamic>.from(base?.headers ?? {});
-    headers['x-skip-auth'] = true;
-    return (base ?? Options()).copyWith(headers: headers);
+    final extra = Map<String, dynamic>.from(base?.extra ?? {});
+    extra[AuthInterceptor.skipAuthKey] = true;
+    return (base ?? Options()).copyWith(extra: extra);
   }
 }

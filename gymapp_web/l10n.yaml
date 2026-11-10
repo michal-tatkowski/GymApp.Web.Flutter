@@ -1,0 +1,10 @@
+# Źródłem tekstów są pliki .arb w lib/l10n — NIE edytuj ręcznie app_localizations*.dart.
+# Po zmianie .arb: `flutter gen-l10n` (albo zwykłe `flutter run` / `flutter test`, bo pubspec ma generate: true).
+arb-dir: lib/l10n
+template-arb-file: app_en.arb
+output-dir: lib/l10n
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+# Klucze brakujące w app_pl.arb (polski pokazałby wtedy tekst angielski) lądują w tym pliku —
+# test/l10n/arb_consistency_test.dart pilnuje, żeby oba pliki miały te same klucze.
+untranslated-messages-file: build/untranslated_messages.json

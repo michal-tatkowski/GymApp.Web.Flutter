@@ -16,8 +16,8 @@ class ProfileRepository {
       return await api.getProfile();
     } on DioException catch (e) {
       throw mapDioErrorToFailure(e);
-    } on FormatException catch (e) {
-      throw ServerFailure(e.message);
+    } on FormatException {
+      throw const ServerFailure();
     }
   }
 
@@ -26,8 +26,8 @@ class ProfileRepository {
       return await api.updateProfile(req);
     } on DioException catch (e) {
       throw mapDioErrorToFailure(e);
-    } on FormatException catch (e) {
-      throw ServerFailure(e.message);
+    } on FormatException {
+      throw const ServerFailure();
     }
   }
 }

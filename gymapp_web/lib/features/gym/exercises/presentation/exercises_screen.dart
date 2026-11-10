@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/failure_messages.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../data/models/exercise.dart';
 import 'add_exercise_sheet.dart';
+import 'category_ui.dart';
 import 'exercise_detail_screen.dart';
 import 'exercises_providers.dart';
 
@@ -58,18 +59,16 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
     final notifier = ref.read(exercisesProvider.notifier);
 
     // Show error snackbar
-    ref.listen(exercisesProvider, (_, next) {
-      if (next.error != null) {
-        final msg = next.error is Failure
-            ? (next.error as Failure).message
-            : next.error.toString();
+    ref.listen(exercisesProvider, (prev, next) {
+      if (next.error != null && next.error != prev?.error) {
+        final msg = describeError(t, next.error);
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(SnackBar(content: Text(msg)));
       }
     });
 
-    final exercises = notifier.filtered;
+    final exercises = state.items;
 
     return Scaffold(
       appBar: AppBar(title: Text(t.exercises)),
@@ -86,8 +85,8 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.10),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.10),
                 ],
               ),
             ),
@@ -195,7 +194,7 @@ class _CategoryChips extends StatelessWidget {
           ),
           for (final cat in ExerciseCategory.values)
             _Chip(
-              label: _categoryLabel(context, cat),
+              label: categoryLabel(context, cat),
               isSelected: selected == cat,
               onTap: () => onSelected(cat),
             ),
@@ -255,14 +254,14 @@ class _ExerciseTile extends StatelessWidget {
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
           child: Icon(
-            _categoryIcon(exercise.category),
+            categoryIcon(exercise.category),
             color: theme.colorScheme.onPrimaryContainer,
             size: 20,
           ),
         ),
         title: Text(exercise.name),
         subtitle: Text(
-          _categoryLabel(context, exercise.category),
+          categoryLabel(context, exercise.category),
           style: theme.textTheme.bodySmall,
         ),
         trailing: Row(
@@ -273,7 +272,7 @@ class _ExerciseTile extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4),
                 child: Icon(Icons.person_outline,
                     size: 16,
-                    color: theme.colorScheme.primary.withOpacity(0.7)),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.7)),
               ),
             const Icon(Icons.chevron_right),
           ],
@@ -301,7 +300,7 @@ class _EmptyState extends StatelessWidget {
         children: [
           Icon(Icons.fitness_center,
               size: 64,
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.5)),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
           const SizedBox(height: 12),
           Text(t.noExercisesFound),
           const SizedBox(height: 16),
@@ -317,24 +316,3 @@ class _EmptyState extends StatelessWidget {
 }
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
-
-String _categoryLabel(BuildContext context, ExerciseCategory cat) {
-  final t = AppLocalizations.of(context)!;
-  return switch (cat) {
-    ExerciseCategory.push => t.catPush,
-    ExerciseCategory.pull => t.catPull,
-    ExerciseCategory.legs => t.catLegs,
-    ExerciseCategory.core => t.catCore,
-    ExerciseCategory.cardio => t.catCardio,
-    ExerciseCategory.other => t.catOther,
-  };
-}
-
-IconData _categoryIcon(ExerciseCategory cat) => switch (cat) {
-      ExerciseCategory.push => Icons.arrow_upward,
-      ExerciseCategory.pull => Icons.arrow_downward,
-      ExerciseCategory.legs => Icons.directions_run,
-      ExerciseCategory.core => Icons.rotate_right,
-      ExerciseCategory.cardio => Icons.favorite_outline,
-      ExerciseCategory.other => Icons.fitness_center,
-    };

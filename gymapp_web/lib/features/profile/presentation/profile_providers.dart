@@ -15,33 +15,31 @@ final profileRepositoryProvider = Provider<ProfileRepository>(
 );
 
 final profileControllerProvider =
-    AsyncNotifierProvider<ProfileController, UserProfile?>(ProfileController.new);
+    AsyncNotifierProvider<ProfileController, UserProfile>(ProfileController.new);
 
-class ProfileController extends AsyncNotifier<UserProfile?> {
+/// Errors are not swallowed: a failed load is an AsyncError with the real
+/// Failure (network, 401, 404…), so the screen can say what went wrong.
+class ProfileController extends AsyncNotifier<UserProfile> {
   @override
-  Future<UserProfile?> build() async {
-    return _fetch();
-  }
-
-  Future<UserProfile?> _fetch() async {
-    try {
-      return await ref.read(profileRepositoryProvider).getProfile();
-    } catch (_) {
-      return null;
-    }
-  }
+  Future<UserProfile> build() => ref.read(profileRepositoryProvider).getProfile();
 
   Future<void> load() async {
     state = const AsyncLoading();
-    state = await AsyncValue.guard(() => _fetch());
+    state = await AsyncValue.guard(() => ref.read(profileRepositoryProvider).getProfile());
   }
 
-  Future<bool> save(UpdateProfileRequest req) async {
-    state = const AsyncLoading();
-    final result = await AsyncValue.guard(
-      () => ref.read(profileRepositoryProvider).updateProfile(req),
-    );
-    state = result;
-    return result.hasValue && result.value != null;
+  /// Returns null on success, the error otherwise. On failure the previous
+  /// profile stays in the state, so the edit form is not replaced by an error view.
+  Future<Object?> save(UpdateProfileRequest req) async {
+    final previous = state;
+    state = const AsyncLoading<UserProfile>().copyWithPrevious(previous);
+    try {
+      final updated = await ref.read(profileRepositoryProvider).updateProfile(req);
+      state = AsyncData(updated);
+      return null;
+    } catch (e) {
+      state = previous;
+      return e;
+    }
   }
 }

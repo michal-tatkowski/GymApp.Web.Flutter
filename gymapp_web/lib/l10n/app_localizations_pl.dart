@@ -120,7 +120,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get charts => 'Wykresy';
 
   @override
-  String get workouts => 'Ćwiczenia';
+  String get workouts => 'Treningi';
 
   @override
   String get exercises => 'Ćwiczenia';
@@ -178,4 +178,92 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get catOther => 'Inne';
+
+  @override
+  String get emailRequired => 'Podaj e-mail';
+
+  @override
+  String get emailInvalid => 'Nieprawidłowy format e-mail';
+
+  @override
+  String get passwordRequired => 'Podaj hasło';
+
+  @override
+  String passwordTooShort(int min) {
+    return 'Hasło musi mieć co najmniej $min znaków';
+  }
+
+  @override
+  String get registerTitle => 'Rejestracja';
+
+  @override
+  String get registering => 'Rejestrowanie…';
+
+  @override
+  String get accountCreated => 'Konto utworzone. Zaloguj się.';
+
+  @override
+  String get darkTheme => 'Ciemny motyw';
+
+  @override
+  String get language => 'Język';
+
+  @override
+  String get previousWeek => 'Poprzedni tydzień';
+
+  @override
+  String get nextWeek => 'Następny tydzień';
+
+  @override
+  String get invalidNumber => 'Nieprawidłowa liczba';
+
+  @override
+  String numberOutOfRange(int min, int max) {
+    return 'Podaj wartość od $min do $max';
+  }
+
+  @override
+  String get heightWithUnit => 'Wzrost (cm)';
+
+  @override
+  String get weightWithUnit => 'Waga (kg)';
+
+  @override
+  String get errNetwork => 'Brak połączenia z internetem.';
+
+  @override
+  String get errTimeout => 'Serwer nie odpowiada.';
+
+  @override
+  String get errSessionExpired => 'Sesja wygasła, zaloguj się ponownie.';
+
+  @override
+  String get errBadCertificate => 'Nieprawidłowy certyfikat serwera.';
+
+  @override
+  String get errCancelled => 'Żądanie zostało anulowane.';
+
+  @override
+  String get errValidation => 'Nieprawidłowe dane.';
+
+  @override
+  String errServer(int status) {
+    return 'Błąd serwera ($status).';
+  }
+
+  @override
+  String get errForbidden => 'Nie masz do tego dostępu.';
+
+  @override
+  String get errNotFound => 'Nie znaleziono.';
+
+  @override
+  String get errConflict => 'To już istnieje.';
+
+  @override
+  String get errTooManyRequests =>
+      'Zbyt wiele prób. Odczekaj minutę i spróbuj ponownie.';
+
+  @override
+  String get errUnknown => 'Wystąpił nieoczekiwany błąd.';
 }

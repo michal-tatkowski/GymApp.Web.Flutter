@@ -26,8 +26,8 @@ class AuthRepository {
       await storage.saveTokens(tokens, rememberMe: rememberMe);
     } on DioException catch (e) {
       throw mapDioErrorToFailure(e);
-    } on FormatException catch (e) {
-      throw ServerFailure(e.message);
+    } on FormatException {
+      throw const ServerFailure();
     }
   }
 
@@ -40,7 +40,7 @@ class AuthRepository {
   }
 
   Future<void> logout() async {
-    await api.logout();
+    await api.logout(await storage.getRefreshToken());
     await storage.clear();
   }
 

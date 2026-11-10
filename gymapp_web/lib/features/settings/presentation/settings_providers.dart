@@ -1,3 +1,5 @@
+import 'dart:ui' show PlatformDispatcher;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,8 +43,17 @@ final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>(
   (ref) => LocaleNotifier(),
 );
 
+const supportedLanguageCodes = ['en', 'pl'];
+
+/// Language of the device if the app supports it, English otherwise.
+/// Used until the user picks a language in Settings.
+Locale deviceLocale([String? deviceLanguageCode]) {
+  final code = deviceLanguageCode ?? PlatformDispatcher.instance.locale.languageCode;
+  return Locale(supportedLanguageCodes.contains(code) ? code : 'en');
+}
+
 class LocaleNotifier extends StateNotifier<Locale> {
-  LocaleNotifier() : super(const Locale('en')) {
+  LocaleNotifier() : super(deviceLocale()) {
     _restore();
   }
 
