@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/validation/validators.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
 import '../auth_providers.dart';
@@ -47,7 +48,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen(authControllerProvider, (prev, next) {
       next.whenOrNull(
         error: (err, _) {
-          final msg = err is Failure ? err.message : err.toString();
+          final msg = describeError(t, err);
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(msg)));
@@ -76,7 +77,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       labelText: t.email,
                       prefixIcon: const Icon(Icons.alternate_email),
                     ),
-                    validator: _validateEmail,
+                    validator: (v) => validateEmail(t, v),
                   ),
                   const SizedBox(height: 12),
                   TextFormField(
@@ -91,7 +92,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
                       ),
                     ),
-                    validator: (v) => (v == null || v.isEmpty) ? 'Podaj hasło' : null,
+                    validator: (v) => validatePassword(t, v),
                   ),
                   const SizedBox(height: 8),
                   Row(
@@ -141,10 +142,3 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 }
 
-String? _validateEmail(String? v) {
-  final value = (v ?? '').trim();
-  if (value.isEmpty) return 'Podaj e-mail';
-  final re = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-  if (!re.hasMatch(value)) return 'Nieprawidłowy format e-mail';
-  return null;
-}

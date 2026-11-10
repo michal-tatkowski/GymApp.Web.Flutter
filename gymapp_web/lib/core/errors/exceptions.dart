@@ -20,6 +20,7 @@ class ApiException implements Exception {
 }
 
 /// Converts any Dio error into a domain [Failure].
+/// User-facing texts live in l10n (`describeError`), not here.
 Failure mapDioErrorToFailure(DioException error) {
   switch (error.type) {
     case DioExceptionType.connectionTimeout:
@@ -29,23 +30,17 @@ Failure mapDioErrorToFailure(DioException error) {
     case DioExceptionType.connectionError:
       return const NetworkFailure();
     case DioExceptionType.cancel:
-      return const UnknownFailure('Żądanie zostało anulowane.');
+      return const CancelledFailure();
     case DioExceptionType.badCertificate:
-      return const NetworkFailure('Nieprawidłowy certyfikat serwera.');
+      return const BadCertificateFailure();
     case DioExceptionType.badResponse:
       final status = error.response?.statusCode ?? -1;
-      final data = error.response?.data;
-      final serverMessage = _extractMessage(data);
-      if (status == 401) return UnauthorizedFailure(serverMessage ?? 'Sesja wygasła.');
-      if (status == 422 || status == 400) {
-        return ValidationFailure(serverMessage ?? 'Nieprawidłowe dane.');
-      }
-      return ServerFailure(
-        serverMessage ?? 'Błąd serwera ($status).',
-        statusCode: status,
-      );
+      final serverMessage = _extractMessage(error.response?.data);
+      if (status == 401) return UnauthorizedFailure(serverMessage);
+      if (status == 422 || status == 400) return ValidationFailure(serverMessage);
+      return ServerFailure(serverMessage, status);
     case DioExceptionType.unknown:
-      return UnknownFailure(error.message ?? 'Nieoczekiwany błąd.');
+      return const UnknownFailure();
   }
 }
 

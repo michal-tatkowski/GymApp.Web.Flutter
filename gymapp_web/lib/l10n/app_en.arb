@@ -10,7 +10,6 @@
   "forgotPassword": "Forgot password?",
   "or": "or",
   "rememberMe": "Remember me",
-  
   "gym": "Gym",
   "settings": "Settings",
   "home": "Home",
@@ -18,12 +17,85 @@
   "notifications": "Notifications",
   "info": "Info",
   "social": "Social",
-  
   "nickname": "Nickname",
   "firstName": "First name",
   "lastName": "Last name",
   "gender": "Gender",
   "height": "Height",
   "weight": "Weight",
-  "dateOfBirth": "Date of birth"
+  "dateOfBirth": "Date of birth",
+  "save": "Save",
+  "cancel": "Cancel",
+  "edit": "Edit",
+  "male": "Male",
+  "female": "Female",
+  "other": "Other",
+  "notSpecified": "Not specified",
+  "retry": "Try again",
+  "profileSaved": "Profile saved",
+  "profileLoadError": "Failed to load profile",
+  "bmi": "BMI",
+  "weeklyPlan": "Weekly plan",
+  "charts": "Charts",
+  "workouts": "Workouts",
+  "exercises": "Exercises",
+  "searchExercises": "Search exercises",
+  "addExercise": "Add exercise",
+  "exerciseName": "Exercise name",
+  "category": "Category",
+  "description": "Description",
+  "descriptionOptional": "Description (optional)",
+  "noExercisesFound": "No exercises found",
+  "exerciseAdded": "Exercise added",
+  "customExercise": "Custom",
+  "noDescription": "No description",
+  "allCategories": "All",
+  "fieldRequired": "This field is required",
+  "catPush": "Push",
+  "catPull": "Pull",
+  "catLegs": "Legs",
+  "catCore": "Core",
+  "catCardio": "Cardio",
+  "catOther": "Other",
+
+  "emailRequired": "Enter your email",
+  "emailInvalid": "Invalid email format",
+  "passwordRequired": "Enter your password",
+  "passwordTooShort": "Password must be at least {min} characters long",
+  "@passwordTooShort": {
+    "placeholders": {
+      "min": { "type": "int" }
+    }
+  },
+  "registerTitle": "Create account",
+  "registering": "Creating account…",
+  "accountCreated": "Account created. You can log in now.",
+  "darkTheme": "Dark theme",
+  "language": "Language",
+  "previousWeek": "Previous week",
+  "nextWeek": "Next week",
+  "invalidNumber": "Invalid number",
+  "numberOutOfRange": "Enter a value between {min} and {max}",
+  "@numberOutOfRange": {
+    "placeholders": {
+      "min": { "type": "int" },
+      "max": { "type": "int" }
+    }
+  },
+  "heightWithUnit": "Height (cm)",
+  "weightWithUnit": "Weight (kg)",
+
+  "errNetwork": "No internet connection.",
+  "errTimeout": "The server is not responding.",
+  "errSessionExpired": "Your session has expired, please log in again.",
+  "errBadCertificate": "Invalid server certificate.",
+  "errCancelled": "The request was cancelled.",
+  "errValidation": "Invalid data.",
+  "errServer": "Server error ({status}).",
+  "@errServer": {
+    "placeholders": {
+      "status": { "type": "int" }
+    }
+  },
+  "errUnknown": "An unexpected error occurred."
 }

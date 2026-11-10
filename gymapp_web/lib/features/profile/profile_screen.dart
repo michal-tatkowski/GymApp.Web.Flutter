@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../core/errors/failure.dart';
+import '../../core/errors/failure_messages.dart';
+import '../../core/validation/validators.dart';
 import '../../l10n/app_localizations.dart';
 import 'data/models/update_profile_request.dart';
 import 'data/models/user_profile.dart';
@@ -71,10 +72,10 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
       gender: _gender,
       height: _heightCtrl.text.isEmpty
           ? null
-          : double.tryParse(_heightCtrl.text.replaceAll(',', '.')),
+          : parseDecimal(_heightCtrl.text),
       weight: _weightCtrl.text.isEmpty
           ? null
-          : double.tryParse(_weightCtrl.text.replaceAll(',', '.')),
+          : parseDecimal(_weightCtrl.text),
       dateOfBirth: _dateOfBirth,
     );
 
@@ -97,7 +98,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     ref.listen(profileControllerProvider, (_, next) {
       next.whenOrNull(
         error: (err, _) {
-          final msg = err is Failure ? err.message : err.toString();
+          final msg = describeError(t, err);
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(msg)));
@@ -154,7 +155,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             child: profileAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (err, _) => _ErrorView(
-                message: err is Failure ? err.message : err.toString(),
+                message: describeError(t, err),
                 onRetry: () => ref.read(profileControllerProvider.notifier).load(),
               ),
               data: (profile) {
@@ -390,10 +391,10 @@ class _EditForm extends StatelessWidget {
                   enabled: !isLoading,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
-                    labelText: '${t.height} (cm)',
+                    labelText: t.heightWithUnit,
                     prefixIcon: const Icon(Icons.height),
                   ),
-                  validator: _validatePositiveDecimal,
+                  validator: (v) => validateOptionalNumber(t, v, min: 50, max: 272),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -401,10 +402,10 @@ class _EditForm extends StatelessWidget {
                   enabled: !isLoading,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
-                    labelText: '${t.weight} (kg)',
+                    labelText: t.weightWithUnit,
                     prefixIcon: const Icon(Icons.monitor_weight_outlined),
                   ),
-                  validator: _validatePositiveDecimal,
+                  validator: (v) => validateOptionalNumber(t, v, min: 20, max: 500),
                 ),
                 const SizedBox(height: 12),
                 TextFormField(
@@ -475,12 +476,4 @@ String _genderLabel(BuildContext context, Gender gender) {
     Gender.female => t.female,
     Gender.other => t.other,
   };
-}
-
-String? _validatePositiveDecimal(String? v) {
-  if (v == null || v.isEmpty) return null;
-  final n = double.tryParse(v.replaceAll(',', '.'));
-  if (n == null) return 'Nieprawidłowa liczba';
-  if (n <= 0) return 'Wartość musi być większa od 0';
-  return null;
 }

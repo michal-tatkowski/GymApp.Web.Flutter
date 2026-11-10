@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/failure_messages.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../data/models/create_exercise_request.dart';
 import '../data/models/exercise.dart';
@@ -54,8 +54,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
         ));
     } else {
       final err = ref.read(exercisesProvider).error;
-      final msg =
-          err is Failure ? err.message : AppLocalizations.of(context)!.profileLoadError;
+      final msg = describeError(AppLocalizations.of(context)!, err);
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()
         ..showSnackBar(SnackBar(content: Text(msg)));

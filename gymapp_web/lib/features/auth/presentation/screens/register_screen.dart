@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/validation/validators.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
 import '../auth_providers.dart';
 
@@ -36,7 +38,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     final state = ref.read(authControllerProvider);
     if (!state.hasError) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Konto utworzone. Zaloguj się.')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.accountCreated)),
       );
       context.go(AppRoutes.login);
     }
@@ -44,13 +46,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final authState = ref.watch(authControllerProvider);
     final isLoading = authState.isLoading;
 
     ref.listen(authControllerProvider, (prev, next) {
       next.whenOrNull(
         error: (err, _) {
-          final msg = err is Failure ? err.message : err.toString();
+          final msg = describeError(t, err);
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(SnackBar(content: Text(msg)));
@@ -59,7 +62,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Rejestracja')),
+      appBar: AppBar(title: Text(t.registerTitle)),
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
@@ -74,17 +77,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
                     autofillHints: const [AutofillHints.email],
-                    decoration: const InputDecoration(
-                      labelText: 'E-mail',
-                      prefixIcon: Icon(Icons.alternate_email),
+                    decoration: InputDecoration(
+                      labelText: t.email,
+                      prefixIcon: const Icon(Icons.alternate_email),
                     ),
-                    validator: (v) {
-                      final value = (v ?? '').trim();
-                      if (value.isEmpty) return 'Podaj e-mail';
-                      final re = RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$');
-                      if (!re.hasMatch(value)) return 'Nieprawidłowy format e-mail';
-                      return null;
-                    },
+                    validator: (v) => validateEmail(t, v),
                   ),
                   const SizedBox(height: 16),
                   TextFormField(
@@ -92,18 +89,14 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     obscureText: _obscure,
                     autofillHints: const [AutofillHints.newPassword],
                     decoration: InputDecoration(
-                      labelText: 'Hasło',
+                      labelText: t.password,
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
                         onPressed: () => setState(() => _obscure = !_obscure),
                         icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
                       ),
                     ),
-                    validator: (v) {
-                      if (v == null || v.isEmpty) return 'Podaj hasło';
-                      if (v.length < 6) return 'Hasło musi mieć min. 6 znaków';
-                      return null;
-                    },
+                    validator: (v) => validatePassword(t, v, checkLength: true),
                   ),
                   const SizedBox(height: 24),
                   SizedBox(
@@ -117,7 +110,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Icon(Icons.person_add),
-                      label: Text(isLoading ? 'Rejestrowanie…' : 'Zarejestruj'),
+                      label: Text(isLoading ? t.registering : t.registerButton),
                     ),
                   ),
                 ],

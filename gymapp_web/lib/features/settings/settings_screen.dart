@@ -20,14 +20,14 @@ class SettingsScreen extends ConsumerWidget {
           padding: const EdgeInsets.all(16),
           children: [
             SwitchListTile(
-              title: const Text('Ciemny motyw'),
+              title: Text(t.darkTheme),
               value: themeMode == ThemeMode.dark,
               onChanged: (_) => ref.read(themeProvider.notifier).toggle(),
             ),
             const Divider(),
             ListTile(
               leading: const Icon(Icons.language),
-              title: const Text('Język'),
+              title: Text(t.language),
               subtitle: Text(locale.languageCode.toUpperCase()),
               onTap: () => ref.read(localeProvider.notifier).toggle(),
             ),

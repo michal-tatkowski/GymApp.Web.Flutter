@@ -32,8 +32,8 @@ class ExerciseRepository {
       return await api.createExercise(req);
     } on DioException catch (e) {
       throw mapDioErrorToFailure(e);
-    } on FormatException catch (e) {
-      throw ServerFailure(e.message);
+    } on FormatException {
+      throw const ServerFailure();
     }
   }
 }

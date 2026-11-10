@@ -120,7 +120,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get charts => 'Charts';
 
   @override
-  String get workouts => 'Workout';
+  String get workouts => 'Workouts';
 
   @override
   String get exercises => 'Exercises';
@@ -178,4 +178,80 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catOther => 'Other';
+
+  @override
+  String get emailRequired => 'Enter your email';
+
+  @override
+  String get emailInvalid => 'Invalid email format';
+
+  @override
+  String get passwordRequired => 'Enter your password';
+
+  @override
+  String passwordTooShort(int min) {
+    return 'Password must be at least $min characters long';
+  }
+
+  @override
+  String get registerTitle => 'Create account';
+
+  @override
+  String get registering => 'Creating account…';
+
+  @override
+  String get accountCreated => 'Account created. You can log in now.';
+
+  @override
+  String get darkTheme => 'Dark theme';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get previousWeek => 'Previous week';
+
+  @override
+  String get nextWeek => 'Next week';
+
+  @override
+  String get invalidNumber => 'Invalid number';
+
+  @override
+  String numberOutOfRange(int min, int max) {
+    return 'Enter a value between $min and $max';
+  }
+
+  @override
+  String get heightWithUnit => 'Height (cm)';
+
+  @override
+  String get weightWithUnit => 'Weight (kg)';
+
+  @override
+  String get errNetwork => 'No internet connection.';
+
+  @override
+  String get errTimeout => 'The server is not responding.';
+
+  @override
+  String get errSessionExpired =>
+      'Your session has expired, please log in again.';
+
+  @override
+  String get errBadCertificate => 'Invalid server certificate.';
+
+  @override
+  String get errCancelled => 'The request was cancelled.';
+
+  @override
+  String get errValidation => 'Invalid data.';
+
+  @override
+  String errServer(int status) {
+    return 'Server error ($status).';
+  }
+
+  @override
+  String get errUnknown => 'An unexpected error occurred.';
 }

@@ -62,7 +62,8 @@ import 'app_localizations_pl.dart';
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
 abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
@@ -70,7 +71,8 @@ abstract class AppLocalizations {
     return Localizations.of<AppLocalizations>(context, AppLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -82,17 +84,18 @@ abstract class AppLocalizations {
   /// Additional delegates can be added by appending to this list in
   /// MaterialApp. This list does not have to be used at all if a custom list
   /// of delegates is preferred or required.
-  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates = <LocalizationsDelegate<dynamic>>[
-    delegate,
-    GlobalMaterialLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-  ];
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
 
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
-    Locale('pl')
+    Locale('pl'),
   ];
 
   /// No description provided for @login.
@@ -239,42 +242,345 @@ abstract class AppLocalizations {
   /// **'Date of birth'**
   String get dateOfBirth;
 
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
   String get save;
+
+  /// No description provided for @cancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
   String get cancel;
+
+  /// No description provided for @edit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
   String get edit;
+
+  /// No description provided for @male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
   String get male;
+
+  /// No description provided for @female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
   String get female;
+
+  /// No description provided for @other.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
   String get other;
+
+  /// No description provided for @notSpecified.
+  ///
+  /// In en, this message translates to:
+  /// **'Not specified'**
   String get notSpecified;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
   String get retry;
+
+  /// No description provided for @profileSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile saved'**
   String get profileSaved;
+
+  /// No description provided for @profileLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load profile'**
   String get profileLoadError;
+
+  /// No description provided for @bmi.
+  ///
+  /// In en, this message translates to:
+  /// **'BMI'**
   String get bmi;
+
+  /// No description provided for @weeklyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly plan'**
   String get weeklyPlan;
+
+  /// No description provided for @charts.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts'**
   String get charts;
+
+  /// No description provided for @workouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts'**
   String get workouts;
+
+  /// No description provided for @exercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
   String get exercises;
+
+  /// No description provided for @searchExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Search exercises'**
   String get searchExercises;
+
+  /// No description provided for @addExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Add exercise'**
   String get addExercise;
+
+  /// No description provided for @exerciseName.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise name'**
   String get exerciseName;
+
+  /// No description provided for @category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
   String get category;
+
+  /// No description provided for @description.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
   String get description;
+
+  /// No description provided for @descriptionOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
   String get descriptionOptional;
+
+  /// No description provided for @noExercisesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No exercises found'**
   String get noExercisesFound;
+
+  /// No description provided for @exerciseAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise added'**
   String get exerciseAdded;
+
+  /// No description provided for @customExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
   String get customExercise;
+
+  /// No description provided for @noDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'No description'**
   String get noDescription;
+
+  /// No description provided for @allCategories.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
   String get allCategories;
+
+  /// No description provided for @fieldRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
   String get fieldRequired;
+
+  /// No description provided for @catPush.
+  ///
+  /// In en, this message translates to:
+  /// **'Push'**
   String get catPush;
+
+  /// No description provided for @catPull.
+  ///
+  /// In en, this message translates to:
+  /// **'Pull'**
   String get catPull;
+
+  /// No description provided for @catLegs.
+  ///
+  /// In en, this message translates to:
+  /// **'Legs'**
   String get catLegs;
+
+  /// No description provided for @catCore.
+  ///
+  /// In en, this message translates to:
+  /// **'Core'**
   String get catCore;
+
+  /// No description provided for @catCardio.
+  ///
+  /// In en, this message translates to:
+  /// **'Cardio'**
   String get catCardio;
+
+  /// No description provided for @catOther.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
   String get catOther;
+
+  /// No description provided for @emailRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email'**
+  String get emailRequired;
+
+  /// No description provided for @emailInvalid.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid email format'**
+  String get emailInvalid;
+
+  /// No description provided for @passwordRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password'**
+  String get passwordRequired;
+
+  /// No description provided for @passwordTooShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least {min} characters long'**
+  String passwordTooShort(int min);
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get registerTitle;
+
+  /// No description provided for @registering.
+  ///
+  /// In en, this message translates to:
+  /// **'Creating account…'**
+  String get registering;
+
+  /// No description provided for @accountCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'Account created. You can log in now.'**
+  String get accountCreated;
+
+  /// No description provided for @darkTheme.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark theme'**
+  String get darkTheme;
+
+  /// No description provided for @language.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get language;
+
+  /// No description provided for @previousWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous week'**
+  String get previousWeek;
+
+  /// No description provided for @nextWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Next week'**
+  String get nextWeek;
+
+  /// No description provided for @invalidNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid number'**
+  String get invalidNumber;
+
+  /// No description provided for @numberOutOfRange.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a value between {min} and {max}'**
+  String numberOutOfRange(int min, int max);
+
+  /// No description provided for @heightWithUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Height (cm)'**
+  String get heightWithUnit;
+
+  /// No description provided for @weightWithUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight (kg)'**
+  String get weightWithUnit;
+
+  /// No description provided for @errNetwork.
+  ///
+  /// In en, this message translates to:
+  /// **'No internet connection.'**
+  String get errNetwork;
+
+  /// No description provided for @errTimeout.
+  ///
+  /// In en, this message translates to:
+  /// **'The server is not responding.'**
+  String get errTimeout;
+
+  /// No description provided for @errSessionExpired.
+  ///
+  /// In en, this message translates to:
+  /// **'Your session has expired, please log in again.'**
+  String get errSessionExpired;
+
+  /// No description provided for @errBadCertificate.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid server certificate.'**
+  String get errBadCertificate;
+
+  /// No description provided for @errCancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'The request was cancelled.'**
+  String get errCancelled;
+
+  /// No description provided for @errValidation.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid data.'**
+  String get errValidation;
+
+  /// No description provided for @errServer.
+  ///
+  /// In en, this message translates to:
+  /// **'Server error ({status}).'**
+  String errServer(int status);
+
+  /// No description provided for @errUnknown.
+  ///
+  /// In en, this message translates to:
+  /// **'An unexpected error occurred.'**
+  String get errUnknown;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
@@ -283,25 +589,26 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   }
 
   @override
-  bool isSupported(Locale locale) => <String>['en', 'pl'].contains(locale.languageCode);
+  bool isSupported(Locale locale) =>
+      <String>['en', 'pl'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
 AppLocalizations lookupAppLocalizations(Locale locale) {
-
-
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
-    case 'en': return AppLocalizationsEn();
-    case 'pl': return AppLocalizationsPl();
+    case 'en':
+      return AppLocalizationsEn();
+    case 'pl':
+      return AppLocalizationsPl();
   }
 
   throw FlutterError(
     'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
     'an issue with the localizations generation tool. Please file an issue '
     'on GitHub with a reproducible sample app and the gen-l10n configuration '
-    'that was used.'
+    'that was used.',
   );
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../core/errors/failure.dart';
+import '../../../../core/errors/failure_messages.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../data/models/exercise.dart';
 import 'add_exercise_sheet.dart';
@@ -60,9 +60,7 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
     // Show error snackbar
     ref.listen(exercisesProvider, (_, next) {
       if (next.error != null) {
-        final msg = next.error is Failure
-            ? (next.error as Failure).message
-            : next.error.toString();
+        final msg = describeError(t, next.error);
         ScaffoldMessenger.of(context)
           ..hideCurrentSnackBar()
           ..showSnackBar(SnackBar(content: Text(msg)));

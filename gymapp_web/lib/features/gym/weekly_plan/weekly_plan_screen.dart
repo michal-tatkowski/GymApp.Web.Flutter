@@ -125,6 +125,7 @@ class _WeekHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final fmt = DateFormat('d MMM', Localizations.localeOf(context).toString());
 
@@ -140,7 +141,7 @@ class _WeekHeader extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.chevron_left),
             onPressed: canGoPrev ? onPrev : null,
-            tooltip: 'Poprzedni tydzień',
+            tooltip: t.previousWeek,
           ),
           Text(
             '${fmt.format(weekStart)} – ${fmt.format(weekEnd)}',
@@ -151,7 +152,7 @@ class _WeekHeader extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.chevron_right),
             onPressed: onNext,
-            tooltip: 'Następny tydzień',
+            tooltip: t.nextWeek,
           ),
         ],
       ),
