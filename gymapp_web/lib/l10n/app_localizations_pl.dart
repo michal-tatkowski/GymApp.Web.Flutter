@@ -193,6 +193,25 @@ class AppLocalizationsPl extends AppLocalizations {
   String get myWorkouts => 'Moje treningi';
 
   @override
+  String get today => 'Dziś';
+
+  @override
+  String get quickLog => 'Szybki zapis';
+
+  @override
+  String get doneToday => 'Zrobione dzisiaj';
+
+  @override
+  String get noFavoritesYet =>
+      'Oznacz ćwiczenia gwiazdką (★), żeby zapisywać je tutaj jednym dotknięciem.';
+
+  @override
+  String get browseExercises => 'Przeglądaj ćwiczenia';
+
+  @override
+  String get notTrainedYet => 'Jeszcze nie trenowane';
+
+  @override
   String get logWorkout => 'Zapisz trening';
 
   @override

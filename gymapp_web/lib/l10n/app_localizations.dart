@@ -464,6 +464,42 @@ abstract class AppLocalizations {
   /// **'My workouts'**
   String get myWorkouts;
 
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @quickLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick log'**
+  String get quickLog;
+
+  /// No description provided for @doneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Done today'**
+  String get doneToday;
+
+  /// No description provided for @noFavoritesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Star exercises (★) to log them here with one tap.'**
+  String get noFavoritesYet;
+
+  /// No description provided for @browseExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse exercises'**
+  String get browseExercises;
+
+  /// No description provided for @notTrainedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not trained yet'**
+  String get notTrainedYet;
+
   /// No description provided for @logWorkout.
   ///
   /// In en, this message translates to:

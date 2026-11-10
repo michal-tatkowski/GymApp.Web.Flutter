@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/providers/retry.dart';
 import '../../../../features/auth/presentation/auth_providers.dart';
 import '../data/exercise_api.dart';
 import '../data/exercise_repository.dart';
@@ -170,6 +171,7 @@ class ExercisesNotifier extends Notifier<ExercisesState> {
     _replace(exerciseId, (e) => e.copyWith(isFavorite: target));
     try {
       await _repo.setFavorite(exerciseId, target);
+      ref.invalidate(favoriteExercisesProvider);
       if (ref.mounted && state.favoritesOnly && !target) {
         state = state.copyWith(items: state.items.where((e) => e.id != exerciseId).toList());
       }
@@ -201,3 +203,9 @@ class ExercisesNotifier extends Notifier<ExercisesState> {
 
 final exercisesProvider =
     NotifierProvider.autoDispose<ExercisesNotifier, ExercisesState>(ExercisesNotifier.new);
+
+/// Starred exercises for the "Today" quick log. Refreshed whenever a star changes.
+final favoriteExercisesProvider = FutureProvider.autoDispose<List<Exercise>>(
+  (ref) => ref.watch(exerciseRepositoryProvider).getExercises(favoritesOnly: true, pageSize: 100),
+  retry: noRetry,
+);

@@ -84,11 +84,12 @@ void main() {
       expect(find.text('Too many attempts. Wait a minute and try again.'), findsOneWidget);
     });
 
-    testWidgets('successful login opens the home menu', (tester) async {
+    testWidgets('successful login opens the Today tab with the bottom navigation', (tester) async {
       await pumpLogin(tester);
 
       expect(find.text('Remember me'), findsNothing);
-      expect(find.text('Logout'), findsOneWidget);
+      expect(find.byType(NavigationBar), findsOneWidget);
+      expect(find.text('Today'), findsWidgets);
     });
   });
 }

@@ -7,15 +7,15 @@ class AppRoutes {
   static const login = '/login';
   static const register = '/register';
 
-  // Main
-  static const home = '/';
+  // Tabs of the bottom navigation (AppShell)
+  static const today = '/today';
+  static const exercises = '/exercises';
+  static const progress = '/progress';
   static const profile = '/profile';
-  static const gym = '/gym';
-    static const gymWeeklyPlan = '/gym/weekly-plan';
-    static const gymExercises = '/gym/exercises';
-    static const gymWorkouts = '/gym/workouts';
-  static const social = '/social';
-  static const notifications = '/notifications';
+
+  /// Start page after login.
+  static const home = today;
+
+  // Full-screen pages on top of the tabs
   static const settings = '/settings';
-  static const info = '/info';
 }

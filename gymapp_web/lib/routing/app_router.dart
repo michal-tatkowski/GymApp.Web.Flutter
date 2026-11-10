@@ -7,17 +7,13 @@ import '../features/auth/presentation/auth_state.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
-import '../features/gym/gym_screen.dart';
 import '../features/gym/exercises/presentation/exercises_screen.dart';
-import '../features/gym/weekly_plan/weekly_plan_screen.dart';
+import '../features/gym/today/today_screen.dart';
 import '../features/gym/workouts/presentation/my_workouts_screen.dart';
-import '../features/home/home_menu.dart';
-import '../features/info/info_screen.dart';
-import '../features/notifications/notifications_screen.dart';
 import '../features/profile/profile_screen.dart';
 import '../features/settings/settings_screen.dart';
-import '../features/social/social_screen.dart';
 import 'app_routes.dart';
+import 'app_shell.dart';
 
 /// Builds a [GoRouter] wired to Riverpod auth state.
 ///
@@ -66,19 +62,18 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.splash, builder: (_, __) => const SplashScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, __) => const LoginScreen()),
       GoRoute(path: AppRoutes.register, builder: (_, __) => const RegisterScreen()),
-      GoRoute(path: AppRoutes.home, builder: (_, __) => const HomeMenu()),
-      GoRoute(path: AppRoutes.profile, builder: (_, __) => const ProfileScreen()),
-      GoRoute(path: AppRoutes.gym, builder: (_, __) => const GymScreen()),
-      GoRoute(path: AppRoutes.gymWeeklyPlan, builder: (_, __) => const WeeklyPlanScreen()),
-      GoRoute(path: AppRoutes.gymExercises, builder: (_, __) => const ExercisesScreen()),
-      GoRoute(path: AppRoutes.gymWorkouts, builder: (_, __) => const MyWorkoutsScreen()),
-      GoRoute(path: AppRoutes.social, builder: (_, __) => const SocialScreen()),
-      GoRoute(
-        path: AppRoutes.notifications,
-        builder: (_, __) => const NotificationsScreen(),
+      // Tabs: each branch has its own navigator, so pushed screens (exercise details,
+      // training log) stay under the bottom bar and survive tab switches.
+      StatefulShellRoute.indexedStack(
+        builder: (_, __, shell) => AppShell(navigationShell: shell),
+        branches: [
+          StatefulShellBranch(routes: [GoRoute(path: AppRoutes.today, builder: (_, __) => const TodayScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: AppRoutes.exercises, builder: (_, __) => const ExercisesScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: AppRoutes.progress, builder: (_, __) => const MyWorkoutsScreen())]),
+          StatefulShellBranch(routes: [GoRoute(path: AppRoutes.profile, builder: (_, __) => const ProfileScreen())]),
+        ],
       ),
       GoRoute(path: AppRoutes.settings, builder: (_, __) => const SettingsScreen()),
-      GoRoute(path: AppRoutes.info, builder: (_, __) => const InfoScreen()),
     ],
   );
 });

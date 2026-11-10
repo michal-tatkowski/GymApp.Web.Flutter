@@ -24,7 +24,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
     final summaries = ref.watch(workoutSummariesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.myWorkouts)),
+      appBar: AppBar(title: Text(t.progress)),
       body: GradientBackground(
         child: SafeArea(
           child: summaries.when(
@@ -43,7 +43,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                           Text(t.noWorkoutsYet, textAlign: TextAlign.center),
                           const SizedBox(height: 16),
                           FilledButton.icon(
-                            onPressed: () => context.push(AppRoutes.gymExercises),
+                            onPressed: () => context.go(AppRoutes.exercises),
                             icon: const Icon(Icons.fitness_center),
                             label: Text(t.exercises),
                           ),
