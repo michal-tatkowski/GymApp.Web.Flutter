@@ -1,4 +1,4 @@
-package com.example.gymapp_web
+package pl.tatkowski.gymapp
 
 import io.flutter.embedding.android.FlutterActivity
 

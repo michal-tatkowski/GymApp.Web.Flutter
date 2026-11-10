@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.gymapp_web"
+    namespace = "pl.tatkowski.gymapp"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,8 +20,8 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.gymapp_web"
+        // Store identity — never change it after the first release (it would be a different app).
+        applicationId = "pl.tatkowski.gymapp"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
