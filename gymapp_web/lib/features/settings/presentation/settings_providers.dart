@@ -8,18 +8,22 @@ import '../../../core/storage/secure_storage_keys.dart';
 
 /// ─── Theme ───────────────────────────────────────────────────────────────
 
-final themeProvider = StateNotifierProvider<ThemeNotifier, ThemeMode>(
-  (ref) => ThemeNotifier(),
-);
+final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(ThemeNotifier.new);
 
-class ThemeNotifier extends StateNotifier<ThemeMode> {
-  ThemeNotifier() : super(ThemeMode.light) {
+class ThemeNotifier extends Notifier<ThemeMode> {
+  bool _changedByUser = false;
+
+  @override
+  ThemeMode build() {
     _restore();
+    return ThemeMode.light;
   }
 
   Future<void> _restore() async {
     final prefs = await SharedPreferences.getInstance();
     final value = prefs.getString(StorageKeys.themeMode);
+    // A choice made while prefs were loading wins over the stored value.
+    if (!ref.mounted || _changedByUser) return;
     state = value == 'dark' ? ThemeMode.dark : ThemeMode.light;
   }
 
@@ -28,6 +32,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
       );
 
   Future<void> set(ThemeMode mode) async {
+    _changedByUser = true;
     state = mode;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(
@@ -39,9 +44,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
 
 /// ─── Locale ──────────────────────────────────────────────────────────────
 
-final localeProvider = StateNotifierProvider<LocaleNotifier, Locale>(
-  (ref) => LocaleNotifier(),
-);
+final localeProvider = NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);
 
 const supportedLanguageCodes = ['en', 'pl'];
 
@@ -52,15 +55,20 @@ Locale deviceLocale([String? deviceLanguageCode]) {
   return Locale(supportedLanguageCodes.contains(code) ? code : 'en');
 }
 
-class LocaleNotifier extends StateNotifier<Locale> {
-  LocaleNotifier() : super(deviceLocale()) {
+class LocaleNotifier extends Notifier<Locale> {
+  bool _changedByUser = false;
+
+  @override
+  Locale build() {
     _restore();
+    return deviceLocale();
   }
 
   Future<void> _restore() async {
     final prefs = await SharedPreferences.getInstance();
     final code = prefs.getString(StorageKeys.locale);
-    if (code != null) state = Locale(code);
+    if (!ref.mounted || _changedByUser || code == null) return;
+    state = Locale(code);
   }
 
   Future<void> toggle() => set(
@@ -68,6 +76,7 @@ class LocaleNotifier extends StateNotifier<Locale> {
       );
 
   Future<void> set(Locale locale) async {
+    _changedByUser = true;
     state = locale;
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(StorageKeys.locale, locale.languageCode);
