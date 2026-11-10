@@ -253,5 +253,18 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get errForbidden => 'You don\'t have access to this.';
+
+  @override
+  String get errNotFound => 'Not found.';
+
+  @override
+  String get errConflict => 'This already exists.';
+
+  @override
+  String get errTooManyRequests =>
+      'Too many attempts. Wait a minute and try again.';
+
+  @override
   String get errUnknown => 'An unexpected error occurred.';
 }

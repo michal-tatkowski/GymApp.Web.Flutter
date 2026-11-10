@@ -7,17 +7,20 @@
 /// [serverMessage] is the (already localized, via Accept-Language) message
 /// from the API. When it is missing the UI shows a localized default for the
 /// failure type — see `describeError` in `failure_messages.dart`.
+/// [code] is the API's stable error code (ProblemDetails `code`, e.g.
+/// `UserAlreadyExists`) — use it for logic, never the message text.
 sealed class Failure {
-  const Failure([this.serverMessage]);
+  const Failure({this.serverMessage, this.code});
 
   final String? serverMessage;
+  final String? code;
 
   @override
-  String toString() => '$runtimeType(${serverMessage ?? ''})';
+  String toString() => '$runtimeType(${code ?? ''} ${serverMessage ?? ''})';
 }
 
 class NetworkFailure extends Failure {
-  const NetworkFailure([super.serverMessage]);
+  const NetworkFailure();
 }
 
 class BadCertificateFailure extends Failure {
@@ -25,27 +28,56 @@ class BadCertificateFailure extends Failure {
 }
 
 class TimeoutFailure extends Failure {
-  const TimeoutFailure([super.serverMessage]);
+  const TimeoutFailure();
 }
 
 class CancelledFailure extends Failure {
   const CancelledFailure();
 }
 
+/// 401 — wrong credentials or expired session.
 class UnauthorizedFailure extends Failure {
-  const UnauthorizedFailure([super.serverMessage]);
+  const UnauthorizedFailure([String? serverMessage, String? code])
+      : super(serverMessage: serverMessage, code: code);
 }
 
-class ServerFailure extends Failure {
-  const ServerFailure([super.serverMessage, this.statusCode]);
-  final int? statusCode;
+/// 403 — e.g. inactive account.
+class ForbiddenFailure extends Failure {
+  const ForbiddenFailure([String? serverMessage, String? code])
+      : super(serverMessage: serverMessage, code: code);
 }
 
+/// 404.
+class NotFoundFailure extends Failure {
+  const NotFoundFailure([String? serverMessage, String? code])
+      : super(serverMessage: serverMessage, code: code);
+}
+
+/// 409 — e.g. email already registered, duplicate exercise name.
+class ConflictFailure extends Failure {
+  const ConflictFailure([String? serverMessage, String? code])
+      : super(serverMessage: serverMessage, code: code);
+}
+
+/// 429 — rate limit (API limits login/register attempts).
+class RateLimitedFailure extends Failure {
+  const RateLimitedFailure();
+}
+
+/// 400 / 422. [fieldErrors]: ASP.NET model validation errors (field → first message).
 class ValidationFailure extends Failure {
-  const ValidationFailure([super.serverMessage, this.fieldErrors = const {}]);
+  const ValidationFailure([String? serverMessage, String? code, this.fieldErrors = const {}])
+      : super(serverMessage: serverMessage, code: code);
   final Map<String, String> fieldErrors;
 }
 
+/// 5xx and other unexpected responses.
+class ServerFailure extends Failure {
+  const ServerFailure([String? serverMessage, this.statusCode, String? code])
+      : super(serverMessage: serverMessage, code: code);
+  final int? statusCode;
+}
+
 class UnknownFailure extends Failure {
-  const UnknownFailure([super.serverMessage]);
+  const UnknownFailure();
 }

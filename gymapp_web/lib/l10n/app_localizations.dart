@@ -572,6 +572,30 @@ abstract class AppLocalizations {
   /// **'Server error ({status}).'**
   String errServer(int status);
 
+  /// No description provided for @errForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'You don\'t have access to this.'**
+  String get errForbidden;
+
+  /// No description provided for @errNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Not found.'**
+  String get errNotFound;
+
+  /// No description provided for @errConflict.
+  ///
+  /// In en, this message translates to:
+  /// **'This already exists.'**
+  String get errConflict;
+
+  /// No description provided for @errTooManyRequests.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Wait a minute and try again.'**
+  String get errTooManyRequests;
+
   /// No description provided for @errUnknown.
   ///
   /// In en, this message translates to:

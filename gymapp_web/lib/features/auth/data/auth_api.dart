@@ -39,9 +39,16 @@ class AuthApi {
     return AuthTokens.fromResponse(res.data);
   }
 
-  Future<void> logout() async {
+  /// Revokes the refresh token on the server: POST /Auth/Logout { refreshToken }.
+  /// Best effort — the client clears its tokens regardless of the outcome.
+  Future<void> logout(String? refreshToken) async {
+    if (refreshToken == null || refreshToken.isEmpty) return;
     try {
-      await _dio.post<dynamic>('Auth/Logout');
+      await _dio.post<dynamic>(
+        'Auth/Logout',
+        data: {'refreshToken': refreshToken},
+        options: AuthOptions.skipAuth(),
+      );
     } catch (_) {
       // Ignore — client will clear tokens regardless.
     }
