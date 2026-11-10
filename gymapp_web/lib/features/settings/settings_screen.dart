@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../auth/presentation/auth_providers.dart';
 import 'presentation/settings_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -30,6 +31,12 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(t.language),
               subtitle: Text(locale.languageCode.toUpperCase()),
               onTap: () => ref.read(localeProvider.notifier).toggle(),
+            ),
+            const Divider(),
+            ListTile(
+              leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
+              title: Text(t.logout, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              onTap: () => ref.read(authControllerProvider.notifier).logout(),
             ),
           ],
         ),

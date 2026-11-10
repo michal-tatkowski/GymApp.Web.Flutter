@@ -193,6 +193,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get myWorkouts => 'My workouts';
 
   @override
+  String get today => 'Today';
+
+  @override
+  String get quickLog => 'Quick log';
+
+  @override
+  String get doneToday => 'Done today';
+
+  @override
+  String get noFavoritesYet =>
+      'Star exercises (★) to log them here with one tap.';
+
+  @override
+  String get browseExercises => 'Browse exercises';
+
+  @override
+  String get notTrainedYet => 'Not trained yet';
+
+  @override
   String get logWorkout => 'Log workout';
 
   @override

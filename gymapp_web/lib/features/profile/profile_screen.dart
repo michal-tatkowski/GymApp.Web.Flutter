@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/errors/failure_messages.dart';
 import '../../core/widgets/error_view.dart';
 import '../../core/widgets/gradient_background.dart';
 import '../../l10n/app_localizations.dart';
+import '../../routing/app_routes.dart';
 import 'presentation/profile_providers.dart';
 import 'presentation/widgets/profile_edit_form.dart';
 import 'presentation/widgets/profile_view.dart';
@@ -57,12 +59,19 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               child: Text(t.cancel),
             ),
             TextButton(onPressed: busy ? null : _save, child: Text(t.save)),
-          ] else if (profileAsync.hasValue)
+          ] else ...[
+            if (profileAsync.hasValue)
+              IconButton(
+                icon: const Icon(Icons.edit),
+                tooltip: t.edit,
+                onPressed: () => setState(() => _editing = true),
+              ),
             IconButton(
-              icon: const Icon(Icons.edit),
-              tooltip: t.edit,
-              onPressed: () => setState(() => _editing = true),
+              icon: const Icon(Icons.settings_outlined),
+              tooltip: t.settings,
+              onPressed: () => context.push(AppRoutes.settings),
             ),
+          ],
         ],
       ),
       body: GradientBackground(

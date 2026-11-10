@@ -62,6 +62,12 @@
   "removeFromFavorites": "Remove from favorites",
 
   "myWorkouts": "My workouts",
+  "today": "Today",
+  "quickLog": "Quick log",
+  "doneToday": "Done today",
+  "noFavoritesYet": "Star exercises (★) to log them here with one tap.",
+  "browseExercises": "Browse exercises",
+  "notTrainedYet": "Not trained yet",
   "logWorkout": "Log workout",
   "editWorkout": "Edit workout",
   "workoutHistory": "History",

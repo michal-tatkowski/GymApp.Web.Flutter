@@ -62,6 +62,12 @@
   "removeFromFavorites": "Usuń z ulubionych",
 
   "myWorkouts": "Moje treningi",
+  "today": "Dziś",
+  "quickLog": "Szybki zapis",
+  "doneToday": "Zrobione dzisiaj",
+  "noFavoritesYet": "Oznacz ćwiczenia gwiazdką (★), żeby zapisywać je tutaj jednym dotknięciem.",
+  "browseExercises": "Przeglądaj ćwiczenia",
+  "notTrainedYet": "Jeszcze nie trenowane",
   "logWorkout": "Zapisz trening",
   "editWorkout": "Edytuj trening",
   "workoutHistory": "Historia",
