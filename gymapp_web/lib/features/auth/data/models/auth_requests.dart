@@ -1,8 +1,8 @@
-/// Auth request DTOs (data transfer objects).
-///
-/// Kept in `data/` because they are tied to the REST API contract —
-/// the presentation layer should pass primitives (email, password) to
-/// the repository and never touch these directly.
+// Auth request DTOs (data transfer objects).
+//
+// Kept in `data/` because they are tied to the REST API contract —
+// the presentation layer should pass primitives (email, password) to
+// the repository and never touch these directly.
 
 class LoginRequest {
   const LoginRequest({required this.email, required this.password});

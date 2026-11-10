@@ -85,8 +85,8 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.10),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.10),
                 ],
               ),
             ),
@@ -272,7 +272,7 @@ class _ExerciseTile extends StatelessWidget {
                 padding: const EdgeInsets.only(right: 4),
                 child: Icon(Icons.person_outline,
                     size: 16,
-                    color: theme.colorScheme.primary.withOpacity(0.7)),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.7)),
               ),
             const Icon(Icons.chevron_right),
           ],
@@ -300,7 +300,7 @@ class _EmptyState extends StatelessWidget {
         children: [
           Icon(Icons.fitness_center,
               size: 64,
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.5)),
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
           const SizedBox(height: 12),
           Text(t.noExercisesFound),
           const SizedBox(height: 16),

@@ -131,8 +131,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Theme.of(context).colorScheme.primary.withOpacity(0.15),
-                  Theme.of(context).colorScheme.secondary.withOpacity(0.10),
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.10),
                 ],
               ),
             ),
@@ -192,7 +192,7 @@ class _ProfileView extends StatelessWidget {
               Center(
                 child: CircleAvatar(
                   radius: 48,
-                  backgroundColor: theme.colorScheme.primary.withOpacity(0.2),
+                  backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.2),
                   child: Text(
                     _initials(profile),
                     style: theme.textTheme.headlineMedium?.copyWith(
@@ -227,7 +227,7 @@ class _ProfileView extends StatelessWidget {
               ),
               _InfoTile(
                 label: t.bmi,
-                value: profile.bmi != null ? profile.bmi!.toStringAsFixed(1) : null,
+                value: profile.bmi?.toStringAsFixed(1),
               ),
             ],
           ),
@@ -266,7 +266,7 @@ class _InfoTile extends StatelessWidget {
             child: Text(
               label,
               style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.onSurface.withOpacity(0.6),
+                color: theme.colorScheme.onSurface.withValues(alpha: 0.6),
               ),
             ),
           ),
