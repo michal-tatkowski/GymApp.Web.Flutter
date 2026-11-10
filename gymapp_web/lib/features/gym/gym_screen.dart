@@ -24,9 +24,9 @@ class GymScreen extends ConsumerWidget {
         route: AppRoutes.gymExercises,
       ),
       _GymTile(
-        icon: Icons.bar_chart,
-        label: t.charts,
-        route: null, 
+        icon: Icons.show_chart,
+        label: t.myWorkouts,
+        route: AppRoutes.gymWorkouts,
       ),
     ];
 

@@ -7,6 +7,7 @@ import '../data/models/exercise.dart';
 import 'category_ui.dart';
 import 'exercises_providers.dart';
 import 'favorite_button.dart';
+import '../../workouts/presentation/exercise_workouts_screen.dart';
 
 class ExerciseDetailScreen extends ConsumerWidget {
   const ExerciseDetailScreen({super.key, required this.exercise});
@@ -128,6 +129,19 @@ class ExerciseDetailScreen extends ConsumerWidget {
                           style: theme.textTheme.bodyMedium,
                         ),
                       ),
+                      const SizedBox(height: 24),
+                      // ── Training log ──────────────────────────────
+                      FilledButton.icon(
+                        key: const Key('exercise.openWorkouts'),
+                        onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (_) => ExerciseWorkoutsScreen(
+                            exerciseId: exercise.id,
+                            exerciseName: exercise.name,
+                          ),
+                        )),
+                        icon: const Icon(Icons.show_chart),
+                        label: Text('${t.logWorkout} · ${t.progress}'),
+                      ),
                     ],
                   ),
                 ),
@@ -140,4 +154,3 @@ class ExerciseDetailScreen extends ConsumerWidget {
   }
 }
 
-// re-use helpers from exercises_screen.dart via export or duplicate

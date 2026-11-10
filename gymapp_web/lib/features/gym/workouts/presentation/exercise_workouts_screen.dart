@@ -1,0 +1,173 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+
+import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/widgets/error_view.dart';
+import '../../../../core/widgets/gradient_background.dart';
+import '../../../../l10n/app_localizations.dart';
+import '../data/workout_models.dart';
+import 'widgets/progress_chart.dart';
+import 'widgets/workout_entry_sheet.dart';
+import 'workout_providers.dart';
+
+/// Training log of one exercise: progress chart, "Log workout", history.
+class ExerciseWorkoutsScreen extends ConsumerWidget {
+  const ExerciseWorkoutsScreen({super.key, required this.exerciseId, required this.exerciseName});
+
+  final String exerciseId;
+  final String exerciseName;
+
+  static Future<void> openEntrySheet(
+    BuildContext context,
+    WidgetRef ref,
+    String exerciseId, {
+    WorkoutEntry? entry,
+    List<WorkoutSet>? prefill,
+  }) =>
+      showModalBottomSheet<void>(
+        context: context,
+        isScrollControlled: true,
+        useSafeArea: true,
+        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+        builder: (_) => WorkoutEntrySheet(
+          initial: entry,
+          prefillSets: prefill,
+          onSave: (req) {
+            final log = ref.read(workoutLogProvider(exerciseId).notifier);
+            return entry == null ? log.add(req) : log.edit(entry.id, req);
+          },
+        ),
+      );
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    final logAsync = ref.watch(workoutLogProvider(exerciseId));
+    final progressAsync = ref.watch(workoutProgressProvider(exerciseId));
+    final lastSets = logAsync.value?.entries.firstOrNull?.sets;
+
+    return Scaffold(
+      appBar: AppBar(title: Text(exerciseName)),
+      floatingActionButton: FloatingActionButton.extended(
+        key: const Key('workout.log'),
+        onPressed: logAsync.hasValue ? () => openEntrySheet(context, ref, exerciseId, prefill: lastSets) : null,
+        icon: const Icon(Icons.add),
+        label: Text(t.logWorkout),
+      ),
+      body: GradientBackground(
+        child: SafeArea(
+          child: logAsync.when(
+            loading: () => const Center(child: CircularProgressIndicator()),
+            error: (e, _) => ErrorView(
+              message: describeError(t, e),
+              onRetry: () => ref.invalidate(workoutLogProvider(exerciseId)),
+            ),
+            data: (log) => ListView(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(t.progress, style: Theme.of(context).textTheme.titleMedium),
+                        const SizedBox(height: 12),
+                        progressAsync.when(
+                          loading: () => const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
+                          error: (e, _) => SizedBox(height: 80, child: Center(child: Text(describeError(t, e)))),
+                          data: (points) => ProgressChart(points: points),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Text(t.workoutHistory, style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: 8),
+                if (log.entries.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 24),
+                    child: Center(child: Text(t.noEntriesForExercise)),
+                  ),
+                for (final entry in log.entries) _EntryTile(exerciseId: exerciseId, entry: entry),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EntryTile extends ConsumerWidget {
+  const _EntryTile({required this.exerciseId, required this.entry});
+
+  final String exerciseId;
+  final WorkoutEntry entry;
+
+  /// "3 × 10 × 100 kg" when all sets are equal, otherwise "10×100, 10×100, 8×105".
+  static String describeSets(List<WorkoutSet> sets) {
+    String one(WorkoutSet s) => s.weight == 0 ? '${s.reps}' : '${s.reps}×${formatValue(s.weight)}';
+    if (sets.length > 1 && sets.every((s) => s == sets.first)) {
+      final s = sets.first;
+      return s.weight == 0 ? '${sets.length} × ${s.reps}' : '${sets.length} × ${s.reps} × ${formatValue(s.weight)} kg';
+    }
+    final text = sets.map(one).join(', ');
+    return sets.any((s) => s.weight > 0) ? '$text kg' : text;
+  }
+
+  Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(t.deleteEntryQuestion),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: Text(t.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(ctx, true), child: Text(t.delete)),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await ref.read(workoutLogProvider(exerciseId).notifier).delete(entry.id);
+      messenger.showSnackBar(SnackBar(content: Text(t.entryDeleted)));
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(describeError(t, e))));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    final locale = Localizations.localeOf(context).toString();
+    final bodyweight = entry.volume == 0;
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        title: Text(DateFormat.yMMMEd(locale).format(entry.date)),
+        subtitle: Text([describeSets(entry.sets), if (entry.notes != null) entry.notes!].join('\n')),
+        isThreeLine: entry.notes != null,
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              bodyweight ? t.repsValue(entry.totalReps) : t.volumeValue(formatValue(entry.volume)),
+              style: Theme.of(context).textTheme.labelLarge,
+            ),
+            IconButton(
+              tooltip: t.delete,
+              icon: const Icon(Icons.delete_outline),
+              onPressed: () => _delete(context, ref),
+            ),
+          ],
+        ),
+        onTap: () => ExerciseWorkoutsScreen.openEntrySheet(context, ref, exerciseId, entry: entry),
+      ),
+    );
+  }
+}

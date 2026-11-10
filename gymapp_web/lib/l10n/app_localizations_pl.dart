@@ -190,6 +190,106 @@ class AppLocalizationsPl extends AppLocalizations {
   String get removeFromFavorites => 'Usuń z ulubionych';
 
   @override
+  String get myWorkouts => 'Moje treningi';
+
+  @override
+  String get logWorkout => 'Zapisz trening';
+
+  @override
+  String get editWorkout => 'Edytuj trening';
+
+  @override
+  String get workoutHistory => 'Historia';
+
+  @override
+  String get noWorkoutsYet =>
+      'Nie masz jeszcze treningów. Otwórz ćwiczenie i wybierz „Zapisz trening”.';
+
+  @override
+  String get noEntriesForExercise => 'Brak treningów dla tego ćwiczenia.';
+
+  @override
+  String get progress => 'Postęp';
+
+  @override
+  String get progressVolume => 'Objętość (kg)';
+
+  @override
+  String get progressReps => 'Powtórzenia (masa ciała)';
+
+  @override
+  String get progressNeedsMoreDays =>
+      'Zapisz co najmniej dwa dni treningowe, żeby zobaczyć trend.';
+
+  @override
+  String setNumber(int number) {
+    return 'Seria $number';
+  }
+
+  @override
+  String get reps => 'Powtórzenia';
+
+  @override
+  String get weightKgShort => 'kg';
+
+  @override
+  String get addSet => 'Dodaj serię';
+
+  @override
+  String get removeSet => 'Usuń serię';
+
+  @override
+  String get notesOptional => 'Notatka (opcjonalnie)';
+
+  @override
+  String get date => 'Data';
+
+  @override
+  String get workoutSaved => 'Trening zapisany';
+
+  @override
+  String get entryDeleted => 'Trening usunięty';
+
+  @override
+  String get deleteEntryQuestion => 'Usunąć ten trening?';
+
+  @override
+  String get delete => 'Usuń';
+
+  @override
+  String lastWorkout(String date) {
+    return 'Ostatnio: $date';
+  }
+
+  @override
+  String trainingDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dni treningowych',
+      many: '$count dni treningowych',
+      few: '$count dni treningowe',
+      one: '1 dzień treningowy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String volumeValue(String value) {
+    return '$value kg';
+  }
+
+  @override
+  String bestValue(String value) {
+    return 'rekord $value';
+  }
+
+  @override
+  String repsValue(int count) {
+    return '$count powt.';
+  }
+
+  @override
   String get emailRequired => 'Podaj e-mail';
 
   @override
