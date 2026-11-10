@@ -440,6 +440,336 @@ abstract class AppLocalizations {
   /// **'Other'**
   String get catOther;
 
+  /// No description provided for @favorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get favorites;
+
+  /// No description provided for @addToFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get addToFavorites;
+
+  /// No description provided for @removeFromFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get removeFromFavorites;
+
+  /// No description provided for @myWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'My workouts'**
+  String get myWorkouts;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get today;
+
+  /// No description provided for @metricVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume'**
+  String get metricVolume;
+
+  /// No description provided for @metricOneRepMax.
+  ///
+  /// In en, this message translates to:
+  /// **'1RM'**
+  String get metricOneRepMax;
+
+  /// No description provided for @metricMaxWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Max'**
+  String get metricMaxWeight;
+
+  /// No description provided for @metricReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get metricReps;
+
+  /// No description provided for @range1M.
+  ///
+  /// In en, this message translates to:
+  /// **'1M'**
+  String get range1M;
+
+  /// No description provided for @range3M.
+  ///
+  /// In en, this message translates to:
+  /// **'3M'**
+  String get range3M;
+
+  /// No description provided for @range1Y.
+  ///
+  /// In en, this message translates to:
+  /// **'1Y'**
+  String get range1Y;
+
+  /// No description provided for @rangeAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get rangeAll;
+
+  /// No description provided for @personalRecord.
+  ///
+  /// In en, this message translates to:
+  /// **'🏆 Personal record'**
+  String get personalRecord;
+
+  /// No description provided for @newRecordVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'🏆 New record: best volume so far!'**
+  String get newRecordVolume;
+
+  /// No description provided for @newRecordOneRepMax.
+  ///
+  /// In en, this message translates to:
+  /// **'🏆 New record: strongest so far (est. 1RM)!'**
+  String get newRecordOneRepMax;
+
+  /// No description provided for @chartSemantics.
+  ///
+  /// In en, this message translates to:
+  /// **'{metric} chart: from {first} to {last} over {days} training days'**
+  String chartSemantics(String metric, String first, String last, int days);
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @close.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get close;
+
+  /// No description provided for @off.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get off;
+
+  /// No description provided for @repeatLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat last: {sets}'**
+  String repeatLast(String sets);
+
+  /// No description provided for @repeatLastShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat last workout'**
+  String get repeatLastShort;
+
+  /// No description provided for @decreaseBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Decrease by {step}'**
+  String decreaseBy(String step);
+
+  /// No description provided for @increaseBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Increase by {step}'**
+  String increaseBy(String step);
+
+  /// No description provided for @restTimer.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest timer'**
+  String get restTimer;
+
+  /// No description provided for @restTimerHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Starts automatically after you log a workout.'**
+  String get restTimerHint;
+
+  /// No description provided for @restRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest {time}'**
+  String restRemaining(String time);
+
+  /// No description provided for @restOver.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest is over — next set!'**
+  String get restOver;
+
+  /// No description provided for @quickLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick log'**
+  String get quickLog;
+
+  /// No description provided for @doneToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Done today'**
+  String get doneToday;
+
+  /// No description provided for @noFavoritesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Star exercises (★) to log them here with one tap.'**
+  String get noFavoritesYet;
+
+  /// No description provided for @browseExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse exercises'**
+  String get browseExercises;
+
+  /// No description provided for @notTrainedYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not trained yet'**
+  String get notTrainedYet;
+
+  /// No description provided for @logWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log workout'**
+  String get logWorkout;
+
+  /// No description provided for @editWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit workout'**
+  String get editWorkout;
+
+  /// No description provided for @workoutHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get workoutHistory;
+
+  /// No description provided for @noWorkoutsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts yet. Open an exercise and tap \"Log workout\".'**
+  String get noWorkoutsYet;
+
+  /// No description provided for @noEntriesForExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts for this exercise yet.'**
+  String get noEntriesForExercise;
+
+  /// No description provided for @progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get progress;
+
+  /// No description provided for @progressNeedsMoreDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Log at least two training days to see the trend.'**
+  String get progressNeedsMoreDays;
+
+  /// No description provided for @setNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {number}'**
+  String setNumber(int number);
+
+  /// No description provided for @reps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get reps;
+
+  /// No description provided for @weightKgShort.
+  ///
+  /// In en, this message translates to:
+  /// **'kg'**
+  String get weightKgShort;
+
+  /// No description provided for @addSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add set'**
+  String get addSet;
+
+  /// No description provided for @removeSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove set'**
+  String get removeSet;
+
+  /// No description provided for @notesOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (optional)'**
+  String get notesOptional;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @workoutSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout saved'**
+  String get workoutSaved;
+
+  /// No description provided for @entryDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout deleted'**
+  String get entryDeleted;
+
+  /// No description provided for @delete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get delete;
+
+  /// No description provided for @lastWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Last: {date}'**
+  String lastWorkout(String date);
+
+  /// No description provided for @trainingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 training day} other{{count} training days}}'**
+  String trainingDays(int count);
+
+  /// No description provided for @volumeValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{value} kg'**
+  String volumeValue(String value);
+
+  /// No description provided for @bestValue.
+  ///
+  /// In en, this message translates to:
+  /// **'best {value}'**
+  String bestValue(String value);
+
+  /// No description provided for @repsValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} reps'**
+  String repsValue(int count);
+
   /// No description provided for @emailRequired.
   ///
   /// In en, this message translates to:

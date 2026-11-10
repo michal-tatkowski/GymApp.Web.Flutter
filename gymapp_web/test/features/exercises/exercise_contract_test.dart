@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import 'package:fake_async/fake_async.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/features/gym/exercises/data/exercise_api.dart';
@@ -22,7 +23,7 @@ class _FakeRepo extends ExerciseRepository {
   Object? createError;
 
   @override
-  Future<List<Exercise>> getExercises({ExerciseCategory? category, String? search, int page = 1, int pageSize = 20}) async {
+  Future<List<Exercise>> getExercises({ExerciseCategory? category, String? search, bool favoritesOnly = false, int page = 1, int pageSize = 20}) async {
     calls.add((category: category, search: search, page: page));
     final delay = delays[search ?? ''];
     if (delay != null) await Future<void>.delayed(delay);
@@ -35,6 +36,13 @@ class _FakeRepo extends ExerciseRepository {
     if (createError != null) throw createError!;
     return Exercise(id: 'new', name: req.name, category: req.category, isCustom: true);
   }
+}
+
+(ProviderContainer, ExercisesNotifier) _make(ExerciseRepository repo) {
+  final c = ProviderContainer(overrides: [exerciseRepositoryProvider.overrideWithValue(repo)]);
+  addTearDown(c.dispose);
+  c.listen(exercisesProvider, (_, __) {}); // autoDispose: keep alive for the test
+  return (c, c.read(exercisesProvider.notifier));
 }
 
 void main() {
@@ -75,23 +83,23 @@ void main() {
   group('ExercisesNotifier', () {
     test('loads pages without duplicates and stops at the last page', () async {
       final repo = _FakeRepo(total: 45);
-      final n = ExercisesNotifier(repo);
+      final (c, n) = _make(repo);
       await pumpEventQueue();
 
       await n.loadMore();
       await n.loadMore();
       await n.loadMore(); // no more pages
 
-      expect(n.state.items.length, 45);
-      expect(n.state.items.map((e) => e.id).toSet().length, 45);
-      expect(n.state.hasMore, isFalse);
+      expect(c.read(exercisesProvider).items.length, 45);
+      expect(c.read(exercisesProvider).items.map((e) => e.id).toSet().length, 45);
+      expect(c.read(exercisesProvider).hasMore, isFalse);
       expect(repo.calls.map((c) => c.page), [1, 2, 3]);
     });
 
     test('search is sent to the server, debounced', () {
       fakeAsync((async) {
         final repo = _FakeRepo();
-        final n = ExercisesNotifier(repo);
+        final (c, n) = _make(repo);
         async.flushMicrotasks();
 
         n.setQuery('w');
@@ -100,14 +108,14 @@ void main() {
         async.elapse(searchDebounce + const Duration(milliseconds: 10));
 
         expect(repo.calls.map((c) => c.search), ['', 'wyc']);
-        expect(n.state.items.first.id, startsWith('wyc'));
+        expect(c.read(exercisesProvider).items.first.id, startsWith('wyc'));
       });
     });
 
     test('a slow response for an old query does not overwrite the newer list', () {
       fakeAsync((async) {
         final repo = _FakeRepo()..delays['slow'] = const Duration(seconds: 2);
-        final n = ExercisesNotifier(repo);
+        final (c, n) = _make(repo);
         async.flushMicrotasks();
 
         n.setQuery('slow');
@@ -115,45 +123,45 @@ void main() {
         n.setQuery('fast');
         async.elapse(const Duration(seconds: 3));
 
-        expect(n.state.query, 'fast');
-        expect(n.state.items.first.id, startsWith('fast'));
+        expect(c.read(exercisesProvider).query, 'fast');
+        expect(c.read(exercisesProvider).items.first.id, startsWith('fast'));
       });
     });
 
     test('category filter goes to the server', () async {
       final repo = _FakeRepo();
-      final n = ExercisesNotifier(repo);
+      final (c, n) = _make(repo);
       await pumpEventQueue();
 
       await n.setCategory(ExerciseCategory.legs);
 
       expect(repo.calls.last.category, ExerciseCategory.legs);
-      expect(n.state.items.every((e) => e.category == ExerciseCategory.legs), isTrue);
+      expect(c.read(exercisesProvider).items.every((e) => e.category == ExerciseCategory.legs), isTrue);
     });
 
     test('added exercise appears on top only when it matches the filter', () async {
       final repo = _FakeRepo();
-      final n = ExercisesNotifier(repo);
+      final (c, n) = _make(repo);
       await pumpEventQueue();
 
       await n.addExercise(const CreateExerciseRequest(name: 'Plank', category: ExerciseCategory.push));
-      expect(n.state.items.first.id, 'new');
+      expect(c.read(exercisesProvider).items.first.id, 'new');
 
       await n.setCategory(ExerciseCategory.legs);
       await n.addExercise(const CreateExerciseRequest(name: 'Plank', category: ExerciseCategory.push));
-      expect(n.state.items.any((e) => e.id == 'new'), isFalse);
+      expect(c.read(exercisesProvider).items.any((e) => e.id == 'new'), isFalse);
     });
 
     test('create failure is thrown to the caller and does not become a list error', () async {
       final repo = _FakeRepo()..createError = const ConflictFailure('Masz już ćwiczenie o tej nazwie.', 'ExerciseAlreadyExists');
-      final n = ExercisesNotifier(repo);
+      final (c, n) = _make(repo);
       await pumpEventQueue();
 
       await expectLater(
         n.addExercise(const CreateExerciseRequest(name: 'x', category: ExerciseCategory.push)),
         throwsA(isA<ConflictFailure>()),
       );
-      expect(n.state.error, isNull);
+      expect(c.read(exercisesProvider).error, isNull);
     });
   });
 }

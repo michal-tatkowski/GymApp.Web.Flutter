@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -178,6 +179,205 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get catOther => 'Inne';
+
+  @override
+  String get favorites => 'Ulubione';
+
+  @override
+  String get addToFavorites => 'Dodaj do ulubionych';
+
+  @override
+  String get removeFromFavorites => 'Usuń z ulubionych';
+
+  @override
+  String get myWorkouts => 'Moje treningi';
+
+  @override
+  String get today => 'Dziś';
+
+  @override
+  String get metricVolume => 'Objętość';
+
+  @override
+  String get metricOneRepMax => '1RM';
+
+  @override
+  String get metricMaxWeight => 'Maks.';
+
+  @override
+  String get metricReps => 'Powt.';
+
+  @override
+  String get range1M => '1M';
+
+  @override
+  String get range3M => '3M';
+
+  @override
+  String get range1Y => '1R';
+
+  @override
+  String get rangeAll => 'Wszystko';
+
+  @override
+  String get personalRecord => '🏆 Rekord';
+
+  @override
+  String get newRecordVolume => '🏆 Nowy rekord: największa objętość!';
+
+  @override
+  String get newRecordOneRepMax =>
+      '🏆 Nowy rekord: najsilniej do tej pory (szac. 1RM)!';
+
+  @override
+  String chartSemantics(String metric, String first, String last, int days) {
+    return 'Wykres $metric: od $first do $last, $days dni treningowych';
+  }
+
+  @override
+  String get undo => 'Cofnij';
+
+  @override
+  String get close => 'Zamknij';
+
+  @override
+  String get off => 'Wył.';
+
+  @override
+  String repeatLast(String sets) {
+    return 'Powtórz ostatni: $sets';
+  }
+
+  @override
+  String get repeatLastShort => 'Powtórz ostatni trening';
+
+  @override
+  String decreaseBy(String step) {
+    return 'Zmniejsz o $step';
+  }
+
+  @override
+  String increaseBy(String step) {
+    return 'Zwiększ o $step';
+  }
+
+  @override
+  String get restTimer => 'Timer przerwy';
+
+  @override
+  String get restTimerHint => 'Startuje sam po zapisaniu treningu.';
+
+  @override
+  String restRemaining(String time) {
+    return 'Przerwa $time';
+  }
+
+  @override
+  String get restOver => 'Koniec przerwy — następna seria!';
+
+  @override
+  String get quickLog => 'Szybki zapis';
+
+  @override
+  String get doneToday => 'Zrobione dzisiaj';
+
+  @override
+  String get noFavoritesYet =>
+      'Oznacz ćwiczenia gwiazdką (★), żeby zapisywać je tutaj jednym dotknięciem.';
+
+  @override
+  String get browseExercises => 'Przeglądaj ćwiczenia';
+
+  @override
+  String get notTrainedYet => 'Jeszcze nie trenowane';
+
+  @override
+  String get logWorkout => 'Zapisz trening';
+
+  @override
+  String get editWorkout => 'Edytuj trening';
+
+  @override
+  String get workoutHistory => 'Historia';
+
+  @override
+  String get noWorkoutsYet =>
+      'Nie masz jeszcze treningów. Otwórz ćwiczenie i wybierz „Zapisz trening”.';
+
+  @override
+  String get noEntriesForExercise => 'Brak treningów dla tego ćwiczenia.';
+
+  @override
+  String get progress => 'Postęp';
+
+  @override
+  String get progressNeedsMoreDays =>
+      'Zapisz co najmniej dwa dni treningowe, żeby zobaczyć trend.';
+
+  @override
+  String setNumber(int number) {
+    return 'Seria $number';
+  }
+
+  @override
+  String get reps => 'Powtórzenia';
+
+  @override
+  String get weightKgShort => 'kg';
+
+  @override
+  String get addSet => 'Dodaj serię';
+
+  @override
+  String get removeSet => 'Usuń serię';
+
+  @override
+  String get notesOptional => 'Notatka (opcjonalnie)';
+
+  @override
+  String get date => 'Data';
+
+  @override
+  String get workoutSaved => 'Trening zapisany';
+
+  @override
+  String get entryDeleted => 'Trening usunięty';
+
+  @override
+  String get delete => 'Usuń';
+
+  @override
+  String lastWorkout(String date) {
+    return 'Ostatnio: $date';
+  }
+
+  @override
+  String trainingDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count dni treningowych',
+      many: '$count dni treningowych',
+      few: '$count dni treningowe',
+      one: '1 dzień treningowy',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String volumeValue(String value) {
+    return '$value kg';
+  }
+
+  @override
+  String bestValue(String value) {
+    return 'rekord $value';
+  }
+
+  @override
+  String repsValue(int count) {
+    return '$count powt.';
+  }
 
   @override
   String get emailRequired => 'Podaj e-mail';

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/providers/retry.dart';
 import '../../../../features/auth/presentation/auth_providers.dart';
 import '../data/exercise_api.dart';
 import '../data/exercise_repository.dart';
@@ -29,6 +30,7 @@ class ExercisesState {
     this.error,
     this.query = '',
     this.categoryFilter,
+    this.favoritesOnly = false,
   });
 
   final List<Exercise> items;
@@ -38,6 +40,9 @@ class ExercisesState {
   final Object? error;
   final String query;
   final ExerciseCategory? categoryFilter;
+
+  /// Only starred exercises (filtered on the server).
+  final bool favoritesOnly;
 
   ExercisesState copyWith({
     List<Exercise>? items,
@@ -49,6 +54,7 @@ class ExercisesState {
     String? query,
     ExerciseCategory? categoryFilter,
     bool clearCategory = false,
+    bool? favoritesOnly,
   }) =>
       ExercisesState(
         items: items ?? this.items,
@@ -58,6 +64,7 @@ class ExercisesState {
         error: clearError ? null : (error ?? this.error),
         query: query ?? this.query,
         categoryFilter: clearCategory ? null : (categoryFilter ?? this.categoryFilter),
+        favoritesOnly: favoritesOnly ?? this.favoritesOnly,
       );
 }
 
@@ -68,12 +75,8 @@ const searchDebounce = Duration(milliseconds: 300);
 
 /// Paged exercise list. Search and category filter are applied by the API,
 /// so "load more" continues the same filtered list.
-class ExercisesNotifier extends StateNotifier<ExercisesState> {
-  ExercisesNotifier(this._repo) : super(const ExercisesState()) {
-    load();
-  }
-
-  final ExerciseRepository _repo;
+class ExercisesNotifier extends Notifier<ExercisesState> {
+  late ExerciseRepository _repo;
   int _page = 1;
   Timer? _debounce;
 
@@ -81,9 +84,18 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
   /// so a slow "push" response cannot overwrite a newer "pull" list.
   int _generation = 0;
 
+  @override
+  ExercisesState build() {
+    _repo = ref.watch(exerciseRepositoryProvider);
+    ref.onDispose(() => _debounce?.cancel());
+    Future.microtask(load);
+    return const ExercisesState(isLoading: true);
+  }
+
   Future<List<Exercise>> _fetch(int page) => _repo.getExercises(
         category: state.categoryFilter,
         search: state.query,
+        favoritesOnly: state.favoritesOnly,
         page: page,
         pageSize: exercisesPageSize,
       );
@@ -94,14 +106,14 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
     state = state.copyWith(isLoading: true, isLoadingMore: false, hasMore: true, clearError: true);
     try {
       final items = await _fetch(1);
-      if (generation != _generation || !mounted) return;
+      if (generation != _generation || !ref.mounted) return;
       state = state.copyWith(
         items: items,
         isLoading: false,
         hasMore: items.length >= exercisesPageSize,
       );
     } catch (e) {
-      if (generation != _generation || !mounted) return;
+      if (generation != _generation || !ref.mounted) return;
       state = state.copyWith(items: const [], isLoading: false, error: e);
     }
   }
@@ -112,7 +124,7 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
     state = state.copyWith(isLoadingMore: true, clearError: true);
     try {
       final more = await _fetch(_page + 1);
-      if (generation != _generation || !mounted) return;
+      if (generation != _generation || !ref.mounted) return;
       _page++;
       final known = state.items.map((e) => e.id).toSet();
       state = state.copyWith(
@@ -121,7 +133,7 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
         hasMore: more.length >= exercisesPageSize,
       );
     } catch (e) {
-      if (generation != _generation || !mounted) return;
+      if (generation != _generation || !ref.mounted) return;
       state = state.copyWith(isLoadingMore: false, error: e);
     }
   }
@@ -140,6 +152,40 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
     await load();
   }
 
+  Future<void> setFavoritesOnly(bool value) async {
+    if (value == state.favoritesOnly) return;
+    state = state.copyWith(favoritesOnly: value);
+    await load();
+  }
+
+  /// Stars / unstars an exercise. The star flips immediately; if the API call
+  /// fails it flips back and the Failure is rethrown for the caller to show.
+  /// The list is not re-sorted on the spot (no jumping rows) — favorites move
+  /// to the top on the next load. In "favorites only" mode an unstarred row
+  /// disappears right away.
+  Future<void> toggleFavorite(String exerciseId) async {
+    final current = state.items.where((e) => e.id == exerciseId).firstOrNull;
+    if (current == null) return;
+    final target = !current.isFavorite;
+
+    _replace(exerciseId, (e) => e.copyWith(isFavorite: target));
+    try {
+      await _repo.setFavorite(exerciseId, target);
+      ref.invalidate(favoriteExercisesProvider);
+      if (ref.mounted && state.favoritesOnly && !target) {
+        state = state.copyWith(items: state.items.where((e) => e.id != exerciseId).toList());
+      }
+    } catch (_) {
+      if (ref.mounted) _replace(exerciseId, (e) => e.copyWith(isFavorite: !target));
+      rethrow;
+    }
+  }
+
+  void _replace(String id, Exercise Function(Exercise) update) {
+    if (!ref.mounted) return;
+    state = state.copyWith(items: [for (final e in state.items) e.id == id ? update(e) : e]);
+  }
+
   /// Creates the exercise and shows it at the top when it matches the current filter.
   /// Throws a Failure — the caller (add sheet) shows the error.
   Future<Exercise> addExercise(CreateExerciseRequest req) async {
@@ -148,20 +194,18 @@ class ExercisesNotifier extends StateNotifier<ExercisesState> {
     final query = state.query.trim().toLowerCase();
     final matches = (filter == null || filter == created.category) &&
         (query.isEmpty || created.name.toLowerCase().contains(query));
-    if (matches && mounted) {
+    if (matches && ref.mounted) {
       state = state.copyWith(items: [created, ...state.items.where((e) => e.id != created.id)]);
     }
     return created;
   }
-
-  @override
-  void dispose() {
-    _debounce?.cancel();
-    super.dispose();
-  }
 }
 
 final exercisesProvider =
-    StateNotifierProvider.autoDispose<ExercisesNotifier, ExercisesState>(
-  (ref) => ExercisesNotifier(ref.watch(exerciseRepositoryProvider)),
+    NotifierProvider.autoDispose<ExercisesNotifier, ExercisesState>(ExercisesNotifier.new);
+
+/// Starred exercises for the "Today" quick log. Refreshed whenever a star changes.
+final favoriteExercisesProvider = FutureProvider.autoDispose<List<Exercise>>(
+  (ref) => ref.watch(exerciseRepositoryProvider).getExercises(favoritesOnly: true, pageSize: 100),
+  retry: noRetry,
 );

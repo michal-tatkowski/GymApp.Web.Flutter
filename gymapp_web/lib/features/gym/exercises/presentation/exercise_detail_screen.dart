@@ -1,21 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/failure_messages.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../data/models/exercise.dart';
 import 'category_ui.dart';
+import 'exercises_providers.dart';
+import 'favorite_button.dart';
+import '../../workouts/presentation/exercise_workouts_screen.dart';
 
-class ExerciseDetailScreen extends StatelessWidget {
+class ExerciseDetailScreen extends ConsumerWidget {
   const ExerciseDetailScreen({super.key, required this.exercise});
 
   final Exercise exercise;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    // Live copy from the list, so the star reflects toggles made here and on the list.
+    final live = ref.watch(exercisesProvider.select(
+            (s) => s.items.where((e) => e.id == exercise.id).firstOrNull)) ??
+        exercise;
 
     return Scaffold(
-      appBar: AppBar(title: Text(exercise.name)),
+      appBar: AppBar(
+        title: Text(exercise.name),
+        actions: [
+          FavoriteButton(
+            isFavorite: live.isFavorite,
+            onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
+              try {
+                await ref.read(exercisesProvider.notifier).toggleFavorite(exercise.id);
+              } catch (e) {
+                messenger.showSnackBar(SnackBar(content: Text(describeError(t, e))));
+              }
+            },
+          ),
+        ],
+      ),
       body: Stack(
         children: [
           Container(
@@ -105,6 +129,19 @@ class ExerciseDetailScreen extends StatelessWidget {
                           style: theme.textTheme.bodyMedium,
                         ),
                       ),
+                      const SizedBox(height: 24),
+                      // ── Training log ──────────────────────────────
+                      FilledButton.icon(
+                        key: const Key('exercise.openWorkouts'),
+                        onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(
+                          builder: (_) => ExerciseWorkoutsScreen(
+                            exerciseId: exercise.id,
+                            exerciseName: exercise.name,
+                          ),
+                        )),
+                        icon: const Icon(Icons.show_chart),
+                        label: Text('${t.logWorkout} · ${t.progress}'),
+                      ),
                     ],
                   ),
                 ),
@@ -117,4 +154,3 @@ class ExerciseDetailScreen extends StatelessWidget {
   }
 }
 
-// re-use helpers from exercises_screen.dart via export or duplicate

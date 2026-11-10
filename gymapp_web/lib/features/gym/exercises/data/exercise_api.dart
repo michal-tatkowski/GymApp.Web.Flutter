@@ -14,6 +14,7 @@ class ExerciseApi {
   Future<List<Exercise>> getExercises({
     ExerciseCategory? category,
     String? search,
+    bool favoritesOnly = false,
     int page = 1,
     int pageSize = 20,
   }) async {
@@ -22,6 +23,7 @@ class ExerciseApi {
       queryParameters: {
         if (category != null) 'category': category.apiName,
         if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+        if (favoritesOnly) 'favoritesOnly': true,
         'page': page,
         'pageSize': pageSize,
       },
@@ -31,6 +33,12 @@ class ExerciseApi {
         .cast<Map<String, dynamic>>()
         .map(Exercise.fromJson)
         .toList(growable: false);
+  }
+
+  /// Star / unstar (idempotent on the server). 404 when the exercise is not visible.
+  Future<void> setFavorite(String exerciseId, bool favorite) async {
+    final path = 'Exercise/$exerciseId/favorite';
+    favorite ? await _dio.put<dynamic>(path) : await _dio.delete<dynamic>(path);
   }
 
   /// Creates a custom exercise; the API returns it in the same shape as the list.

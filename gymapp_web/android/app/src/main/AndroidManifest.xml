@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The app talks to the GymApp API. Debug builds get this permission from
+         src/debug, release builds need it here or every request fails. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
-        android:label="gymapp_web"
+        android:label="GymApp"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

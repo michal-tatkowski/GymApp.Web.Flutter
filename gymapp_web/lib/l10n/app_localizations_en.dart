@@ -1,5 +1,6 @@
 // ignore: unused_import
 import 'package:intl/intl.dart' as intl;
+
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
@@ -178,6 +179,203 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get catOther => 'Other';
+
+  @override
+  String get favorites => 'Favorites';
+
+  @override
+  String get addToFavorites => 'Add to favorites';
+
+  @override
+  String get removeFromFavorites => 'Remove from favorites';
+
+  @override
+  String get myWorkouts => 'My workouts';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get metricVolume => 'Volume';
+
+  @override
+  String get metricOneRepMax => '1RM';
+
+  @override
+  String get metricMaxWeight => 'Max';
+
+  @override
+  String get metricReps => 'Reps';
+
+  @override
+  String get range1M => '1M';
+
+  @override
+  String get range3M => '3M';
+
+  @override
+  String get range1Y => '1Y';
+
+  @override
+  String get rangeAll => 'All';
+
+  @override
+  String get personalRecord => '🏆 Personal record';
+
+  @override
+  String get newRecordVolume => '🏆 New record: best volume so far!';
+
+  @override
+  String get newRecordOneRepMax =>
+      '🏆 New record: strongest so far (est. 1RM)!';
+
+  @override
+  String chartSemantics(String metric, String first, String last, int days) {
+    return '$metric chart: from $first to $last over $days training days';
+  }
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get close => 'Close';
+
+  @override
+  String get off => 'Off';
+
+  @override
+  String repeatLast(String sets) {
+    return 'Repeat last: $sets';
+  }
+
+  @override
+  String get repeatLastShort => 'Repeat last workout';
+
+  @override
+  String decreaseBy(String step) {
+    return 'Decrease by $step';
+  }
+
+  @override
+  String increaseBy(String step) {
+    return 'Increase by $step';
+  }
+
+  @override
+  String get restTimer => 'Rest timer';
+
+  @override
+  String get restTimerHint => 'Starts automatically after you log a workout.';
+
+  @override
+  String restRemaining(String time) {
+    return 'Rest $time';
+  }
+
+  @override
+  String get restOver => 'Rest is over — next set!';
+
+  @override
+  String get quickLog => 'Quick log';
+
+  @override
+  String get doneToday => 'Done today';
+
+  @override
+  String get noFavoritesYet =>
+      'Star exercises (★) to log them here with one tap.';
+
+  @override
+  String get browseExercises => 'Browse exercises';
+
+  @override
+  String get notTrainedYet => 'Not trained yet';
+
+  @override
+  String get logWorkout => 'Log workout';
+
+  @override
+  String get editWorkout => 'Edit workout';
+
+  @override
+  String get workoutHistory => 'History';
+
+  @override
+  String get noWorkoutsYet =>
+      'No workouts yet. Open an exercise and tap \"Log workout\".';
+
+  @override
+  String get noEntriesForExercise => 'No workouts for this exercise yet.';
+
+  @override
+  String get progress => 'Progress';
+
+  @override
+  String get progressNeedsMoreDays =>
+      'Log at least two training days to see the trend.';
+
+  @override
+  String setNumber(int number) {
+    return 'Set $number';
+  }
+
+  @override
+  String get reps => 'Reps';
+
+  @override
+  String get weightKgShort => 'kg';
+
+  @override
+  String get addSet => 'Add set';
+
+  @override
+  String get removeSet => 'Remove set';
+
+  @override
+  String get notesOptional => 'Notes (optional)';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get workoutSaved => 'Workout saved';
+
+  @override
+  String get entryDeleted => 'Workout deleted';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String lastWorkout(String date) {
+    return 'Last: $date';
+  }
+
+  @override
+  String trainingDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count training days',
+      one: '1 training day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String volumeValue(String value) {
+    return '$value kg';
+  }
+
+  @override
+  String bestValue(String value) {
+    return 'best $value';
+  }
+
+  @override
+  String repsValue(int count) {
+    return '$count reps';
+  }
 
   @override
   String get emailRequired => 'Enter your email';
