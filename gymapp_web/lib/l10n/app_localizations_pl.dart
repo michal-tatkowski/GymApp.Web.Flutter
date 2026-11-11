@@ -279,6 +279,25 @@ class AppLocalizationsPl extends AppLocalizations {
   String get restOver => 'Koniec przerwy — następna seria!';
 
   @override
+  String get restNotificationTitle => 'Przerwa';
+
+  @override
+  String get restNotificationBody => 'Następna seria po końcu odliczania';
+
+  @override
+  String get restCountdownChannel => 'Odliczanie przerwy';
+
+  @override
+  String get restOverChannel => 'Koniec przerwy';
+
+  @override
+  String get restExactAlarm => 'Powiadomienie dokładnie na czas';
+
+  @override
+  String get restExactAlarmHint =>
+      'Zezwól na alarmy, żeby powiadomienie o końcu przerwy nie spóźniało się przy zablokowanym telefonie';
+
+  @override
   String get quickLog => 'Szybki zapis';
 
   @override

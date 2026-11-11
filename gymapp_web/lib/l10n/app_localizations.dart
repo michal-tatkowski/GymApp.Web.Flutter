@@ -614,6 +614,42 @@ abstract class AppLocalizations {
   /// **'Rest is over — next set!'**
   String get restOver;
 
+  /// No description provided for @restNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest'**
+  String get restNotificationTitle;
+
+  /// No description provided for @restNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Next set when the countdown ends'**
+  String get restNotificationBody;
+
+  /// No description provided for @restCountdownChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest countdown'**
+  String get restCountdownChannel;
+
+  /// No description provided for @restOverChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'End of rest'**
+  String get restOverChannel;
+
+  /// No description provided for @restExactAlarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert exactly on time'**
+  String get restExactAlarm;
+
+  /// No description provided for @restExactAlarmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow alarms so the end-of-rest alert is not delayed when the phone is locked'**
+  String get restExactAlarmHint;
+
   /// No description provided for @quickLog.
   ///
   /// In en, this message translates to:

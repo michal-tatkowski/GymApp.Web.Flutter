@@ -279,6 +279,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get restOver => 'Rest is over — next set!';
 
   @override
+  String get restNotificationTitle => 'Rest';
+
+  @override
+  String get restNotificationBody => 'Next set when the countdown ends';
+
+  @override
+  String get restCountdownChannel => 'Rest countdown';
+
+  @override
+  String get restOverChannel => 'End of rest';
+
+  @override
+  String get restExactAlarm => 'Alert exactly on time';
+
+  @override
+  String get restExactAlarmHint =>
+      'Allow alarms so the end-of-rest alert is not delayed when the phone is locked';
+
+  @override
   String get quickLog => 'Quick log';
 
   @override

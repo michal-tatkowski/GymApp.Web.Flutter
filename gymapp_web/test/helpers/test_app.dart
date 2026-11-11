@@ -13,6 +13,7 @@ import 'package:gymapp_web/features/gym/exercises/data/exercise_api.dart';
 import 'package:gymapp_web/features/gym/exercises/data/exercise_repository.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/create_exercise_request.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
+import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/profile/data/models/update_profile_request.dart';
 import 'package:gymapp_web/features/profile/data/models/user_profile.dart';
 import 'package:gymapp_web/features/profile/data/profile_api.dart';
@@ -26,10 +27,12 @@ Future<void> pumpScreen(
   Widget screen, {
   List<Override> overrides = const [],
   Locale locale = const Locale('en'),
+  RestAlarm? restAlarm,
 }) async {
   await tester.pumpWidget(ProviderScope(
     retry: noRetry,
-    overrides: overrides,
+    // Tests never talk to the real notification plugin.
+    overrides: [restAlarmProvider.overrideWithValue(restAlarm ?? FakeRestAlarm()), ...overrides],
     child: MaterialApp(
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -161,4 +164,26 @@ class FakeAuthRepository extends AuthRepository {
 
   @override
   Future<bool> restoreSession() async => false;
+}
+
+/// Records what the rest timer asked the system notifications to do.
+class FakeRestAlarm implements RestAlarm {
+  final calls = <String>[];
+  DateTime? endsAt;
+  bool onTime = true;
+
+  @override
+  Future<void> requestPermission() async => calls.add('permission');
+  @override
+  Future<void> showInBackground({required DateTime endsAt, required AppLocalizations t}) async {
+    this.endsAt = endsAt;
+    calls.add('background');
+  }
+
+  @override
+  Future<void> clear() async => calls.add('clear');
+  @override
+  Future<bool> canAlertOnTime() async => onTime;
+  @override
+  Future<void> openExactAlarmSettings() async => calls.add('exactSettings');
 }
