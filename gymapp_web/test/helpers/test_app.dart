@@ -13,6 +13,9 @@ import 'package:gymapp_web/features/gym/exercises/data/exercise_api.dart';
 import 'package:gymapp_web/features/gym/exercises/data/exercise_repository.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/create_exercise_request.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
+import 'package:gymapp_web/features/gym/plans/data/plan_models.dart';
+import 'package:gymapp_web/features/gym/plans/data/plan_repository.dart';
+import 'package:gymapp_web/features/gym/plans/presentation/plan_providers.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/profile/data/models/update_profile_request.dart';
 import 'package:gymapp_web/features/profile/data/models/user_profile.dart';
@@ -28,11 +31,16 @@ Future<void> pumpScreen(
   List<Override> overrides = const [],
   Locale locale = const Locale('en'),
   RestAlarm? restAlarm,
+  PlanRepository? plans,
 }) async {
   await tester.pumpWidget(ProviderScope(
     retry: noRetry,
     // Tests never talk to the real notification plugin.
-    overrides: [restAlarmProvider.overrideWithValue(restAlarm ?? FakeRestAlarm()), ...overrides],
+    overrides: [
+      restAlarmProvider.overrideWithValue(restAlarm ?? FakeRestAlarm()),
+      planRepositoryProvider.overrideWithValue(plans ?? FakePlanRepository()),
+      ...overrides,
+    ],
     child: MaterialApp(
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -188,4 +196,41 @@ class FakeRestAlarm implements RestAlarm {
   Future<bool> canAlertOnTime() async => onTime;
   @override
   Future<void> openExactAlarmSettings() async => calls.add('exactSettings');
+}
+
+/// In-memory api/Plans.
+class FakePlanRepository extends PlanRepository {
+  FakePlanRepository([List<WorkoutPlan>? plans]) : plans = [...?plans], super(Dio());
+
+  final List<WorkoutPlan> plans;
+  Object? error;
+  final saved = <PlanRequest>[];
+  int _id = 0;
+
+  @override
+  Future<List<WorkoutPlan>> getPlans() async {
+    if (error != null) throw error!;
+    return List.of(plans);
+  }
+
+  @override
+  Future<WorkoutPlan> create(PlanRequest req) async {
+    if (error != null) throw error!;
+    saved.add(req);
+    final plan = WorkoutPlan(id: 'p${_id++}', name: req.name.trim(), items: req.items);
+    plans.insert(0, plan);
+    return plan;
+  }
+
+  @override
+  Future<WorkoutPlan> update(String id, PlanRequest req) async {
+    if (error != null) throw error!;
+    saved.add(req);
+    final plan = WorkoutPlan(id: id, name: req.name.trim(), items: req.items);
+    plans[plans.indexWhere((p) => p.id == id)] = plan;
+    return plan;
+  }
+
+  @override
+  Future<void> delete(String id) async => plans.removeWhere((p) => p.id == id);
 }

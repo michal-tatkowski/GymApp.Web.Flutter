@@ -1,0 +1,76 @@
+import '../../exercises/data/models/exercise.dart';
+
+/// Must match the API (PlanLimits).
+const kPlanMaxNameLength = 60;
+const kPlanMaxExercises = 20;
+const kPlanMaxSets = 10;
+const kPlanMaxReps = 100;
+
+/// Exercise in a plan with its target: [sets] × [repsMin]–[repsMax] reps.
+class PlanItem {
+  const PlanItem({
+    required this.exerciseId,
+    required this.exerciseName,
+    required this.category,
+    this.sets = 3,
+    this.repsMin = 8,
+    this.repsMax = 12,
+  });
+
+  final String exerciseId;
+  final String exerciseName;
+  final ExerciseCategory category;
+  final int sets;
+  final int repsMin;
+  final int repsMax;
+
+  PlanItem copyWith({int? sets, int? repsMin, int? repsMax}) => PlanItem(
+        exerciseId: exerciseId,
+        exerciseName: exerciseName,
+        category: category,
+        sets: sets ?? this.sets,
+        repsMin: repsMin ?? this.repsMin,
+        repsMax: repsMax ?? this.repsMax,
+      );
+
+  /// "3 × 8–12" or "4 × 5".
+  String get target => repsMin == repsMax ? '$sets × $repsMin' : '$sets × $repsMin–$repsMax';
+
+  factory PlanItem.fromJson(Map<String, dynamic> json) => PlanItem(
+        exerciseId: json['exerciseId'].toString(),
+        exerciseName: json['exerciseName'] as String,
+        category: ExerciseCategoryX.fromJson(json['category']),
+        sets: (json['sets'] as num).toInt(),
+        repsMin: (json['repsMin'] as num).toInt(),
+        repsMax: (json['repsMax'] as num).toInt(),
+      );
+
+  Map<String, dynamic> toJson() =>
+      {'exerciseId': exerciseId, 'sets': sets, 'repsMin': repsMin, 'repsMax': repsMax};
+}
+
+class WorkoutPlan {
+  const WorkoutPlan({required this.id, required this.name, required this.items});
+
+  final String id;
+  final String name;
+
+  /// In training order.
+  final List<PlanItem> items;
+
+  factory WorkoutPlan.fromJson(Map<String, dynamic> json) => WorkoutPlan(
+        id: json['id'].toString(),
+        name: json['name'] as String,
+        items: (json['exercises'] as List).cast<Map<String, dynamic>>().map(PlanItem.fromJson).toList(),
+      );
+}
+
+/// POST/PUT body.
+class PlanRequest {
+  const PlanRequest({required this.name, required this.items});
+
+  final String name;
+  final List<PlanItem> items;
+
+  Map<String, dynamic> toJson() => {'name': name.trim(), 'exercises': items.map((i) => i.toJson()).toList()};
+}

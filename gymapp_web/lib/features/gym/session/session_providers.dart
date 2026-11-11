@@ -1,0 +1,176 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../core/errors/failure.dart';
+import '../../../core/logging/app_logger.dart';
+import '../../../core/storage/secure_storage_keys.dart';
+import '../../../core/units/weight_unit.dart';
+import '../exercises/data/models/exercise.dart';
+import '../plans/data/plan_models.dart';
+import '../workouts/data/workout_models.dart';
+import '../workouts/presentation/rest_timer.dart';
+import '../workouts/presentation/workout_providers.dart';
+import 'session_models.dart';
+
+/// The workout in progress (null = none). Persisted on every change, so closing
+/// the app — or the phone killing it between sets — does not lose it.
+///
+/// Each exercise is saved as a normal log entry when the user moves on from it
+/// (or finishes), through [WorkoutActions] — so history, charts and the offline
+/// queue work exactly as for single entries.
+final activeSessionProvider = NotifierProvider<SessionNotifier, WorkoutSession?>(SessionNotifier.new);
+
+class SessionNotifier extends Notifier<WorkoutSession?> {
+  bool _changedBeforeRestore = false;
+  final _records = <String>{};
+
+  @override
+  WorkoutSession? build() {
+    _restore();
+    return null;
+  }
+
+  Future<void> _restore() async {
+    final raw = (await SharedPreferences.getInstance()).getString(StorageKeys.activeSession);
+    if (!ref.mounted || _changedBeforeRestore || raw == null) return;
+    try {
+      state = WorkoutSession.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (e) {
+      log.w('Unreadable saved session, dropped: $e');
+    }
+  }
+
+  void _set(WorkoutSession? session) {
+    _changedBeforeRestore = true;
+    state = session;
+    SharedPreferences.getInstance().then((prefs) => session == null
+        ? prefs.remove(StorageKeys.activeSession)
+        : prefs.setString(StorageKeys.activeSession, jsonEncode(session.toJson())));
+  }
+
+  /// Starts [plan]: loads the last workout of each exercise (for the hints); offline
+  /// the exercises simply start without hints.
+  Future<void> start(WorkoutPlan plan) async {
+    final repo = ref.read(workoutRepositoryProvider);
+    final weights = ref.read(weightFormatProvider);
+    final last = await Future.wait(plan.items.map((item) async {
+      try {
+        return (await repo.getLog(item.exerciseId)).entries.firstOrNull?.sets;
+      } catch (e) {
+        if (isOfflineFailure(e)) return null;
+        rethrow;
+      }
+    }));
+    _records.clear();
+    _set(WorkoutSession(
+      planId: plan.id,
+      planName: plan.name,
+      startedAt: DateTime.now(),
+      exercises: [for (var i = 0; i < plan.items.length; i++) SessionExercise.fromPlan(plan.items[i], last[i], weights)],
+    ));
+  }
+
+  void _updateExercise(int index, SessionExercise Function(SessionExercise) update) {
+    final s = state;
+    if (s == null) return;
+    _set(s.copyWith(exercises: [for (var i = 0; i < s.exercises.length; i++) i == index ? update(s.exercises[i]) : s.exercises[i]]));
+  }
+
+  void updateSet(int exercise, int set, SessionSet value) => _updateExercise(
+        exercise,
+        (e) => e.copyWith(sets: [for (var i = 0; i < e.sets.length; i++) i == set ? value : e.sets[i]]),
+      );
+
+  /// Ticks a set off (starts the rest timer) or un-ticks it.
+  void toggleDone(int exercise, int set) {
+    final s = state;
+    if (s == null) return;
+    final value = s.exercises[exercise].sets[set];
+    updateSet(exercise, set, value.copyWith(done: !value.done));
+    if (!value.done) {
+      HapticFeedback.mediumImpact();
+      ref.read(restTimerProvider.notifier).startAfterSet();
+    }
+  }
+
+  /// One more set, same as the last one.
+  void addSet(int exercise) => _updateExercise(exercise, (e) {
+        final last = e.sets.lastOrNull ?? SessionSet(reps: e.repsMin, weightKg: 0);
+        return e.copyWith(sets: [...e.sets, SessionSet(reps: last.reps, weightKg: last.weightKg)]);
+      });
+
+  void removeSet(int exercise, int set) =>
+      _updateExercise(exercise, (e) => e.copyWith(sets: [...e.sets]..removeAt(set)));
+
+  /// Adds an exercise that was not in the plan (after the current one) and goes to it.
+  Future<void> addExercise(Exercise exercise, WorkoutActions actions) async {
+    final s = state;
+    if (s == null) return;
+    final item = PlanItem(exerciseId: exercise.id, exerciseName: exercise.name, category: exercise.category);
+    List<WorkoutSet>? last;
+    try {
+      last = (await ref.read(workoutRepositoryProvider).getLog(exercise.id)).entries.firstOrNull?.sets;
+    } catch (e) {
+      if (!isOfflineFailure(e)) rethrow;
+    }
+    final added = SessionExercise.fromPlan(item, last, ref.read(weightFormatProvider));
+    final at = s.current + 1;
+    _set(s.copyWith(exercises: [...s.exercises]..insert(at, added)));
+    await goTo(at, actions);
+  }
+
+  /// Moves to another exercise; the one being left is saved first if it has done sets.
+  /// Throws a Failure when saving fails (offline is not a failure — it is queued).
+  Future<void> goTo(int index, WorkoutActions actions) async {
+    final s = state;
+    if (s == null || index < 0 || index >= s.exercises.length) return;
+    await _save(s.current, actions);
+    final now = state;
+    if (now != null) _set(now.copyWith(current: index));
+  }
+
+  Future<void> _save(int index, WorkoutActions actions) async {
+    final exercise = state?.exercises[index];
+    if (exercise == null || exercise.saved || exercise.doneSets.isEmpty) return;
+    final now = DateTime.now();
+    final (created, record) = await actions.addAndCheckRecord(
+      exercise.exerciseId,
+      WorkoutEntryRequest(
+        date: DateTime(now.year, now.month, now.day),
+        sets: [for (final s in exercise.doneSets) WorkoutSet(reps: s.reps, weight: s.weightKg)],
+      ),
+    );
+    if (record != null) _records.add(exercise.name);
+    _updateExercise(index, (e) => e.copyWith(savedEntryId: created.id));
+  }
+
+  /// Saves everything not saved yet and ends the session.
+  Future<SessionSummary?> finish(WorkoutActions actions) async {
+    final s = state;
+    if (s == null) return null;
+    for (var i = 0; i < s.exercises.length; i++) {
+      await _save(i, actions);
+    }
+    final done = state!.exercises.where((e) => e.doneSets.isNotEmpty).toList();
+    final summary = SessionSummary(
+      planName: s.planName,
+      duration: DateTime.now().difference(s.startedAt),
+      exercises: done.length,
+      sets: done.fold(0, (n, e) => n + e.doneSets.length),
+      volumeKg: done.fold(0.0, (v, e) => v + e.doneSets.fold(0.0, (w, s) => w + s.reps * s.weightKg)),
+      records: _records.toList(),
+    );
+    _set(null);
+    ref.read(restTimerProvider.notifier).stop();
+    return summary;
+  }
+
+  /// Ends without saving the remaining sets (exercises already saved stay in the history).
+  void discard() {
+    _set(null);
+    ref.read(restTimerProvider.notifier).stop();
+  }
+}

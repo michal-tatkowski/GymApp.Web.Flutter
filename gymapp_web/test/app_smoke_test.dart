@@ -5,10 +5,11 @@ import 'package:gymapp_web/app/app.dart';
 import 'package:gymapp_web/features/auth/data/auth_local_storage.dart';
 import 'package:gymapp_web/features/auth/data/models/auth_tokens.dart';
 import 'package:gymapp_web/features/auth/presentation/auth_providers.dart';
+import 'package:gymapp_web/features/gym/plans/presentation/plan_providers.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'helpers/test_app.dart' show FakeRestAlarm;
+import 'helpers/test_app.dart' show FakePlanRepository, FakeRestAlarm;
 
 /// No saved session (the real storage needs the secure storage plugin).
 class _EmptyStorage extends AuthLocalStorage {
@@ -30,6 +31,7 @@ void main() {
       overrides: [
         authLocalStorageProvider.overrideWithValue(_EmptyStorage()),
         restAlarmProvider.overrideWithValue(FakeRestAlarm()),
+        planRepositoryProvider.overrideWithValue(FakePlanRepository()),
       ],
       child: const GymApp(),
     ));

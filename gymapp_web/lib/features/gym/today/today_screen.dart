@@ -12,6 +12,10 @@ import '../../../routing/app_routes.dart';
 import '../exercises/data/models/exercise.dart';
 import '../exercises/presentation/category_ui.dart';
 import '../exercises/presentation/exercises_providers.dart';
+import '../plans/presentation/plan_providers.dart';
+import '../plans/presentation/plans_section.dart';
+import '../session/session_providers.dart';
+import '../session/session_screen.dart';
 import '../workouts/data/workout_models.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/pending_workouts.dart';
@@ -84,6 +88,7 @@ class TodayScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
     final weights = ref.watch(weightFormatProvider);
+    final session = ref.watch(activeSessionProvider);
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     final favorites = ref.watch(favoriteExercisesProvider);
@@ -105,11 +110,35 @@ class TodayScreen extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(favoriteExercisesProvider);
           ref.invalidate(workoutSummariesProvider);
+          ref.invalidate(plansProvider);
           await ref.read(favoriteExercisesProvider.future);
         },
         child: ListView(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
+            // ── Workout in progress ────────────────────────────────────
+            if (session != null)
+              Card(
+                key: const Key('today.session'),
+                color: theme.colorScheme.primaryContainer,
+                child: ListTile(
+                  leading: const Icon(Icons.fitness_center),
+                  title: Text(t.sessionActive(
+                    session.planName,
+                    session.exercises.where((e) => e.saved || e.allDone).length,
+                    session.exercises.length,
+                  )),
+                  trailing: FilledButton(
+                    onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SessionScreen())),
+                    child: Text(t.sessionResume),
+                  ),
+                ),
+              ),
+
+            // ── Plans ──────────────────────────────────────────────────
+            PlansSection(onStart: (plan) => startSession(context, ref, plan)),
+            const SizedBox(height: 8),
+
             // ── Done today ─────────────────────────────────────────────
             if (doneToday.isNotEmpty) ...[
               _SectionTitle(t.doneToday),

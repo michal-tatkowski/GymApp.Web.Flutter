@@ -8,6 +8,7 @@ import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_providers.dart';
 import 'package:gymapp_web/features/gym/today/today_screen.dart';
 import 'package:gymapp_web/features/gym/workouts/data/workout_models.dart';
+import 'package:gymapp_web/features/gym/plans/presentation/plan_providers.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/workout_providers.dart';
 import 'package:gymapp_web/features/profile/data/models/user_profile.dart';
@@ -89,6 +90,7 @@ void main() {
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
+          planRepositoryProvider.overrideWithValue(FakePlanRepository()),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
           exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository(catalog())),
           workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository()),

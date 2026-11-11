@@ -19,4 +19,10 @@ class StorageKeys {
 
   /// Last favorites list (JSON), so Today works offline.
   static const favoritesCache = 'exercises.favorites_cache';
+
+  /// Last plans list (JSON), so a plan can be started offline.
+  static const plansCache = 'plans.cache';
+
+  /// Live workout session in progress (JSON), survives closing the app.
+  static const activeSession = 'session.active';
 }

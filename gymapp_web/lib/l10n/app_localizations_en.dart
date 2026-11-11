@@ -453,6 +453,171 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weightUnit => 'Weight unit';
 
   @override
+  String get sessionInProgressTitle => 'Workout in progress';
+
+  @override
+  String sessionInProgressBody(String plan) {
+    return '\"$plan\" is not finished yet. Resume it or start the new one (sets not saved yet in the old one are dropped)?';
+  }
+
+  @override
+  String get sessionResume => 'Resume';
+
+  @override
+  String get sessionStartNew => 'Start new';
+
+  @override
+  String get sessionDiscard => 'Discard workout';
+
+  @override
+  String get sessionDiscardTitle => 'Discard this workout?';
+
+  @override
+  String get sessionDiscardBody =>
+      'Sets not saved yet are dropped. Exercises already saved stay in your history.';
+
+  @override
+  String get sessionNone => 'No workout in progress.';
+
+  @override
+  String get sessionFinish => 'Finish';
+
+  @override
+  String get sessionNext => 'Next';
+
+  @override
+  String get sessionPrevious => 'Back';
+
+  @override
+  String get sessionSaved => 'Saved to your history';
+
+  @override
+  String sessionTarget(String target) {
+    return 'Target: $target reps';
+  }
+
+  @override
+  String sessionLastTime(String sets) {
+    return 'Last time: $sets';
+  }
+
+  @override
+  String hintAddWeight(String weight, int reps) {
+    return 'You hit the top of the range — today $weight × $reps';
+  }
+
+  @override
+  String get hintAddReps =>
+      'You hit the top of the range — one more rep per set today';
+
+  @override
+  String hintRepeat(int reps) {
+    return 'Same weight — aim for $reps reps in every set';
+  }
+
+  @override
+  String get hintFirstTime =>
+      'First time — pick a weight you can do with good form';
+
+  @override
+  String get repsShort => 'reps';
+
+  @override
+  String get sessionDoneSet => 'Set done';
+
+  @override
+  String get sessionUndoSet => 'Not done';
+
+  @override
+  String get sessionSummaryTitle => 'Workout done!';
+
+  @override
+  String sessionSummaryStats(int minutes, int exercises, int sets) {
+    return '$minutes min · $exercises exercises · $sets sets';
+  }
+
+  @override
+  String sessionSummaryVolume(String volume) {
+    return 'Volume: $volume';
+  }
+
+  @override
+  String sessionSummaryRecords(String names) {
+    return 'New records: $names';
+  }
+
+  @override
+  String sessionActive(String plan, int done, int total) {
+    return '$plan in progress · $done/$total';
+  }
+
+  @override
+  String get done => 'Done';
+
+  @override
+  String get plans => 'Plans';
+
+  @override
+  String get newPlan => 'New plan';
+
+  @override
+  String get editPlan => 'Edit plan';
+
+  @override
+  String get planName => 'Plan name';
+
+  @override
+  String get planNameHint => 'e.g. Push, FBW A';
+
+  @override
+  String get planNameRequired => 'Enter a plan name';
+
+  @override
+  String get planNeedsExercise => 'Add at least one exercise';
+
+  @override
+  String get planEmptyHint =>
+      'Add the exercises in the order you do them. Set the target for each: sets × reps.';
+
+  @override
+  String get deletePlanTitle => 'Delete plan?';
+
+  @override
+  String deletePlanBody(String name) {
+    return '\"$name\" will be deleted. Your workout history stays.';
+  }
+
+  @override
+  String get noPlansYet =>
+      'Create a plan (e.g. Push / Pull / Legs) to start a guided workout with one tap.';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String get sets => 'Sets';
+
+  @override
+  String get repsFrom => 'Reps';
+
+  @override
+  String get repsTo => 'to';
+
+  @override
+  String get startWorkout => 'Start';
+
+  @override
+  String planExercises(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count exercises',
+      one: '1 exercise',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get weightUnitHint => 'History and charts are converted too.';
 
   @override
