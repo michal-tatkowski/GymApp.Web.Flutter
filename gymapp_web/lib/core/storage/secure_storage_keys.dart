@@ -12,4 +12,10 @@ class StorageKeys {
   static const themeMode = 'settings.theme_mode';
   static const locale = 'settings.locale';
   static const restTimerSeconds = 'settings.rest_timer_seconds';
+
+  /// Workouts logged without a connection (JSON list), see PendingWorkouts.
+  static const pendingWorkouts = 'workouts.pending';
+
+  /// Last favorites list (JSON), so Today works offline.
+  static const favoritesCache = 'exercises.favorites_cache';
 }

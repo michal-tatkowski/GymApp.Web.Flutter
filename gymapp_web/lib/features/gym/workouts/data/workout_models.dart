@@ -41,7 +41,21 @@ class WorkoutEntry {
     this.totalReps = 0,
     this.maxWeight = 0,
     this.estimatedOneRepMax = 0,
+    this.pending = false,
   });
+
+  /// Saved on the phone only (no connection yet); PendingWorkouts sends it later.
+  /// A local entry has no server-computed 1RM.
+  factory WorkoutEntry.pending(WorkoutEntryRequest req) => WorkoutEntry(
+        id: req.id!,
+        date: req.date,
+        sets: req.sets,
+        notes: req.notes,
+        volume: req.sets.fold(0.0, (sum, s) => sum + s.reps * s.weight),
+        totalReps: req.sets.fold(0, (sum, s) => sum + s.reps),
+        maxWeight: req.sets.fold(0.0, (max, s) => s.weight > max ? s.weight : max),
+        pending: true,
+      );
 
   final String id;
   final DateTime date;
@@ -53,6 +67,9 @@ class WorkoutEntry {
 
   /// Best Epley estimate of the sets (weight × (1 + reps / 30)); 0 for bodyweight.
   final double estimatedOneRepMax;
+
+  /// Not on the server yet — see [WorkoutEntry.pending].
+  final bool pending;
 
   factory WorkoutEntry.fromJson(Map<String, dynamic> json) => WorkoutEntry(
         id: json['id'].toString(),
@@ -68,17 +85,32 @@ class WorkoutEntry {
 
 /// POST/PUT body.
 class WorkoutEntryRequest {
-  const WorkoutEntryRequest({required this.date, required this.sets, this.notes});
+  const WorkoutEntryRequest({required this.date, required this.sets, this.notes, this.id});
 
   final DateTime date;
   final List<WorkoutSet> sets;
   final String? notes;
 
+  /// Entry id chosen by the app (POST only). The API returns the existing entry
+  /// for a repeated id, so a workout queued offline can be re-sent safely.
+  final String? id;
+
+  WorkoutEntryRequest withId(String id) => WorkoutEntryRequest(date: date, sets: sets, notes: notes, id: id);
+
   Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
         'date': toApiDate(date),
         'sets': sets.map((s) => s.toJson()).toList(),
         if (notes != null && notes!.trim().isNotEmpty) 'notes': notes!.trim(),
       };
+
+  /// Reads back what [toJson] wrote (the offline queue stores requests).
+  factory WorkoutEntryRequest.fromJson(Map<String, dynamic> json) => WorkoutEntryRequest(
+        id: json['id'] as String?,
+        date: fromApiDate(json['date'] as String),
+        sets: (json['sets'] as List).cast<Map<String, dynamic>>().map(WorkoutSet.fromJson).toList(),
+        notes: json['notes'] as String?,
+      );
 }
 
 class WorkoutLog {

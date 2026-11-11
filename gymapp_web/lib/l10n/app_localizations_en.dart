@@ -363,6 +363,41 @@ class AppLocalizationsEn extends AppLocalizations {
   String get workoutSaved => 'Workout saved';
 
   @override
+  String get savedOffline =>
+      'Saved on the phone — it will be sent when you\'re online';
+
+  @override
+  String get waitingToSync => 'Waiting to sync';
+
+  @override
+  String get offlineTitle => 'You\'re offline';
+
+  @override
+  String get offlineLogHint =>
+      'You can still log workouts — they\'re kept on the phone and sent later.';
+
+  @override
+  String pendingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count workouts waiting to sync',
+      one: '1 workout waiting to sync',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncNow => 'Sync now';
+
+  @override
+  String get logoutPendingTitle => 'Workouts not sent yet';
+
+  @override
+  String get logoutPendingBody =>
+      'Workouts saved offline that have not been sent yet will be lost. Log out anyway?';
+
+  @override
   String get entryDeleted => 'Workout deleted';
 
   @override

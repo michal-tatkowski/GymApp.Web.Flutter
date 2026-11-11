@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/gradient_background.dart';
@@ -13,6 +14,7 @@ import '../../exercises/presentation/exercises_providers.dart';
 import '../../exercises/presentation/favorite_button.dart';
 import '../data/workout_models.dart';
 import 'widgets/progress_chart.dart';
+import 'pending_workouts.dart';
 import 'rest_timer.dart';
 import 'widgets/workout_entry_sheet.dart';
 import 'workout_providers.dart';
@@ -56,9 +58,9 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
             await actions.edit(exerciseId, entry.id, req);
             return null;
           }
-          final (_, record) = await actions.addAndCheckRecord(exerciseId, req);
+          final (created, record) = await actions.addAndCheckRecord(exerciseId, req);
           timer.startAfterSet();
-          return recordMessage(t, record);
+          return created.pending ? t.savedOffline : recordMessage(t, record);
         },
       ),
     );
@@ -80,7 +82,7 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
         ..hideCurrentSnackBar()
         ..showSnackBar(
           SnackBar(
-            content: Text(recordMessage(t, record) ?? t.workoutSaved),
+            content: Text(created.pending ? t.savedOffline : recordMessage(t, record) ?? t.workoutSaved),
             // With an action Flutter keeps the snackbar until tapped (persist defaults to true);
             // "Undo" is optional, so let it go away and uncover the rest timer.
             persist: false,
@@ -122,6 +124,8 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
   }
 
   Future<void> _refresh() async {
+    // Pulling down is also "try to send what was saved offline".
+    await ref.read(pendingWorkoutsProvider.notifier).sync();
     ref.invalidate(workoutLogProvider(exerciseId));
     ref.invalidate(workoutProgressProvider(exerciseId));
     await ref.read(workoutLogProvider(exerciseId).future);
@@ -133,7 +137,14 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
     final exercise = widget.exercise;
     final logAsync = ref.watch(workoutLogProvider(exerciseId));
     final progressAsync = ref.watch(workoutProgressProvider(exerciseId));
-    final lastSets = logAsync.value?.entries.firstOrNull?.sets;
+    // No connection: the log cannot load, but logging must still work (saved on the phone).
+    final offline = logAsync.hasError && isOfflineFailure(logAsync.error!);
+    final queued = [
+      for (final p in ref.watch(pendingWorkoutsProvider).reversed)
+        if (p.exerciseId == exerciseId) WorkoutEntry.pending(p.request),
+    ];
+    final entries = [...queued, ...?logAsync.value?.entries];
+    final lastSets = entries.firstOrNull?.sets;
 
     return Scaffold(
       appBar: AppBar(
@@ -143,7 +154,7 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
       floatingActionButton: ScrollAwareFab(
         key: const Key('workout.log'),
         extended: _fabExtended,
-        onPressed: logAsync.hasValue
+        onPressed: logAsync.hasValue || offline
             ? () => ExerciseWorkoutsScreen.openEntrySheet(context, ref, exerciseId, prefill: lastSets)
             : null,
         icon: const Icon(Icons.add),
@@ -151,11 +162,14 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
       ),
       body: GradientBackground(
         child: SafeArea(
-          child: logAsync.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (e, _) =>
-                ErrorView(message: describeError(t, e), onRetry: () => ref.invalidate(workoutLogProvider(exerciseId))),
-            data: (log) => RefreshIndicator(
+          child: switch (logAsync) {
+            AsyncValue(isLoading: true, hasValue: false, hasError: false) =>
+              const Center(child: CircularProgressIndicator()),
+            AsyncValue(:final error?) when !offline => ErrorView(
+                message: describeError(t, error),
+                onRetry: () => ref.invalidate(workoutLogProvider(exerciseId)),
+              ),
+            _ => RefreshIndicator(
               onRefresh: _refresh,
               child: ScrollAwareFab.listener(
                 extended: _fabExtended,
@@ -163,8 +177,9 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
                   children: [
+                    if (offline) const _OfflineNotice(),
                     if (exercise != null) ...[_ExerciseHeader(exercise: exercise), const SizedBox(height: 8)],
-                    Card(
+                    if (!offline) Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -194,23 +209,43 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
                     const SizedBox(height: 16),
                     Text(t.workoutHistory, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 8),
-                    if (log.entries.isEmpty)
+                    if (entries.isEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 24),
                         child: Center(child: Text(t.noEntriesForExercise)),
                       ),
-                    for (final entry in log.entries) _EntryTile(exerciseId: exerciseId, entry: entry),
+                    for (final entry in entries) _EntryTile(exerciseId: exerciseId, entry: entry),
                     if (exercise != null) ...[
                       const SizedBox(height: 8),
                       // Folded once the user has trained it: by then they know the movement.
-                      _AboutExercise(exercise: exercise, initiallyExpanded: log.entries.isEmpty),
+                      _AboutExercise(exercise: exercise, initiallyExpanded: entries.isEmpty),
                     ],
                   ],
                 ),
               ),
             ),
-          ),
+          },
         ),
+      ),
+    );
+  }
+}
+
+/// Shown instead of the chart when the log cannot be loaded for lack of connection.
+class _OfflineNotice extends StatelessWidget {
+  const _OfflineNotice();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final colors = Theme.of(context).colorScheme;
+    return Card(
+      key: const Key('workout.offline'),
+      color: colors.secondaryContainer,
+      child: ListTile(
+        leading: Icon(Icons.cloud_off, color: colors.onSecondaryContainer),
+        title: Text(t.offlineTitle),
+        subtitle: Text(t.offlineLogHint),
       ),
     );
   }
@@ -357,9 +392,17 @@ class _EntryTile extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
+        key: entry.pending ? Key('workout.pending.${entry.id}') : null,
+        leading: entry.pending
+            ? Tooltip(message: t.waitingToSync, child: const Icon(Icons.cloud_upload_outlined))
+            : null,
         title: Text(DateFormat.yMMMEd(locale).format(entry.date)),
-        subtitle: Text([describeSets(entry.sets), if (entry.notes != null) entry.notes!].join('\n')),
-        isThreeLine: entry.notes != null,
+        subtitle: Text([
+          describeSets(entry.sets),
+          if (entry.notes != null) entry.notes!,
+          if (entry.pending) t.waitingToSync,
+        ].join('\n')),
+        isThreeLine: entry.notes != null || entry.pending,
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -374,7 +417,8 @@ class _EntryTile extends ConsumerWidget {
             ),
           ],
         ),
-        onTap: () => ExerciseWorkoutsScreen.openEntrySheet(context, ref, exerciseId, entry: entry),
+        // Editing needs the server; a queued workout can only be deleted until it is sent.
+        onTap: entry.pending ? null : () => ExerciseWorkoutsScreen.openEntrySheet(context, ref, exerciseId, entry: entry),
       ),
     );
   }

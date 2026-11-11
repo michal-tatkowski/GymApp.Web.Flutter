@@ -363,6 +363,42 @@ class AppLocalizationsPl extends AppLocalizations {
   String get workoutSaved => 'Trening zapisany';
 
   @override
+  String get savedOffline =>
+      'Zapisano w telefonie — wyślemy, gdy wróci internet';
+
+  @override
+  String get waitingToSync => 'Czeka na wysłanie';
+
+  @override
+  String get offlineTitle => 'Brak połączenia';
+
+  @override
+  String get offlineLogHint =>
+      'Nadal możesz zapisywać treningi — zostaną w telefonie i wyślemy je później.';
+
+  @override
+  String pendingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treningów czeka na wysłanie',
+      few: '$count treningi czekają na wysłanie',
+      one: '1 trening czeka na wysłanie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get syncNow => 'Wyślij teraz';
+
+  @override
+  String get logoutPendingTitle => 'Niewysłane treningi';
+
+  @override
+  String get logoutPendingBody =>
+      'Treningi zapisane offline, które nie zostały jeszcze wysłane, przepadną. Wylogować mimo to?';
+
+  @override
   String get entryDeleted => 'Trening usunięty';
 
   @override

@@ -81,3 +81,8 @@ class ServerFailure extends Failure {
 class UnknownFailure extends Failure {
   const UnknownFailure();
 }
+
+/// No connection or no answer — worth trying again later (offline queue, cached
+/// data). Anything else (e.g. the server rejects the request) would fail the same
+/// way every time.
+bool isOfflineFailure(Object e) => e is NetworkFailure || e is TimeoutFailure;

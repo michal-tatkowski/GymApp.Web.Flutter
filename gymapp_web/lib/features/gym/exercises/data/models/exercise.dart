@@ -81,4 +81,18 @@ class Exercise {
       isFavorite: (json['isFavorite'] as bool?) ?? false,
     );
   }
+
+  /// Same shape as the API (read back by [Exercise.fromJson]) — for the offline cache.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'category': category.apiName,
+        'description': description,
+        'imageUrl': imageUrl,
+        'popularityCount': popularityCount,
+        'source': source == ExerciseSource.community ? 'Community' : 'System',
+        'createdByUserId': createdByUserId,
+        'isCustom': isCustom,
+        'isFavorite': isFavorite,
+      };
 }

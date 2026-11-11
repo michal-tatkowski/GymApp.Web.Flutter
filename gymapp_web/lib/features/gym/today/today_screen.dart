@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../app/theme/app_theme.dart';
+import '../../../core/errors/failure.dart';
 import '../../../core/errors/failure_messages.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../routing/app_routes.dart';
@@ -12,6 +13,7 @@ import '../exercises/presentation/category_ui.dart';
 import '../exercises/presentation/exercises_providers.dart';
 import '../workouts/data/workout_models.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
+import '../workouts/presentation/pending_workouts.dart';
 import '../workouts/presentation/widgets/progress_chart.dart';
 import '../workouts/presentation/workout_providers.dart';
 
@@ -30,9 +32,16 @@ class TodayScreen extends ConsumerWidget {
     // "Done today" / the chart never happens.
     final keepAlive = ref.listenManual(workoutLogProvider(exercise.id), (_, __) {});
     try {
-      final log = await ref.read(workoutLogProvider(exercise.id).future);
+      List<WorkoutSet>? prefill = _lastQueued(ref, exercise.id);
+      try {
+        prefill ??= (await ref.read(workoutLogProvider(exercise.id).future)).entries.firstOrNull?.sets;
+      } catch (e) {
+        // Offline the form still opens (empty, or with what was logged offline);
+        // the workout then goes to the queue.
+        if (!isOfflineFailure(e)) rethrow;
+      }
       if (!context.mounted) return;
-      await ExerciseWorkoutsScreen.openEntrySheet(context, ref, exercise.id, prefill: log.entries.firstOrNull?.sets);
+      await ExerciseWorkoutsScreen.openEntrySheet(context, ref, exercise.id, prefill: prefill);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(describeError(t, e))));
@@ -46,14 +55,23 @@ class TodayScreen extends ConsumerWidget {
   Future<void> _repeat(BuildContext context, WidgetRef ref, Exercise exercise) async {
     final keepAlive = ref.listenManual(workoutLogProvider(exercise.id), (_, __) {});
     try {
-      final last = (await ref.read(workoutLogProvider(exercise.id).future)).entries.firstOrNull;
-      if (last != null && context.mounted) {
-        await ExerciseWorkoutsScreen.repeatLast(context, ref, exercise.id, last.sets);
+      var sets = _lastQueued(ref, exercise.id);
+      try {
+        sets ??= (await ref.read(workoutLogProvider(exercise.id).future)).entries.firstOrNull?.sets;
+      } catch (e) {
+        if (!isOfflineFailure(e)) rethrow;
+      }
+      if (sets != null && context.mounted) {
+        await ExerciseWorkoutsScreen.repeatLast(context, ref, exercise.id, sets);
       }
     } finally {
       keepAlive.close();
     }
   }
+
+  /// Sets of the newest workout of [exerciseId] still waiting in the offline queue.
+  static List<WorkoutSet>? _lastQueued(WidgetRef ref, String exerciseId) =>
+      ref.read(pendingWorkoutsProvider).where((p) => p.exerciseId == exerciseId).lastOrNull?.request.sets;
 
   /// [exercise] when known (favorites) — the screen then also shows the star and description.
   void _openLog(BuildContext context, String id, String name, [Exercise? exercise]) => Navigator.of(context).push(
@@ -160,6 +178,7 @@ class TodayScreen extends ConsumerWidget {
                             _QuickLogTile(
                               exercise: e,
                               summary: byExercise[e.id],
+                              historyKnown: summaries.hasValue,
                               locale: locale,
                               onOpen: () => _openLog(context, e.id, e.name, e),
                               onLog: () => _quickLog(context, ref, e),
@@ -192,6 +211,7 @@ class _QuickLogTile extends StatelessWidget {
   const _QuickLogTile({
     required this.exercise,
     required this.summary,
+    required this.historyKnown,
     required this.locale,
     required this.onOpen,
     required this.onLog,
@@ -200,6 +220,9 @@ class _QuickLogTile extends StatelessWidget {
 
   final Exercise exercise;
   final WorkoutSummary? summary;
+
+  /// False while offline: no summary does not mean "not trained yet".
+  final bool historyKnown;
   final String locale;
   final VoidCallback onOpen;
   final VoidCallback onLog;
@@ -212,12 +235,12 @@ class _QuickLogTile extends StatelessWidget {
     return ListTile(
       leading: Icon(categoryIcon(exercise.category)),
       title: Text(exercise.name),
-      subtitle: Text(
-        s == null
-            ? t.notTrainedYet
-            : '${t.lastWorkout(DateFormat.MMMd(locale).format(s.lastDate))} · '
-                  '${s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : t.volumeValue(formatValue(s.lastVolume))}',
-      ),
+      subtitle: s == null
+          ? (historyKnown ? Text(t.notTrainedYet) : null)
+          : Text(
+              '${t.lastWorkout(DateFormat.MMMd(locale).format(s.lastDate))} · '
+              '${s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : t.volumeValue(formatValue(s.lastVolume))}',
+            ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

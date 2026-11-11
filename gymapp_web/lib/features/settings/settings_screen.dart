@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
+import '../gym/workouts/presentation/pending_workouts.dart';
 import '../gym/workouts/presentation/rest_alarm.dart';
 import '../gym/workouts/presentation/rest_timer.dart';
 import 'presentation/settings_providers.dart';
@@ -71,12 +72,34 @@ class SettingsScreen extends ConsumerWidget {
             ListTile(
               leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
               title: Text(t.logout, style: TextStyle(color: Theme.of(context).colorScheme.error)),
-              onTap: () => ref.read(authControllerProvider.notifier).logout(),
+              onTap: () => _logout(context, ref),
             ),
           ],
         ),
       ),
     );
+  }
+
+  /// Workouts saved offline belong to this account; logging out drops them, so ask first.
+  Future<void> _logout(BuildContext context, WidgetRef ref) async {
+    final t = AppLocalizations.of(context)!;
+    final pending = ref.read(pendingWorkoutsProvider);
+    if (pending.isNotEmpty) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(t.logoutPendingTitle),
+          content: Text('${t.pendingCount(pending.length)}.\n\n${t.logoutPendingBody}'),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(t.cancel)),
+            TextButton(onPressed: () => Navigator.pop(context, true), child: Text(t.logout)),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+    await ref.read(pendingWorkoutsProvider.notifier).clear();
+    await ref.read(authControllerProvider.notifier).logout();
   }
 }
 
