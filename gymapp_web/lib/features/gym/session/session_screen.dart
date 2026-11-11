@@ -9,6 +9,8 @@ import '../../../core/errors/failure_messages.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../l10n/app_localizations.dart';
 import '../exercises/presentation/category_ui.dart';
+import '../exercises/presentation/illustration/motion.dart';
+import '../exercises/presentation/illustration/motions.dart';
 import '../plans/data/plan_models.dart';
 import '../plans/presentation/exercise_picker_sheet.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
@@ -294,6 +296,13 @@ class _ExerciseHeader extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(child: Text(exercise.name, style: theme.textTheme.titleLarge)),
           ],
+        ),
+        Center(
+          child: MotionView(
+            key: ValueKey('session.motion.${exercise.exerciseId}'),
+            motion: motionFor(exercise.exerciseId, exercise.category),
+            size: 120,
+          ),
         ),
         const SizedBox(height: 4),
         Text(t.sessionTarget(exercise.target), style: theme.textTheme.bodyMedium),

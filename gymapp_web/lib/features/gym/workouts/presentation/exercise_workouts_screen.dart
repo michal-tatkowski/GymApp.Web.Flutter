@@ -13,6 +13,8 @@ import '../../exercises/data/models/exercise.dart';
 import '../../exercises/presentation/category_ui.dart';
 import '../../exercises/presentation/exercises_providers.dart';
 import '../../exercises/presentation/favorite_button.dart';
+import '../../exercises/presentation/illustration/motion.dart';
+import '../../exercises/presentation/illustration/motions.dart';
 import '../data/workout_models.dart';
 import 'widgets/progress_chart.dart';
 import 'pending_workouts.dart';
@@ -119,6 +121,11 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
 
   String get exerciseId => widget.exerciseId;
 
+  /// Animated illustration: the system exercise's own, the category's for custom ones.
+  Motion? get _motion => widget.exercise != null
+      ? motionFor(exerciseId, widget.exercise!.category)
+      : motionForId(exerciseId);
+
   @override
   void dispose() {
     _fabExtended.dispose();
@@ -180,6 +187,8 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
                   padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
                   children: [
                     if (offline) const _OfflineNotice(),
+                    if (_motion case final motion?)
+                      Center(child: MotionView(key: const Key('exercise.motion'), motion: motion, size: 150)),
                     if (exercise != null) ...[_ExerciseHeader(exercise: exercise), const SizedBox(height: 8)],
                     if (!offline) Card(
                       child: Padding(
