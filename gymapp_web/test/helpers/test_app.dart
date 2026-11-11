@@ -88,10 +88,12 @@ class FakeExerciseRepository extends ExerciseRepository {
 
   final List<Exercise> exercises;
   Object? createError;
+  Object? loadError;
   final queries = <({ExerciseCategory? category, String? search, int page})>[];
 
   @override
   Future<List<Exercise>> getExercises({ExerciseCategory? category, String? search, bool favoritesOnly = false, int page = 1, int pageSize = 20}) async {
+    if (loadError != null) throw loadError!;
     queries.add((category: category, search: search, page: page));
     final q = (search ?? '').toLowerCase();
     // Like the API: favorites first, then the original order.

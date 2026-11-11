@@ -770,6 +770,54 @@ abstract class AppLocalizations {
   /// **'Workout saved'**
   String get workoutSaved;
 
+  /// No description provided for @savedOffline.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on the phone — it will be sent when you\'re online'**
+  String get savedOffline;
+
+  /// No description provided for @waitingToSync.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting to sync'**
+  String get waitingToSync;
+
+  /// No description provided for @offlineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline'**
+  String get offlineTitle;
+
+  /// No description provided for @offlineLogHint.
+  ///
+  /// In en, this message translates to:
+  /// **'You can still log workouts — they\'re kept on the phone and sent later.'**
+  String get offlineLogHint;
+
+  /// No description provided for @pendingCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 workout waiting to sync} other{{count} workouts waiting to sync}}'**
+  String pendingCount(int count);
+
+  /// No description provided for @syncNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Sync now'**
+  String get syncNow;
+
+  /// No description provided for @logoutPendingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts not sent yet'**
+  String get logoutPendingTitle;
+
+  /// No description provided for @logoutPendingBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts saved offline that have not been sent yet will be lost. Log out anyway?'**
+  String get logoutPendingBody;
+
   /// No description provided for @entryDeleted.
   ///
   /// In en, this message translates to:

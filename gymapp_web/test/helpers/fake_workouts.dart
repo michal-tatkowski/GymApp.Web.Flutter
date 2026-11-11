@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
 import 'package:gymapp_web/features/gym/workouts/data/workout_models.dart';
 import 'package:gymapp_web/features/gym/workouts/data/workout_repository.dart';
@@ -11,6 +12,16 @@ class FakeWorkoutRepository extends WorkoutRepository {
   final entries = <String, List<WorkoutEntry>>{};
   Object? saveError;
   int _id = 0;
+
+  /// No connection: every call throws NetworkFailure (offline queue tests).
+  bool offline = false;
+
+  /// Every POST that reached the "server", in order (retries included).
+  final posted = <WorkoutEntryRequest>[];
+
+  void _online() {
+    if (offline) throw const NetworkFailure();
+  }
 
   static WorkoutEntry entryOf(String id, DateTime date, List<WorkoutSet> sets, String? notes) => WorkoutEntry(
         id: id,
@@ -32,12 +43,14 @@ class FakeWorkoutRepository extends WorkoutRepository {
 
   @override
   Future<WorkoutLog> getLog(String exerciseId) async {
+    _online();
     final list = [...entries[exerciseId] ?? <WorkoutEntry>[]]..sort((a, b) => b.date.compareTo(a.date));
     return WorkoutLog(exerciseId: exerciseId, exerciseName: exerciseName, category: ExerciseCategory.push, entries: list);
   }
 
   @override
   Future<List<ProgressPoint>> getProgress(String exerciseId) async {
+    _online();
     final byDay = <DateTime, List<WorkoutEntry>>{};
     for (final e in entries[exerciseId] ?? <WorkoutEntry>[]) {
       (byDay[e.date] ??= []).add(e);
@@ -57,7 +70,9 @@ class FakeWorkoutRepository extends WorkoutRepository {
   }
 
   @override
-  Future<List<WorkoutSummary>> getSummaries() async => [
+  Future<List<WorkoutSummary>> getSummaries() async {
+    _online();
+    return [
         for (final id in entries.keys)
           if (entries[id]!.isNotEmpty)
             await getProgress(id).then((p) => WorkoutSummary(
@@ -71,11 +86,17 @@ class FakeWorkoutRepository extends WorkoutRepository {
                   lastTotalReps: p.last.totalReps,
                 )),
       ];
+  }
 
   @override
   Future<WorkoutEntry> addEntry(String exerciseId, WorkoutEntryRequest req) async {
+    _online();
+    posted.add(req);
     if (saveError != null) throw saveError!;
-    final entry = entryOf('e${_id++}', req.date, req.sets, req.notes);
+    // Same id again = a retry: the API returns the existing entry.
+    final existing = entries[exerciseId]?.where((e) => e.id == req.id).firstOrNull;
+    if (existing != null) return existing;
+    final entry = entryOf(req.id ?? 'e${_id++}', req.date, req.sets, req.notes);
     (entries[exerciseId] ??= []).add(entry);
     return entry;
   }

@@ -1,10 +1,13 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../../core/providers/retry.dart';
+import '../../../../core/utils/uuid.dart';
 import '../../../auth/presentation/auth_providers.dart';
 import '../data/workout_models.dart';
 import '../data/workout_repository.dart';
+import 'pending_workouts.dart';
 import 'widgets/progress_chart.dart';
 
 final workoutRepositoryProvider = Provider<WorkoutRepository>((ref) => WorkoutRepository(ref.watch(dioProvider)));
@@ -42,18 +45,37 @@ class WorkoutActions {
 
   WorkoutRepository get _repo => _container.read(workoutRepositoryProvider);
 
-  /// Throws a Failure. Returns the created entry (for "Undo").
+  /// Returns the created entry (for "Undo"). Without a connection the workout is
+  /// kept on the phone and sent later — the result then has `pending: true`.
+  /// Throws a Failure for anything else (e.g. validation).
   Future<WorkoutEntry> add(String exerciseId, WorkoutEntryRequest req) async {
-    final created = await _repo.addEntry(exerciseId, req);
-    _refresh(exerciseId);
-    return created;
+    // The app picks the id, so a retry from the offline queue cannot duplicate it.
+    final withId = req.id == null ? req.withId(newUuid()) : req;
+    try {
+      final created = await _repo.addEntry(exerciseId, withId);
+      _refresh(exerciseId);
+      return created;
+    } catch (e) {
+      if (!isOfflineFailure(e)) rethrow;
+      await _container
+          .read(pendingWorkoutsProvider.notifier)
+          .enqueue(PendingWorkout(exerciseId: exerciseId, request: withId));
+      return WorkoutEntry.pending(withId);
+    }
   }
 
   /// Like [add], plus whether the entry beats the previous best (volume of the day or
-  /// estimated 1RM) — for the "New record!" message. Costs one extra progress request.
+  /// estimated 1RM) — for the "New record!" message. Costs one extra progress request;
+  /// offline there is no history to compare with, so no record check.
   Future<(WorkoutEntry, NewRecord?)> addAndCheckRecord(String exerciseId, WorkoutEntryRequest req) async {
-    final before = await _repo.getProgress(exerciseId);
+    List<ProgressPoint>? before;
+    try {
+      before = await _repo.getProgress(exerciseId);
+    } catch (e) {
+      if (!isOfflineFailure(e)) rethrow;
+    }
     final created = await add(exerciseId, req);
+    if (before == null || created.pending) return (created, null);
     return (created, newRecordFor(before, created));
   }
 
@@ -64,6 +86,10 @@ class WorkoutActions {
   }
 
   Future<void> delete(String exerciseId, String entryId) async {
+    final queue = _container.read(pendingWorkoutsProvider.notifier);
+    if (_container.read(pendingWorkoutsProvider).any((p) => p.entryId == entryId)) {
+      return queue.remove(entryId); // never reached the server
+    }
     await _repo.deleteEntry(exerciseId, entryId);
     _refresh(exerciseId);
   }

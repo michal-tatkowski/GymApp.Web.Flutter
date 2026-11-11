@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../../core/providers/retry.dart';
+import '../../../../core/storage/secure_storage_keys.dart';
 import '../../../../features/auth/presentation/auth_providers.dart';
 import '../data/exercise_api.dart';
 import '../data/exercise_repository.dart';
@@ -226,7 +230,23 @@ final exercisesProvider =
     NotifierProvider.autoDispose<ExercisesNotifier, ExercisesState>(ExercisesNotifier.new);
 
 /// Starred exercises for the "Today" quick log. Refreshed whenever a star changes.
+/// The last list is kept on the phone: opened without a connection (basement gym),
+/// Today still offers quick logging, which then goes to the offline queue.
 final favoriteExercisesProvider = FutureProvider.autoDispose<List<Exercise>>(
-  (ref) => ref.watch(exerciseRepositoryProvider).getExercises(favoritesOnly: true, pageSize: 100),
+  (ref) async {
+    try {
+      final favorites = await ref.watch(exerciseRepositoryProvider).getExercises(favoritesOnly: true, pageSize: 100);
+      // Best effort, in the background — the list is shown without waiting for storage.
+      unawaited(SharedPreferences.getInstance().then(
+        (prefs) => prefs.setString(StorageKeys.favoritesCache, jsonEncode(favorites.map((e) => e.toJson()).toList())),
+      ));
+      return favorites;
+    } catch (e) {
+      if (!isOfflineFailure(e)) rethrow;
+      final cached = (await SharedPreferences.getInstance()).getString(StorageKeys.favoritesCache);
+      if (cached == null) rethrow;
+      return (jsonDecode(cached) as List).cast<Map<String, dynamic>>().map(Exercise.fromJson).toList();
+    }
+  },
   retry: noRetry,
 );
