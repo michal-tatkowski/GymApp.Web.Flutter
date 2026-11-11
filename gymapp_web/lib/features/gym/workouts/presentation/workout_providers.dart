@@ -24,6 +24,12 @@ final workoutProgressProvider = FutureProvider.autoDispose.family<List<ProgressP
   retry: noRetry,
 );
 
+/// Training days and records of the last 12 weeks (API default) — the weekly summary on Today.
+final workoutStatsProvider = FutureProvider.autoDispose<WorkoutStats>(
+  (ref) => ref.watch(workoutRepositoryProvider).getStats(),
+  retry: noRetry,
+);
+
 /// Entries of one exercise, newest first. Changes go through [WorkoutActions].
 final workoutLogProvider = FutureProvider.autoDispose.family<WorkoutLog, String>(
   (ref, exerciseId) => ref.watch(workoutRepositoryProvider).getLog(exerciseId),
@@ -98,5 +104,6 @@ class WorkoutActions {
     _container.invalidate(workoutLogProvider(exerciseId));
     _container.invalidate(workoutProgressProvider(exerciseId));
     _container.invalidate(workoutSummariesProvider);
+    _container.invalidate(workoutStatsProvider);
   }
 }

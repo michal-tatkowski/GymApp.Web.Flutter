@@ -456,6 +456,92 @@ class AppLocalizationsPl extends AppLocalizations {
   String get weightUnit => 'Jednostka ciężaru';
 
   @override
+  String get reminders => 'Przypomnienia o treningu';
+
+  @override
+  String get remindersHint => 'Powiadomienie w dni, w które trenujesz';
+
+  @override
+  String get reminderTime => 'Godzina';
+
+  @override
+  String get reminderTitle => 'Czas na trening 💪';
+
+  @override
+  String get reminderBody => 'Plan czeka — stuknij, żeby zacząć.';
+
+  @override
+  String get reminderChannel => 'Przypomnienia o treningu';
+
+  @override
+  String get reminderPermissionDenied =>
+      'Zezwól GymApp na powiadomienia w ustawieniach systemu, żeby dostawać przypomnienia.';
+
+  @override
+  String get bodyWeight => 'Masa ciała';
+
+  @override
+  String get bodyWeightLog => 'Zapisz';
+
+  @override
+  String get bodyWeightToday => 'Dzisiejsza waga';
+
+  @override
+  String get bodyWeightEmpty =>
+      'Zapisuj wagę od czasu do czasu, żeby zobaczyć trend.';
+
+  @override
+  String bodyWeightChange(String change) {
+    return '$change w 30 dni';
+  }
+
+  @override
+  String get thisWeek => 'Ten tydzień';
+
+  @override
+  String get weekNothingYet => 'W tym tygodniu jeszcze bez treningu';
+
+  @override
+  String weekWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treningów',
+      few: '$count treningi',
+      one: '1 trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serii',
+      few: '$count serie',
+      one: '1 seria',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tygodni z rzędu',
+      few: '$count tygodnie z rzędu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekRecords(String names) {
+    return 'Rekordy: $names';
+  }
+
+  @override
   String get sessionInProgressTitle => 'Trening w toku';
 
   @override

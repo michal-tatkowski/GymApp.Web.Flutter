@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart' show DateFormat;
 
 import '../../core/units/weight_unit.dart';
 import '../../l10n/app_localizations.dart';
@@ -7,6 +8,7 @@ import '../auth/presentation/auth_providers.dart';
 import '../gym/workouts/presentation/pending_workouts.dart';
 import '../gym/workouts/presentation/rest_alarm.dart';
 import '../gym/workouts/presentation/rest_timer.dart';
+import 'presentation/reminders.dart';
 import 'presentation/settings_providers.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -84,6 +86,8 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const _ExactAlarmTile(),
             const Divider(),
+            const _RemindersSection(),
+            const Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
               title: Text(t.logout, style: TextStyle(color: Theme.of(context).colorScheme.error)),
@@ -160,6 +164,75 @@ class _ExactAlarmTileState extends ConsumerState<_ExactAlarmTile> {
       subtitle: Text(t.restExactAlarmHint),
       trailing: const Icon(Icons.open_in_new),
       onTap: () => ref.read(restAlarmProvider).openExactAlarmSettings(),
+    );
+  }
+}
+
+/// "Workout reminders": on/off, then the days and the time.
+class _RemindersSection extends ConsumerWidget {
+  const _RemindersSection();
+
+  Future<void> _update(BuildContext context, WidgetRef ref, ReminderSettings next) async {
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    if (!await ref.read(remindersProvider.notifier).update(next)) {
+      messenger.showSnackBar(SnackBar(content: Text(t.reminderPermissionDenied)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    final s = ref.watch(remindersProvider);
+    final localizations = MaterialLocalizations.of(context);
+    final locale = Localizations.localeOf(context).toString();
+    // Week in the order of the locale (Monday first in Poland, Sunday first in the US).
+    final first = localizations.firstDayOfWeekIndex; // 0 = Sunday
+    final days = [for (var i = 0; i < 7; i++) (first + i) % 7 == 0 ? DateTime.sunday : (first + i) % 7];
+    String dayName(int weekday) => DateFormat.E(locale).format(DateTime(2024, 1, weekday)); // 2024-01-01 is a Monday
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SwitchListTile(
+          key: const Key('settings.reminders'),
+          secondary: const Icon(Icons.notifications_outlined),
+          title: Text(t.reminders),
+          subtitle: Text(t.remindersHint),
+          value: s.enabled,
+          onChanged: (on) => _update(context, ref, s.copyWith(enabled: on)),
+        ),
+        if (s.enabled) ...[
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 4),
+            child: Wrap(
+              spacing: 6,
+              children: [
+                for (final d in days)
+                  FilterChip(
+                    key: Key('settings.reminders.day$d'),
+                    label: Text(dayName(d)),
+                    selected: s.weekdays.contains(d),
+                    onSelected: (on) => _update(
+                      context,
+                      ref,
+                      s.copyWith(weekdays: on ? {...s.weekdays, d} : ({...s.weekdays}..remove(d))),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.schedule),
+            title: Text(t.reminderTime),
+            trailing: Text(localizations.formatTimeOfDay(s.time), style: Theme.of(context).textTheme.titleMedium),
+            onTap: () async {
+              final picked = await showTimePicker(context: context, initialTime: s.time);
+              if (picked != null && context.mounted) await _update(context, ref, s.copyWith(time: picked));
+            },
+          ),
+        ],
+      ],
     );
   }
 }

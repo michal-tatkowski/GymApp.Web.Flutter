@@ -4,6 +4,7 @@ import '../../../../core/units/weight_unit.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/models/user_profile.dart';
 import '../profile_format.dart';
+import 'body_weight_card.dart';
 
 /// Read-only profile: avatar with initials and a label/value list ("—" when empty).
 class ProfileView extends StatelessWidget {
@@ -58,6 +59,8 @@ class ProfileView extends StatelessWidget {
                 value: profile.dateOfBirth != null ? formatDate(context, profile.dateOfBirth!) : null,
               ),
               InfoTile(label: t.bmi, value: profile.bmi?.toStringAsFixed(1)),
+              const SizedBox(height: 16),
+              const BodyWeightCard(),
             ],
           ),
         ),

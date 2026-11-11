@@ -187,7 +187,7 @@ void main() {
     c.read(pendingWorkoutsProvider);
     await tester.pumpAndSettle();
 
-    await tester.ensureVisible(find.text('Logout'));
+    await tester.scrollUntilVisible(find.text('Logout'), 300, scrollable: find.byType(Scrollable).first);
     await tester.pumpAndSettle();
     await tester.tap(find.text('Logout'));
     await tester.pumpAndSettle();

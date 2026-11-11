@@ -49,7 +49,7 @@ void main() {
       expect(find.text('Bench press'), findsOneWidget);
       expect(find.text('Squat'), findsOneWidget);
       expect(find.text('Barbell row'), findsNothing); // not a favorite
-      expect(find.textContaining('1000 kg'), findsOneWidget);
+      expect(find.textContaining(RegExp(r'Last: .* · 1000 kg')), findsOneWidget); // quick log row (the week card has its own total)
       expect(find.text('Not trained yet'), findsOneWidget);
       expect(find.text('Done today'), findsNothing);
     });

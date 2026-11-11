@@ -17,6 +17,7 @@ import '../plans/presentation/plans_section.dart';
 import '../session/session_providers.dart';
 import '../session/session_screen.dart';
 import '../workouts/data/workout_models.dart';
+import 'week_summary.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/pending_workouts.dart';
 import '../workouts/presentation/workout_providers.dart';
@@ -111,6 +112,7 @@ class TodayScreen extends ConsumerWidget {
           ref.invalidate(favoriteExercisesProvider);
           ref.invalidate(workoutSummariesProvider);
           ref.invalidate(plansProvider);
+          ref.invalidate(workoutStatsProvider);
           await ref.read(favoriteExercisesProvider.future);
         },
         child: ListView(
@@ -134,6 +136,9 @@ class TodayScreen extends ConsumerWidget {
                   ),
                 ),
               ),
+
+            // ── This week ──────────────────────────────────────────────
+            const WeekSummaryCard(),
 
             // ── Plans ──────────────────────────────────────────────────
             PlansSection(onStart: (plan) => startSession(context, ref, plan)),

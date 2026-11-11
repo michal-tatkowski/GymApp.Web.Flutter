@@ -199,3 +199,62 @@ class ProgressPoint {
         estimatedOneRepMax: _num(json['estimatedOneRepMax']),
       );
 }
+
+/// A day the user trained (all exercises together).
+class TrainingDay {
+  const TrainingDay({required this.date, required this.volume, required this.exercises, required this.sets});
+
+  final DateTime date;
+  final double volume;
+  final int exercises;
+  final int sets;
+
+  factory TrainingDay.fromJson(Map<String, dynamic> json) => TrainingDay(
+        date: fromApiDate(json['date'] as String),
+        volume: _num(json['volume']),
+        exercises: (json['exercises'] as num).toInt(),
+        sets: (json['sets'] as num).toInt(),
+      );
+}
+
+/// A day an exercise beat all earlier ones.
+class PersonalRecord {
+  const PersonalRecord({required this.date, required this.exerciseId, required this.exerciseName, required this.oneRepMax});
+
+  final DateTime date;
+  final String exerciseId;
+  final String exerciseName;
+
+  /// Estimated 1RM record (otherwise volume).
+  final bool oneRepMax;
+
+  factory PersonalRecord.fromJson(Map<String, dynamic> json) => PersonalRecord(
+        date: fromApiDate(json['date'] as String),
+        exerciseId: json['exerciseId'].toString(),
+        exerciseName: json['exerciseName'] as String,
+        oneRepMax: json['kind'] == 'OneRepMax',
+      );
+}
+
+class WorkoutStats {
+  const WorkoutStats({required this.days, required this.records});
+
+  final List<TrainingDay> days;
+  final List<PersonalRecord> records;
+
+  factory WorkoutStats.fromJson(Map<String, dynamic> json) => WorkoutStats(
+        days: (json['days'] as List).cast<Map<String, dynamic>>().map(TrainingDay.fromJson).toList(),
+        records: (json['records'] as List).cast<Map<String, dynamic>>().map(PersonalRecord.fromJson).toList(),
+      );
+}
+
+/// A body weight measurement (kg), one per day.
+class BodyWeight {
+  const BodyWeight({required this.date, required this.kg});
+
+  final DateTime date;
+  final double kg;
+
+  factory BodyWeight.fromJson(Map<String, dynamic> json) =>
+      BodyWeight(date: fromApiDate(json['date'] as String), kg: _num(json['weightKg']));
+}

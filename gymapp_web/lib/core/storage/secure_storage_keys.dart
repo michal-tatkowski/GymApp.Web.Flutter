@@ -13,6 +13,7 @@ class StorageKeys {
   static const locale = 'settings.locale';
   static const restTimerSeconds = 'settings.rest_timer_seconds';
   static const weightUnit = 'settings.weight_unit';
+  static const reminders = 'settings.reminders';
 
   /// Workouts logged without a connection (JSON list), see PendingWorkouts.
   static const pendingWorkouts = 'workouts.pending';

@@ -112,4 +112,49 @@ class FakeWorkoutRepository extends WorkoutRepository {
   @override
   Future<void> deleteEntry(String exerciseId, String entryId) async =>
       entries[exerciseId]?.removeWhere((e) => e.id == entryId);
+
+  /// Records for [getStats]; days are computed from [entries].
+  final records = <PersonalRecord>[];
+  final bodyWeights = <BodyWeight>[];
+
+  @override
+  Future<WorkoutStats> getStats({DateTime? since}) async {
+    _online();
+    final byDay = <DateTime, List<WorkoutEntry>>{};
+    for (final list in entries.values) {
+      for (final e in list) {
+        (byDay[e.date] ??= []).add(e);
+      }
+    }
+    final days = byDay.keys.toList()..sort();
+    return WorkoutStats(
+      days: [
+        for (final d in days)
+          TrainingDay(
+            date: d,
+            volume: byDay[d]!.fold(0.0, (v, e) => v + e.volume),
+            exercises: byDay[d]!.length,
+            sets: byDay[d]!.fold(0, (n, e) => n + e.sets.length),
+          ),
+      ],
+      records: records,
+    );
+  }
+
+  @override
+  Future<List<BodyWeight>> getBodyWeights({DateTime? since}) async {
+    _online();
+    return [...bodyWeights]..sort((a, b) => a.date.compareTo(b.date));
+  }
+
+  @override
+  Future<void> setBodyWeight(DateTime date, double kg) async {
+    _online();
+    bodyWeights
+      ..removeWhere((w) => w.date == date)
+      ..add(BodyWeight(date: date, kg: kg));
+  }
+
+  @override
+  Future<void> deleteBodyWeight(DateTime date) async => bodyWeights.removeWhere((w) => w.date == date);
 }

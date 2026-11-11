@@ -21,6 +21,7 @@ import 'package:gymapp_web/features/profile/data/models/update_profile_request.d
 import 'package:gymapp_web/features/profile/data/models/user_profile.dart';
 import 'package:gymapp_web/features/profile/data/profile_api.dart';
 import 'package:gymapp_web/features/profile/data/profile_repository.dart';
+import 'package:gymapp_web/features/settings/presentation/reminders.dart';
 import 'package:gymapp_web/l10n/app_localizations.dart';
 
 /// Pumps [screen] inside a MaterialApp with the app's localizations (English
@@ -32,6 +33,7 @@ Future<void> pumpScreen(
   Locale locale = const Locale('en'),
   RestAlarm? restAlarm,
   PlanRepository? plans,
+  ReminderScheduler? reminders,
 }) async {
   await tester.pumpWidget(ProviderScope(
     retry: noRetry,
@@ -39,6 +41,7 @@ Future<void> pumpScreen(
     overrides: [
       restAlarmProvider.overrideWithValue(restAlarm ?? FakeRestAlarm()),
       planRepositoryProvider.overrideWithValue(plans ?? FakePlanRepository()),
+      reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
       ...overrides,
     ],
     child: MaterialApp(
@@ -233,4 +236,15 @@ class FakePlanRepository extends PlanRepository {
 
   @override
   Future<void> delete(String id) async => plans.removeWhere((p) => p.id == id);
+}
+
+/// Records what the reminders asked the system to schedule.
+class FakeReminderScheduler implements ReminderScheduler {
+  bool allow = true;
+  final applied = <ReminderSettings>[];
+
+  @override
+  Future<bool> requestPermission() async => allow;
+  @override
+  Future<void> apply(ReminderSettings settings, AppLocalizations t) async => applied.add(settings);
 }

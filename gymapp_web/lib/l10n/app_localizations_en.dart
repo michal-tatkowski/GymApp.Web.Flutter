@@ -453,6 +453,84 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weightUnit => 'Weight unit';
 
   @override
+  String get reminders => 'Workout reminders';
+
+  @override
+  String get remindersHint => 'A notification on the days you train';
+
+  @override
+  String get reminderTime => 'Time';
+
+  @override
+  String get reminderTitle => 'Time to train 💪';
+
+  @override
+  String get reminderBody => 'Your plan is ready — tap to start.';
+
+  @override
+  String get reminderChannel => 'Workout reminders';
+
+  @override
+  String get reminderPermissionDenied =>
+      'Allow notifications for GymApp in the system settings to get reminders.';
+
+  @override
+  String get bodyWeight => 'Body weight';
+
+  @override
+  String get bodyWeightLog => 'Log';
+
+  @override
+  String get bodyWeightToday => 'Today\'s weight';
+
+  @override
+  String get bodyWeightEmpty =>
+      'Log your weight now and then to see the trend.';
+
+  @override
+  String bodyWeightChange(String change) {
+    return '$change in 30 days';
+  }
+
+  @override
+  String get thisWeek => 'This week';
+
+  @override
+  String get weekNothingYet => 'No workout yet this week';
+
+  @override
+  String weekWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count workouts',
+      one: '1 workout',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sets',
+      one: '1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String weekStreak(int count) {
+    return '$count-week streak';
+  }
+
+  @override
+  String weekRecords(String names) {
+    return 'Records: $names';
+  }
+
+  @override
   String get sessionInProgressTitle => 'Workout in progress';
 
   @override

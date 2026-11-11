@@ -896,6 +896,114 @@ abstract class AppLocalizations {
   /// **'Weight unit'**
   String get weightUnit;
 
+  /// No description provided for @reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout reminders'**
+  String get reminders;
+
+  /// No description provided for @remindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification on the days you train'**
+  String get remindersHint;
+
+  /// No description provided for @reminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get reminderTime;
+
+  /// No description provided for @reminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to train 💪'**
+  String get reminderTitle;
+
+  /// No description provided for @reminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan is ready — tap to start.'**
+  String get reminderBody;
+
+  /// No description provided for @reminderChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout reminders'**
+  String get reminderChannel;
+
+  /// No description provided for @reminderPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications for GymApp in the system settings to get reminders.'**
+  String get reminderPermissionDenied;
+
+  /// No description provided for @bodyWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Body weight'**
+  String get bodyWeight;
+
+  /// No description provided for @bodyWeightLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Log'**
+  String get bodyWeightLog;
+
+  /// No description provided for @bodyWeightToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s weight'**
+  String get bodyWeightToday;
+
+  /// No description provided for @bodyWeightEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your weight now and then to see the trend.'**
+  String get bodyWeightEmpty;
+
+  /// No description provided for @bodyWeightChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} in 30 days'**
+  String bodyWeightChange(String change);
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
+
+  /// No description provided for @weekNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No workout yet this week'**
+  String get weekNothingYet;
+
+  /// No description provided for @weekWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 workout} other{{count} workouts}}'**
+  String weekWorkouts(int count);
+
+  /// No description provided for @weekSets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 set} other{{count} sets}}'**
+  String weekSets(int count);
+
+  /// No description provided for @weekStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}-week streak'**
+  String weekStreak(int count);
+
+  /// No description provided for @weekRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Records: {names}'**
+  String weekRecords(String names);
+
   /// No description provided for @sessionInProgressTitle.
   ///
   /// In en, this message translates to:
