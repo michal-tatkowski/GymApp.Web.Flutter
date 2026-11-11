@@ -187,7 +187,8 @@ void main() {
     c.read(pendingWorkoutsProvider);
     await tester.pumpAndSettle();
 
-    await tester.scrollUntilVisible(find.text('Logout'), 100);
+    await tester.ensureVisible(find.text('Logout'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Logout'));
     await tester.pumpAndSettle();
     expect(find.text('Workouts not sent yet'), findsOneWidget);

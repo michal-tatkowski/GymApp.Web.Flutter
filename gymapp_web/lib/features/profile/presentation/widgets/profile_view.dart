@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/units/weight_unit.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../data/models/user_profile.dart';
 import '../profile_format.dart';
 
 /// Read-only profile: avatar with initials and a label/value list ("—" when empty).
 class ProfileView extends StatelessWidget {
-  const ProfileView({super.key, required this.profile});
+  const ProfileView({super.key, required this.profile, this.weights = WeightFormat.kg});
 
   final UserProfile profile;
+  final WeightFormat weights;
 
   @override
   Widget build(BuildContext context) {
@@ -49,7 +51,7 @@ class ProfileView extends StatelessWidget {
               ),
               InfoTile(
                 label: t.weight,
-                value: profile.weight != null ? '${formatNumber(profile.weight!)} kg' : null,
+                value: profile.weight != null ? weights.withUnit(profile.weight!) : null,
               ),
               InfoTile(
                 label: t.dateOfBirth,

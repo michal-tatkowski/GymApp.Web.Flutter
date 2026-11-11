@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/units/weight_unit.dart';
 import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
 import '../gym/workouts/presentation/pending_workouts.dart';
@@ -36,6 +37,20 @@ class SettingsScreen extends ConsumerWidget {
                 ],
                 selected: {themeMode},
                 onSelectionChanged: (v) => ref.read(themeProvider.notifier).set(v.single),
+              ),
+            ),
+            const Divider(),
+            ListTile(leading: const Icon(Icons.fitness_center), title: Text(t.weightUnit), subtitle: Text(t.weightUnitHint)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SegmentedButton<WeightUnit>(
+                key: const Key('settings.unit'),
+                showSelectedIcon: false,
+                segments: [
+                  for (final u in WeightUnit.values) ButtonSegment(value: u, label: Text(u.label)),
+                ],
+                selected: {ref.watch(weightUnitProvider)},
+                onSelectionChanged: (v) => ref.read(weightUnitProvider.notifier).set(v.single),
               ),
             ),
             const Divider(),

@@ -6,6 +6,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/gradient_background.dart';
+import '../../../../core/units/weight_unit.dart';
 import '../../../../core/widgets/scroll_aware_fab.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../exercises/data/models/exercise.dart';
@@ -51,6 +52,7 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
       useSafeArea: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => WorkoutEntrySheet(
+        weights: ref.read(weightFormatProvider),
         initial: entry,
         prefillSets: prefill,
         onSave: (req) async {
@@ -97,15 +99,15 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
     }
   }
 
-  /// "3 × 10 × 100 kg" when all sets are equal, otherwise "10×100, 10×100, 8×105 kg".
-  static String describeSets(List<WorkoutSet> sets) {
-    String one(WorkoutSet s) => s.weight == 0 ? '${s.reps}' : '${s.reps}×${formatValue(s.weight)}';
+  /// "3 × 10 × 100 kg" when all sets are equal, otherwise "10×100, 10×100, 8×105 kg" (in [w]'s unit).
+  static String describeSets(List<WorkoutSet> sets, [WeightFormat w = WeightFormat.kg]) {
+    String one(WorkoutSet s) => s.weight == 0 ? '${s.reps}' : '${s.reps}×${w.number(s.weight)}';
     if (sets.length > 1 && sets.every((s) => s == sets.first)) {
       final s = sets.first;
-      return s.weight == 0 ? '${sets.length} × ${s.reps}' : '${sets.length} × ${s.reps} × ${formatValue(s.weight)} kg';
+      return s.weight == 0 ? '${sets.length} × ${s.reps}' : '${sets.length} × ${s.reps} × ${w.withUnit(s.weight)}';
     }
     final text = sets.map(one).join(', ');
-    return sets.any((s) => s.weight > 0) ? '$text kg' : text;
+    return sets.any((s) => s.weight > 0) ? '$text ${w.label}' : text;
   }
 
   @override
@@ -191,7 +193,7 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
                               loading: () =>
                                   const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
                               error: (e, _) => SizedBox(height: 80, child: Center(child: Text(describeError(t, e)))),
-                              data: (points) => ProgressChart(points: points),
+                              data: (points) => ProgressChart(points: points, weights: ref.watch(weightFormatProvider)),
                             ),
                           ],
                         ),
@@ -203,7 +205,7 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
                         key: const Key('workout.repeat'),
                         onPressed: () => ExerciseWorkoutsScreen.repeatLast(context, ref, exerciseId, lastSets),
                         icon: const Icon(Icons.replay),
-                        label: Text(t.repeatLast(ExerciseWorkoutsScreen.describeSets(lastSets))),
+                        label: Text(t.repeatLast(ExerciseWorkoutsScreen.describeSets(lastSets, ref.watch(weightFormatProvider)))),
                       ),
                     ],
                     const SizedBox(height: 16),
@@ -352,7 +354,6 @@ class _EntryTile extends ConsumerWidget {
   final String exerciseId;
   final WorkoutEntry entry;
 
-  static String describeSets(List<WorkoutSet> sets) => ExerciseWorkoutsScreen.describeSets(sets);
 
   /// Deletes right away and offers "Undo" (re-creates the entry) — no confirmation
   /// dialog: the action is reversible, so it should not interrupt.
@@ -388,6 +389,7 @@ class _EntryTile extends ConsumerWidget {
     final t = AppLocalizations.of(context)!;
     final locale = Localizations.localeOf(context).toString();
     final bodyweight = entry.volume == 0;
+    final weights = ref.watch(weightFormatProvider);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -398,7 +400,7 @@ class _EntryTile extends ConsumerWidget {
             : null,
         title: Text(DateFormat.yMMMEd(locale).format(entry.date)),
         subtitle: Text([
-          describeSets(entry.sets),
+          ExerciseWorkoutsScreen.describeSets(entry.sets, weights),
           if (entry.notes != null) entry.notes!,
           if (entry.pending) t.waitingToSync,
         ].join('\n')),
@@ -407,7 +409,7 @@ class _EntryTile extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              bodyweight ? t.repsValue(entry.totalReps) : t.volumeValue(formatValue(entry.volume)),
+              bodyweight ? t.repsValue(entry.totalReps) : weights.withUnit(entry.volume),
               style: Theme.of(context).textTheme.labelLarge,
             ),
             IconButton(

@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/errors/failure_messages.dart';
+import '../../../core/units/weight_unit.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../routing/app_routes.dart';
 import '../exercises/data/models/exercise.dart';
@@ -14,7 +15,6 @@ import '../exercises/presentation/exercises_providers.dart';
 import '../workouts/data/workout_models.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/pending_workouts.dart';
-import '../workouts/presentation/widgets/progress_chart.dart';
 import '../workouts/presentation/workout_providers.dart';
 
 /// Start tab: quick log from favorites + what was done today.
@@ -83,6 +83,7 @@ class TodayScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
+    final weights = ref.watch(weightFormatProvider);
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     final favorites = ref.watch(favoriteExercisesProvider);
@@ -120,7 +121,7 @@ class TodayScreen extends ConsumerWidget {
                         leading: Icon(Icons.check_circle, color: context.appColors.success),
                         title: Text(s.exerciseName),
                         trailing: Text(
-                          s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : t.volumeValue(formatValue(s.lastVolume)),
+                          s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : weights.withUnit(s.lastVolume),
                           style: theme.textTheme.labelLarge,
                         ),
                         onTap: () => _openLog(
@@ -179,6 +180,7 @@ class TodayScreen extends ConsumerWidget {
                               exercise: e,
                               summary: byExercise[e.id],
                               historyKnown: summaries.hasValue,
+                              weights: weights,
                               locale: locale,
                               onOpen: () => _openLog(context, e.id, e.name, e),
                               onLog: () => _quickLog(context, ref, e),
@@ -212,6 +214,7 @@ class _QuickLogTile extends StatelessWidget {
     required this.exercise,
     required this.summary,
     required this.historyKnown,
+    required this.weights,
     required this.locale,
     required this.onOpen,
     required this.onLog,
@@ -223,6 +226,7 @@ class _QuickLogTile extends StatelessWidget {
 
   /// False while offline: no summary does not mean "not trained yet".
   final bool historyKnown;
+  final WeightFormat weights;
   final String locale;
   final VoidCallback onOpen;
   final VoidCallback onLog;
@@ -239,7 +243,7 @@ class _QuickLogTile extends StatelessWidget {
           ? (historyKnown ? Text(t.notTrainedYet) : null)
           : Text(
               '${t.lastWorkout(DateFormat.MMMd(locale).format(s.lastDate))} · '
-              '${s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : t.volumeValue(formatValue(s.lastVolume))}',
+              '${s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : weights.withUnit(s.lastVolume)}',
             ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

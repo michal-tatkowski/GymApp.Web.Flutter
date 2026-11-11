@@ -734,12 +734,6 @@ abstract class AppLocalizations {
   /// **'Reps'**
   String get reps;
 
-  /// No description provided for @weightKgShort.
-  ///
-  /// In en, this message translates to:
-  /// **'kg'**
-  String get weightKgShort;
-
   /// No description provided for @addSet.
   ///
   /// In en, this message translates to:
@@ -842,12 +836,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 training day} other{{count} training days}}'**
   String trainingDays(int count);
 
-  /// No description provided for @volumeValue.
-  ///
-  /// In en, this message translates to:
-  /// **'{value} kg'**
-  String volumeValue(String value);
-
   /// No description provided for @bestValue.
   ///
   /// In en, this message translates to:
@@ -901,6 +889,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account created. You can log in now.'**
   String get accountCreated;
+
+  /// No description provided for @weightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight unit'**
+  String get weightUnit;
+
+  /// No description provided for @weightUnitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'History and charts are converted too.'**
+  String get weightUnitHint;
 
   /// No description provided for @theme.
   ///

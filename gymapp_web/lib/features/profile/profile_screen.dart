@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/errors/failure_messages.dart';
+import '../../core/units/weight_unit.dart';
 import '../../core/widgets/error_view.dart';
 import '../../core/widgets/gradient_background.dart';
 import '../../l10n/app_localizations.dart';
@@ -96,7 +97,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             data: (profile) => _editing
                 ? ProfileEditForm(key: _formKey, initial: profile, enabled: !busy)
-                : RefreshIndicator(onRefresh: _refresh, child: ProfileView(profile: profile)),
+                : RefreshIndicator(onRefresh: _refresh, child: ProfileView(profile: profile, weights: ref.watch(weightFormatProvider))),
           ),
         ),
       ),

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/units/weight_unit.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/gradient_background.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -11,7 +12,6 @@ import '../../../../routing/app_routes.dart';
 import '../../exercises/presentation/category_ui.dart';
 import '../data/workout_models.dart';
 import 'exercise_workouts_screen.dart';
-import 'widgets/progress_chart.dart';
 import 'workout_providers.dart';
 
 /// "My workouts": exercises the user has trained, newest first.
@@ -65,7 +65,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   : ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
-                      children: [for (final s in items) _SummaryTile(summary: s)],
+                      children: [for (final s in items) _SummaryTile(summary: s, weights: ref.watch(weightFormatProvider))],
                     ),
             ),
           ),
@@ -76,9 +76,10 @@ class MyWorkoutsScreen extends ConsumerWidget {
 }
 
 class _SummaryTile extends StatelessWidget {
-  const _SummaryTile({required this.summary});
+  const _SummaryTile({required this.summary, required this.weights});
 
   final WorkoutSummary summary;
+  final WeightFormat weights;
 
   @override
   Widget build(BuildContext context) {
@@ -103,11 +104,11 @@ class _SummaryTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              bodyweight ? t.repsValue(summary.lastTotalReps) : t.volumeValue(formatValue(summary.lastVolume)),
+              bodyweight ? t.repsValue(summary.lastTotalReps) : weights.withUnit(summary.lastVolume),
               style: theme.textTheme.labelLarge,
             ),
             if (!bodyweight)
-              Text(t.bestValue(formatValue(summary.bestVolume)), style: theme.textTheme.labelSmall),
+              Text(t.bestValue(weights.withUnit(summary.bestVolume)), style: theme.textTheme.labelSmall),
           ],
         ),
         onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(

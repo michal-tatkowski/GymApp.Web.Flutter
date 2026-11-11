@@ -345,9 +345,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reps => 'Reps';
 
   @override
-  String get weightKgShort => 'kg';
-
-  @override
   String get addSet => 'Add set';
 
   @override
@@ -420,11 +417,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String volumeValue(String value) {
-    return '$value kg';
-  }
-
-  @override
   String bestValue(String value) {
     return 'best $value';
   }
@@ -456,6 +448,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountCreated => 'Account created. You can log in now.';
+
+  @override
+  String get weightUnit => 'Weight unit';
+
+  @override
+  String get weightUnitHint => 'History and charts are converted too.';
 
   @override
   String get theme => 'Theme';

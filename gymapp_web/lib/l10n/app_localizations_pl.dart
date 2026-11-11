@@ -345,9 +345,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get reps => 'Powtórzenia';
 
   @override
-  String get weightKgShort => 'kg';
-
-  @override
   String get addSet => 'Dodaj serię';
 
   @override
@@ -423,11 +420,6 @@ class AppLocalizationsPl extends AppLocalizations {
   }
 
   @override
-  String volumeValue(String value) {
-    return '$value kg';
-  }
-
-  @override
   String bestValue(String value) {
     return 'rekord $value';
   }
@@ -459,6 +451,12 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get accountCreated => 'Konto utworzone. Zaloguj się.';
+
+  @override
+  String get weightUnit => 'Jednostka ciężaru';
+
+  @override
+  String get weightUnitHint => 'Historia i wykresy też zostaną przeliczone.';
 
   @override
   String get theme => 'Motyw';
