@@ -129,14 +129,14 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Barbell row'));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('exercise.openWorkouts')), findsOneWidget);
+      expect(find.byKey(const Key('workout.log')), findsOneWidget);
 
       await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Today')));
       await tester.pumpAndSettle();
       await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Exercises')));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('exercise.openWorkouts')), findsOneWidget);
+      expect(find.byKey(const Key('workout.log')), findsOneWidget);
     });
 
     testWidgets('Android Back: pops the tab stack, then goes to Today, then leaves the app', (tester) async {
@@ -153,7 +153,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(await systemBack(), isTrue); // details -> list
-      expect(find.byKey(const Key('exercise.openWorkouts')), findsNothing);
+      expect(find.byKey(const Key('workout.log')), findsNothing);
       expect(find.text('Barbell row'), findsOneWidget);
 
       expect(await systemBack(), isTrue); // Exercises -> Today, app stays open

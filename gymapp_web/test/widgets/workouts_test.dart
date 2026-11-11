@@ -1,6 +1,9 @@
+import 'package:flutter/gestures.dart' show kLongPressTimeout;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:gymapp_web/core/errors/failure.dart';
+import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
+import 'package:gymapp_web/features/gym/exercises/presentation/exercises_providers.dart';
 import 'package:gymapp_web/features/gym/workouts/data/workout_models.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/exercise_workouts_screen.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/my_workouts_screen.dart';
@@ -159,11 +162,11 @@ void main() {
 
     await tester.tap(find.byKey(const Key('workout.log')));
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Increase by 1').first);
-    await tester.tap(find.byTooltip('Increase by 2.5').first);
-    await tester.tap(find.byTooltip('Increase by 2.5').first);
-    await tester.tap(find.byTooltip('Decrease by 1').first);
-    await tester.tap(find.byTooltip('Decrease by 1').first);
+    await tester.tap(find.bySemanticsLabel('Increase by 1').first);
+    await tester.tap(find.bySemanticsLabel('Increase by 2.5').first);
+    await tester.tap(find.bySemanticsLabel('Increase by 2.5').first);
+    await tester.tap(find.bySemanticsLabel('Decrease by 1').first);
+    await tester.tap(find.bySemanticsLabel('Decrease by 1').first);
     await tester.pump();
 
     expect(tester.widget<TextFormField>(find.byKey(const Key('workout.set0.reps'))).controller!.text, '9');
@@ -211,5 +214,75 @@ void main() {
 
     expect(metricFor([p(1000, 10), p(0, 12)]), ProgressMetric.volume);
     expect(metricFor([p(0, 10), p(0, 12)]), ProgressMetric.reps);
+  });
+
+  group('one screen per exercise', () {
+    const exercise = Exercise(
+      id: bench,
+      name: 'Bench press',
+      category: ExerciseCategory.push,
+      description: 'Flat bench, bar to mid-chest.',
+    );
+
+    Future<FakeExerciseRepository> pumpExercise(WidgetTester tester, {required bool trained}) async {
+      tester.view.physicalSize = const Size(1000, 2000);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final workouts = FakeWorkoutRepository();
+      if (trained) workouts.seed(bench, today, [const WorkoutSet(reps: 10, weight: 100)]);
+      final exercises = FakeExerciseRepository([exercise]);
+      await pumpScreen(tester, ExerciseWorkoutsScreen.forExercise(exercise), overrides: [
+        workoutRepositoryProvider.overrideWithValue(workouts),
+        exerciseRepositoryProvider.overrideWithValue(exercises),
+      ]);
+      return exercises;
+    }
+
+    testWidgets('description is open before the first workout, folded after', (tester) async {
+      await pumpExercise(tester, trained: false);
+      expect(find.text('Flat bench, bar to mid-chest.'), findsOneWidget);
+      expect(find.text('Push'), findsOneWidget); // category chip
+
+      await pumpExercise(tester, trained: true);
+      expect(find.text('Flat bench, bar to mid-chest.'), findsNothing);
+      await tester.tap(find.text('About this exercise'));
+      await tester.pumpAndSettle();
+      expect(find.text('Flat bench, bar to mid-chest.'), findsOneWidget);
+    });
+
+    testWidgets('star works without the catalog list open (e.g. from Today)', (tester) async {
+      final repo = await pumpExercise(tester, trained: true);
+
+      await tester.tap(find.byTooltip('Add to favorites'));
+      await tester.pumpAndSettle();
+
+      expect(repo.favoriteCalls, [(bench, true)]);
+      expect(find.byTooltip('Remove from favorites'), findsOneWidget);
+    });
+
+    testWidgets('from the Progress tab (no exercise data): just the log, no star', (tester) async {
+      await pumpLog(tester);
+      expect(find.byTooltip('Add to favorites'), findsNothing);
+      expect(find.text('About this exercise'), findsNothing);
+    });
+  });
+
+  testWidgets('holding + keeps adding 2.5 kg; a tap adds one step', (tester) async {
+    await pumpLog(tester);
+    await tester.tap(find.byKey(const Key('workout.log')));
+    await tester.pumpAndSettle();
+    String weight() => tester.widget<TextFormField>(find.byKey(const Key('workout.set0.weight'))).controller!.text;
+    final plus = find.descendant(of: find.byKey(const Key('workout.set0.weight')), matching: find.byIcon(Icons.add));
+
+    await tester.tap(plus);
+    await tester.pump();
+    expect(weight(), '2.5');
+
+    final gesture = await tester.startGesture(tester.getCenter(plus));
+    await tester.pump(kLongPressTimeout + const Duration(milliseconds: 10)); // long press recognized: +1 step
+    await tester.pump(const Duration(milliseconds: 450)); // then every 100 ms: +4 steps
+    await gesture.up();
+    await tester.pump(const Duration(seconds: 1)); // stopped
+    expect(weight(), '15');
   });
 }

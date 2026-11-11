@@ -30,16 +30,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   Future<void> _onRegister() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref.read(authControllerProvider.notifier).register(
-          email: _emailCtrl.text.trim(),
-          password: _passwordCtrl.text,
-        );
+    await ref
+        .read(authControllerProvider.notifier)
+        .register(email: _emailCtrl.text.trim(), password: _passwordCtrl.text);
     if (!mounted) return;
     final state = ref.read(authControllerProvider);
     if (!state.hasError) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(AppLocalizations.of(context)!.accountCreated)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.accountCreated)));
       context.go(AppRoutes.login);
     }
   }
@@ -77,10 +74,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     controller: _emailCtrl,
                     keyboardType: TextInputType.emailAddress,
                     autofillHints: const [AutofillHints.email],
-                    decoration: InputDecoration(
-                      labelText: t.email,
-                      prefixIcon: const Icon(Icons.alternate_email),
-                    ),
+                    decoration: InputDecoration(labelText: t.email, prefixIcon: const Icon(Icons.alternate_email)),
                     validator: (v) => validateEmail(t, v),
                   ),
                   const SizedBox(height: 16),
@@ -104,11 +98,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     child: FilledButton.icon(
                       onPressed: isLoading ? null : _onRegister,
                       icon: isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
+                          ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
                           : const Icon(Icons.person_add),
                       label: Text(isLoading ? t.registering : t.registerButton),
                     ),

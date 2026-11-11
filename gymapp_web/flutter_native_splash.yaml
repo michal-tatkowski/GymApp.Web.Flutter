@@ -1,0 +1,9 @@
+# Native splash (shown while Flutter starts), same brand color and dumbbell as the icon.
+# Regenerate: dart run flutter_native_splash:create
+flutter_native_splash:
+  color: "#EF6C00"
+  image: assets/icon/splash.png
+  android_12:
+    color: "#EF6C00"
+    image: assets/icon/splash.png
+  web: false

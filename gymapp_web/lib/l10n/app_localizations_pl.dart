@@ -157,6 +157,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get noDescription => 'Brak opisu';
 
   @override
+  String get aboutExercise => 'O ćwiczeniu';
+
+  @override
   String get allCategories => 'Wszystkie';
 
   @override

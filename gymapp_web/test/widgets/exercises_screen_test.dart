@@ -4,7 +4,9 @@ import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_providers.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_screen.dart';
+import 'package:gymapp_web/features/gym/workouts/presentation/workout_providers.dart';
 
+import '../helpers/fake_workouts.dart';
 import '../helpers/test_app.dart';
 
 void main() {
@@ -19,7 +21,10 @@ void main() {
   Future<FakeExerciseRepository> pump(WidgetTester tester, [List<Exercise>? items]) async {
     final repo = FakeExerciseRepository(items ?? catalog());
     await pumpScreen(tester, const ExercisesScreen(),
-        overrides: [exerciseRepositoryProvider.overrideWithValue(repo)]);
+        overrides: [
+          exerciseRepositoryProvider.overrideWithValue(repo),
+          workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository()), // opened exercise loads its log
+        ]);
     return repo;
   }
 
@@ -63,7 +68,7 @@ void main() {
     expect(find.text('No exercises found'), findsOneWidget);
   });
 
-  testWidgets('tapping an exercise opens its details with the description', (tester) async {
+  testWidgets('tapping an exercise opens its screen: log first, description folded open while untrained', (tester) async {
     await pump(tester);
 
     await tester.tap(find.text('Bench press'));

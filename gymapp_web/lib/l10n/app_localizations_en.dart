@@ -157,6 +157,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noDescription => 'No description';
 
   @override
+  String get aboutExercise => 'About this exercise';
+
+  @override
   String get allCategories => 'All';
 
   @override

@@ -392,6 +392,12 @@ abstract class AppLocalizations {
   /// **'No description'**
   String get noDescription;
 
+  /// No description provided for @aboutExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'About this exercise'**
+  String get aboutExercise;
+
   /// No description provided for @allCategories.
   ///
   /// In en, this message translates to:

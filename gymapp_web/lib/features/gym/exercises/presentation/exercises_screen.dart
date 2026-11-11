@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/widgets/gradient_background.dart';
+import '../../../../core/widgets/scroll_aware_fab.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../workouts/presentation/exercise_workouts_screen.dart';
 import '../data/models/exercise.dart';
 import 'add_exercise_sheet.dart';
 import 'category_ui.dart';
-import 'exercise_detail_screen.dart';
 import 'favorite_button.dart';
 import 'exercises_providers.dart';
 
@@ -20,6 +22,7 @@ class ExercisesScreen extends ConsumerStatefulWidget {
 class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
   final _searchCtrl = TextEditingController();
   final _scrollCtrl = ScrollController();
+  final _fabExtended = ValueNotifier(true);
 
   @override
   void initState() {
@@ -31,12 +34,12 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
   void dispose() {
     _searchCtrl.dispose();
     _scrollCtrl.dispose();
+    _fabExtended.dispose();
     super.dispose();
   }
 
   void _onScroll() {
-    if (_scrollCtrl.position.pixels >=
-        _scrollCtrl.position.maxScrollExtent - 200) {
+    if (_scrollCtrl.position.pixels >= _scrollCtrl.position.maxScrollExtent - 200) {
       ref.read(exercisesProvider.notifier).loadMore();
     }
   }
@@ -58,9 +61,7 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
       builder: (_) => const AddExerciseSheet(),
     );
   }
@@ -85,104 +86,93 @@ class _ExercisesScreenState extends ConsumerState<ExercisesScreen> {
 
     return Scaffold(
       appBar: AppBar(title: Text(t.exercises)),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: ScrollAwareFab(
+        extended: _fabExtended,
         onPressed: _openAddSheet,
         icon: const Icon(Icons.add),
-        label: Text(t.addExercise),
+        label: t.addExercise,
       ),
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-                  Theme.of(context).colorScheme.secondary.withValues(alpha: 0.10),
-                ],
+      body: GradientBackground(
+        child: SafeArea(
+          child: Column(
+            children: [
+              // ── Search bar + category filter ─────────────────────
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: Column(
+                  children: [
+                    TextField(
+                      controller: _searchCtrl,
+                      decoration: InputDecoration(
+                        hintText: t.searchExercises,
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: state.query.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  _searchCtrl.clear();
+                                  notifier.setQuery('');
+                                },
+                              )
+                            : null,
+                        filled: true,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(14),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      onChanged: notifier.setQuery,
+                    ),
+                    const SizedBox(height: 8),
+                    _CategoryChips(
+                      selected: state.categoryFilter,
+                      onSelected: notifier.setCategory,
+                      favoritesOnly: state.favoritesOnly,
+                      onFavoritesOnlyChanged: notifier.setFavoritesOnly,
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ),
-          SafeArea(
-            child: Column(
-              children: [
-                // ── Search bar + category filter ─────────────────────
-                Padding(
-                  padding:
-                      const EdgeInsets.fromLTRB(16, 12, 16, 0),
-                  child: Column(
-                    children: [
-                      TextField(
-                        controller: _searchCtrl,
-                        decoration: InputDecoration(
-                          hintText: t.searchExercises,
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon: state.query.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    _searchCtrl.clear();
-                                    notifier.setQuery('');
-                                  },
-                                )
-                              : null,
-                          filled: true,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(14),
-                            borderSide: BorderSide.none,
+              const SizedBox(height: 8),
+              // ── List ─────────────────────────────────────────────
+              Expanded(
+                child: state.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : exercises.isEmpty
+                    ? _EmptyState(onRetry: notifier.load)
+                    : RefreshIndicator(
+                        onRefresh: notifier.refresh,
+                        child: ScrollAwareFab.listener(
+                          extended: _fabExtended,
+                          child: ListView.builder(
+                            controller: _scrollCtrl,
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                            itemCount: exercises.length + (state.isLoadingMore ? 1 : 0),
+                            itemBuilder: (context, i) {
+                              if (i == exercises.length) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 16),
+                                  child: Center(child: CircularProgressIndicator()),
+                                );
+                              }
+                              return _ExerciseTile(
+                                exercise: exercises[i],
+                                onToggleFavorite: () => _toggleFavorite(exercises[i].id),
+                                onTap: () => Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => ExerciseWorkoutsScreen.forExercise(exercises[i]),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
                         ),
-                        onChanged: notifier.setQuery,
                       ),
-                      const SizedBox(height: 8),
-                      _CategoryChips(
-                        selected: state.categoryFilter,
-                        onSelected: notifier.setCategory,
-                        favoritesOnly: state.favoritesOnly,
-                        onFavoritesOnlyChanged: notifier.setFavoritesOnly,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 8),
-                // ── List ─────────────────────────────────────────────
-                Expanded(
-                  child: state.isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : exercises.isEmpty
-                          ? _EmptyState(onRetry: notifier.load)
-                          : ListView.builder(
-                              controller: _scrollCtrl,
-                              padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
-                              itemCount:
-                                  exercises.length + (state.isLoadingMore ? 1 : 0),
-                              itemBuilder: (context, i) {
-                                if (i == exercises.length) {
-                                  return const Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 16),
-                                    child: Center(
-                                        child: CircularProgressIndicator()),
-                                  );
-                                }
-                                return _ExerciseTile(
-                                  exercise: exercises[i],
-                                  onToggleFavorite: () => _toggleFavorite(exercises[i].id),
-                                  onTap: () => Navigator.of(context).push(
-                                    MaterialPageRoute<void>(
-                                      builder: (_) => ExerciseDetailScreen(
-                                        exercise: exercises[i],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              },
-                            ),
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -222,11 +212,7 @@ class _CategoryChips extends StatelessWidget {
             onTap: () => onSelected(null),
           ),
           for (final cat in ExerciseCategory.values)
-            _Chip(
-              label: categoryLabel(context, cat),
-              isSelected: selected == cat,
-              onTap: () => onSelected(cat),
-            ),
+            _Chip(label: categoryLabel(context, cat), isSelected: selected == cat, onTap: () => onSelected(cat)),
         ],
       ),
     );
@@ -234,12 +220,7 @@ class _CategoryChips extends StatelessWidget {
 }
 
 class _Chip extends StatelessWidget {
-  const _Chip({
-    required this.label,
-    required this.isSelected,
-    required this.onTap,
-    this.icon,
-  });
+  const _Chip({required this.label, required this.isSelected, required this.onTap, this.icon});
 
   final String label;
   final bool isSelected;
@@ -283,30 +264,20 @@ class _ExerciseTile extends StatelessWidget {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       elevation: 1,
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         leading: CircleAvatar(
           backgroundColor: theme.colorScheme.primaryContainer,
-          child: Icon(
-            categoryIcon(exercise.category),
-            color: theme.colorScheme.onPrimaryContainer,
-            size: 20,
-          ),
+          child: Icon(categoryIcon(exercise.category), color: theme.colorScheme.onPrimaryContainer, size: 20),
         ),
         title: Text(exercise.name),
-        subtitle: Text(
-          categoryLabel(context, exercise.category),
-          style: theme.textTheme.bodySmall,
-        ),
+        subtitle: Text(categoryLabel(context, exercise.category), style: theme.textTheme.bodySmall),
         trailing: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             if (exercise.isCustom)
               Padding(
                 padding: const EdgeInsets.only(right: 4),
-                child: Icon(Icons.person_outline,
-                    size: 16,
-                    color: theme.colorScheme.primary.withValues(alpha: 0.7)),
+                child: Icon(Icons.person_outline, size: 16, color: theme.colorScheme.primary.withValues(alpha: 0.7)),
               ),
             FavoriteButton(isFavorite: exercise.isFavorite, onPressed: onToggleFavorite),
             const Icon(Icons.chevron_right),
@@ -333,17 +304,11 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.fitness_center,
-              size: 64,
-              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
+          Icon(Icons.fitness_center, size: 64, color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.5)),
           const SizedBox(height: 12),
           Text(t.noExercisesFound),
           const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: Text(t.retry),
-          ),
+          FilledButton.icon(onPressed: onRetry, icon: const Icon(Icons.refresh), label: Text(t.retry)),
         ],
       ),
     );

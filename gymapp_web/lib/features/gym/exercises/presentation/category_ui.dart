@@ -21,6 +21,6 @@ IconData categoryIcon(ExerciseCategory cat) => switch (cat) {
       ExerciseCategory.pull => Icons.arrow_downward,
       ExerciseCategory.legs => Icons.directions_run,
       ExerciseCategory.core => Icons.rotate_right,
-      ExerciseCategory.cardio => Icons.favorite_outline,
+      ExerciseCategory.cardio => Icons.monitor_heart_outlined, // a heart would read as "like" next to the star
       ExerciseCategory.other => Icons.fitness_center,
     };

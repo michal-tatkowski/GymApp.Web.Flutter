@@ -118,6 +118,27 @@ class ExercisesNotifier extends Notifier<ExercisesState> {
     }
   }
 
+  /// Pull-to-refresh: reloads page 1 but keeps the current list on screen until
+  /// the new one arrives; on failure the list stays and the error is reported.
+  Future<void> refresh() async {
+    final generation = ++_generation;
+    try {
+      final items = await _fetch(1);
+      if (generation != _generation || !ref.mounted) return;
+      _page = 1;
+      state = state.copyWith(
+        items: items,
+        isLoading: false,
+        isLoadingMore: false,
+        hasMore: items.length >= exercisesPageSize,
+        clearError: true,
+      );
+    } catch (e) {
+      if (generation != _generation || !ref.mounted) return;
+      state = state.copyWith(error: e);
+    }
+  }
+
   Future<void> loadMore() async {
     if (state.isLoading || state.isLoadingMore || !state.hasMore) return;
     final generation = _generation;
