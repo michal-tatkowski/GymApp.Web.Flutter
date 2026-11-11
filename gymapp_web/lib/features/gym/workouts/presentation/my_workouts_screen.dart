@@ -33,31 +33,41 @@ class MyWorkoutsScreen extends ConsumerWidget {
               message: describeError(t, e),
               onRetry: () => ref.invalidate(workoutSummariesProvider),
             ),
-            data: (items) => items.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(t.noWorkoutsYet, textAlign: TextAlign.center),
-                          const SizedBox(height: 16),
-                          FilledButton.icon(
-                            onPressed: () => context.go(AppRoutes.exercises),
-                            icon: const Icon(Icons.fitness_center),
-                            label: Text(t.exercises),
+            data: (items) => RefreshIndicator(
+              onRefresh: () => ref.refresh(workoutSummariesProvider.future),
+              child: items.isEmpty
+                  // Scrollable even when empty, so pulling down works here too.
+                  ? LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(t.noWorkoutsYet, textAlign: TextAlign.center),
+                                  const SizedBox(height: 16),
+                                  FilledButton.icon(
+                                    onPressed: () => context.go(AppRoutes.exercises),
+                                    icon: const Icon(Icons.fitness_center),
+                                    label: Text(t.exercises),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ],
+                        ),
                       ),
-                    ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: () => ref.refresh(workoutSummariesProvider.future),
-                    child: ListView(
+                    )
+                  : ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
                       children: [for (final s in items) _SummaryTile(summary: s)],
                     ),
-                  ),
+            ),
           ),
         ),
       ),

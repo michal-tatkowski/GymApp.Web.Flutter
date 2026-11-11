@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
+import '../../../../../app/theme/app_theme.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../data/workout_models.dart';
 
@@ -173,7 +174,7 @@ class _ProgressChartState extends State<ProgressChart> {
     final first = values.first, last = values.last;
     final change = first == 0 ? null : (last - first) / first * 100;
     final up = last > first, down = last < first;
-    final trendColor = up ? Colors.green.shade600 : (down ? theme.colorScheme.error : theme.colorScheme.outline);
+    final trendColor = up ? context.appColors.success : (down ? theme.colorScheme.error : theme.colorScheme.outline);
     final records = recordIndexes(values);
     final shown = selected ?? points.length - 1;
 
@@ -227,7 +228,7 @@ class _ProgressChartState extends State<ProgressChart> {
           ],
         ),
         if (records.contains(shown))
-          Text(t.personalRecord, key: const Key('progress.record'), style: theme.textTheme.labelMedium?.copyWith(color: Colors.amber.shade800)),
+          Text(t.personalRecord, key: const Key('progress.record'), style: theme.textTheme.labelMedium?.copyWith(color: context.appColors.favorite)),
         const SizedBox(height: 8),
         Semantics(
           label: t.chartSemantics(
@@ -244,7 +245,7 @@ class _ProgressChartState extends State<ProgressChart> {
                 records: records,
                 selected: selected,
                 lineColor: theme.colorScheme.primary,
-                recordColor: Colors.amber.shade700,
+                recordColor: context.appColors.favorite,
                 gridColor: theme.colorScheme.outlineVariant,
                 labelStyle: theme.textTheme.labelSmall!.copyWith(color: theme.colorScheme.onSurfaceVariant),
               );

@@ -425,7 +425,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get accountCreated => 'Konto utworzone. Zaloguj się.';
 
   @override
-  String get darkTheme => 'Ciemny motyw';
+  String get theme => 'Motyw';
+
+  @override
+  String get themeSystem => 'Systemowy';
+
+  @override
+  String get themeLight => 'Jasny';
+
+  @override
+  String get themeDark => 'Ciemny';
 
   @override
   String get language => 'Język';

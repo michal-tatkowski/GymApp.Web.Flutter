@@ -29,6 +29,13 @@ class ProfileController extends AsyncNotifier<UserProfile> {
     state = await AsyncValue.guard(() => ref.read(profileRepositoryProvider).getProfile());
   }
 
+  /// Pull-to-refresh: the profile stays on screen while reloading; a failure is
+  /// rethrown for the caller to show and the shown profile is kept.
+  Future<void> refresh() async {
+    final profile = await ref.read(profileRepositoryProvider).getProfile();
+    if (ref.mounted) state = AsyncData(profile);
+  }
+
   /// Returns null on success, the error otherwise. The state is not touched while
   /// saving (the screen shows its own progress) and stays unchanged on failure,
   /// so the edit form is not replaced by a spinner or an error view.

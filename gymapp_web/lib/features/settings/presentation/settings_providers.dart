@@ -10,13 +10,15 @@ import '../../../core/storage/secure_storage_keys.dart';
 
 final themeProvider = NotifierProvider<ThemeNotifier, ThemeMode>(ThemeNotifier.new);
 
+/// Follows the phone by default (many people keep dark mode on in the evening,
+/// when they train); Light / Dark override it. Stored as 'system' | 'light' | 'dark'.
 class ThemeNotifier extends Notifier<ThemeMode> {
   bool _changedByUser = false;
 
   @override
   ThemeMode build() {
     _restore();
-    return ThemeMode.light;
+    return ThemeMode.system;
   }
 
   Future<void> _restore() async {
@@ -24,21 +26,14 @@ class ThemeNotifier extends Notifier<ThemeMode> {
     final value = prefs.getString(StorageKeys.themeMode);
     // A choice made while prefs were loading wins over the stored value.
     if (!ref.mounted || _changedByUser) return;
-    state = value == 'dark' ? ThemeMode.dark : ThemeMode.light;
+    state = ThemeMode.values.where((m) => m.name == value).firstOrNull ?? ThemeMode.system;
   }
-
-  Future<void> toggle() => set(
-        state == ThemeMode.light ? ThemeMode.dark : ThemeMode.light,
-      );
 
   Future<void> set(ThemeMode mode) async {
     _changedByUser = true;
     state = mode;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(
-      StorageKeys.themeMode,
-      mode == ThemeMode.dark ? 'dark' : 'light',
-    );
+    await prefs.setString(StorageKeys.themeMode, mode.name);
   }
 }
 

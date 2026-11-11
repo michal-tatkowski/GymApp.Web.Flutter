@@ -119,4 +119,21 @@ void main() {
     expect(find.text('Mężczyzna'), findsOneWidget);
     expect(find.text('Wzrost'), findsOneWidget);
   });
+
+  testWidgets('pull to refresh reloads; a failure keeps the profile on screen', (tester) async {
+    final repo = await pump(tester);
+    expect(repo.loads, 1);
+
+    repo.profile = UserProfile(nickname: 'Renamed', height: profile.height, weight: profile.weight);
+    await tester.fling(find.text('Nickname'), const Offset(0, 400), 1000);
+    await tester.pumpAndSettle();
+    expect(repo.loads, 2);
+    expect(find.text('Renamed'), findsOneWidget);
+
+    repo.loadError = const NetworkFailure();
+    await tester.fling(find.text('Nickname'), const Offset(0, 400), 1000);
+    await tester.pumpAndSettle();
+    expect(find.text('Renamed'), findsOneWidget); // still there, no error page
+    expect(find.byType(SnackBar), findsOneWidget);
+  });
 }

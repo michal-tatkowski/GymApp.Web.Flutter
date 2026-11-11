@@ -423,7 +423,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountCreated => 'Account created. You can log in now.';
 
   @override
-  String get darkTheme => 'Dark theme';
+  String get theme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
 
   @override
   String get language => 'Language';

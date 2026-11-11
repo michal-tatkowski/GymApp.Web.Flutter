@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 
 /// Star toggle used on the exercise list and the exercise details.
@@ -17,7 +18,7 @@ class FavoriteButton extends StatelessWidget {
       tooltip: isFavorite ? t.removeFromFavorites : t.addToFavorites,
       icon: Icon(
         isFavorite ? Icons.star : Icons.star_border,
-        color: isFavorite ? Colors.amber.shade700 : null,
+        color: isFavorite ? context.appColors.favorite : null,
       ),
     );
   }

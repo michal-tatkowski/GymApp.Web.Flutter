@@ -285,4 +285,22 @@ void main() {
     await tester.pump(const Duration(seconds: 1)); // stopped
     expect(weight(), '15');
   });
+
+  testWidgets('"Log workout" shrinks to its icon while scrolling down, grows back scrolling up', (tester) async {
+    await pumpLog(tester, (r) {
+      for (var d = 1; d <= 30; d++) {
+        r.seed(bench, today.subtract(Duration(days: d)), [const WorkoutSet(reps: 10, weight: 100)]);
+      }
+    });
+    bool extended() => tester.widget<FloatingActionButton>(find.byType(FloatingActionButton)).isExtended;
+    expect(extended(), isTrue);
+
+    await tester.drag(find.byType(ListView), const Offset(0, -600));
+    await tester.pumpAndSettle();
+    expect(extended(), isFalse);
+
+    await tester.drag(find.byType(ListView), const Offset(0, 300));
+    await tester.pumpAndSettle();
+    expect(extended(), isTrue);
+  });
 }

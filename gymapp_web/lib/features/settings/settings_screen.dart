@@ -22,10 +22,20 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            SwitchListTile(
-              title: Text(t.darkTheme),
-              value: themeMode == ThemeMode.dark,
-              onChanged: (_) => ref.read(themeProvider.notifier).toggle(),
+            ListTile(leading: const Icon(Icons.palette_outlined), title: Text(t.theme)),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+              child: SegmentedButton<ThemeMode>(
+                key: const Key('settings.theme'),
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(value: ThemeMode.system, icon: const Icon(Icons.brightness_auto), label: Text(t.themeSystem)),
+                  ButtonSegment(value: ThemeMode.light, icon: const Icon(Icons.light_mode), label: Text(t.themeLight)),
+                  ButtonSegment(value: ThemeMode.dark, icon: const Icon(Icons.dark_mode), label: Text(t.themeDark)),
+                ],
+                selected: {themeMode},
+                onSelectionChanged: (v) => ref.read(themeProvider.notifier).set(v.single),
+              ),
             ),
             const Divider(),
             ListTile(

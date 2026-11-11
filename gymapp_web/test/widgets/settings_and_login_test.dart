@@ -16,14 +16,15 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({'settings.locale': 'en'}));
 
   group('Settings', () {
-    testWidgets('dark theme switch toggles the theme and is persisted', (tester) async {
+    testWidgets('theme follows the phone by default; Dark is chosen and persisted', (tester) async {
       late WidgetRef ref;
       await pumpScreen(tester, Consumer(builder: (context, r, _) {
         ref = r;
         return const SettingsScreen();
       }));
 
-      await tester.tap(find.text('Dark theme'));
+      expect(ref.read(themeProvider), ThemeMode.system);
+      await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
 
       expect(ref.read(themeProvider), ThemeMode.dark);

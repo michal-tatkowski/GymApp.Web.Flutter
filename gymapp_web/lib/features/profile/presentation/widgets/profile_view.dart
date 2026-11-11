@@ -17,6 +17,7 @@ class ProfileView extends StatelessWidget {
     final gender = profile.gender;
 
     return SingleChildScrollView(
+      physics: const AlwaysScrollableScrollPhysics(), // pull-to-refresh also when the content is short
       padding: const EdgeInsets.all(16),
       child: Center(
         child: ConstrainedBox(

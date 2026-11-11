@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/failure_messages.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../routing/app_routes.dart';
@@ -98,7 +99,7 @@ class TodayScreen extends ConsumerWidget {
                   children: [
                     for (final s in doneToday)
                       ListTile(
-                        leading: const Icon(Icons.check_circle, color: Colors.green),
+                        leading: Icon(Icons.check_circle, color: context.appColors.success),
                         title: Text(s.exerciseName),
                         trailing: Text(
                           s.lastVolume == 0 ? t.repsValue(s.lastTotalReps) : t.volumeValue(formatValue(s.lastVolume)),
@@ -140,7 +141,7 @@ class TodayScreen extends ConsumerWidget {
                         padding: const EdgeInsets.all(20),
                         child: Column(
                           children: [
-                            Icon(Icons.star_border, size: 40, color: Colors.amber.shade700),
+                            Icon(Icons.star_border, size: 40, color: context.appColors.favorite),
                             const SizedBox(height: 8),
                             Text(t.noFavoritesYet, textAlign: TextAlign.center),
                             const SizedBox(height: 12),

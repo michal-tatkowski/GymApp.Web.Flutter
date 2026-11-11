@@ -115,4 +115,17 @@ void main() {
     expect(find.text('You already have an exercise with this name.'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget); // still open
   });
+
+  testWidgets('pull to refresh reloads page 1 and keeps the list on screen meanwhile', (tester) async {
+    final repo = await pump(tester);
+    final before = repo.queries.length;
+
+    await tester.fling(find.text('Bench press'), const Offset(0, 400), 1000);
+    await tester.pump(); // refresh started
+    expect(find.text('Bench press'), findsOneWidget); // the list is not replaced by a full-screen spinner
+    await tester.pumpAndSettle();
+
+    expect(repo.queries.length, before + 1);
+    expect(repo.queries.last.page, 1);
+  });
 }
