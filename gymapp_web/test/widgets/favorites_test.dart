@@ -4,7 +4,9 @@ import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_providers.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_screen.dart';
+import 'package:gymapp_web/features/gym/workouts/presentation/workout_providers.dart';
 
+import '../helpers/fake_workouts.dart';
 import '../helpers/test_app.dart';
 
 void main() {
@@ -17,7 +19,10 @@ void main() {
   Future<FakeExerciseRepository> pump(WidgetTester tester) async {
     final repo = FakeExerciseRepository(catalog());
     await pumpScreen(tester, const ExercisesScreen(),
-        overrides: [exerciseRepositoryProvider.overrideWithValue(repo)]);
+        overrides: [
+          exerciseRepositoryProvider.overrideWithValue(repo),
+          workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository()), // opened exercise loads its log
+        ]);
     return repo;
   }
 

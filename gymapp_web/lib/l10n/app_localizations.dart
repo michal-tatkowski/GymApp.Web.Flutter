@@ -392,6 +392,12 @@ abstract class AppLocalizations {
   /// **'No description'**
   String get noDescription;
 
+  /// No description provided for @aboutExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'About this exercise'**
+  String get aboutExercise;
+
   /// No description provided for @allCategories.
   ///
   /// In en, this message translates to:
@@ -608,6 +614,42 @@ abstract class AppLocalizations {
   /// **'Rest is over — next set!'**
   String get restOver;
 
+  /// No description provided for @restNotificationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest'**
+  String get restNotificationTitle;
+
+  /// No description provided for @restNotificationBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Next set when the countdown ends'**
+  String get restNotificationBody;
+
+  /// No description provided for @restCountdownChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest countdown'**
+  String get restCountdownChannel;
+
+  /// No description provided for @restOverChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'End of rest'**
+  String get restOverChannel;
+
+  /// No description provided for @restExactAlarm.
+  ///
+  /// In en, this message translates to:
+  /// **'Alert exactly on time'**
+  String get restExactAlarm;
+
+  /// No description provided for @restExactAlarmHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow alarms so the end-of-rest alert is not delayed when the phone is locked'**
+  String get restExactAlarmHint;
+
   /// No description provided for @quickLog.
   ///
   /// In en, this message translates to:
@@ -812,11 +854,29 @@ abstract class AppLocalizations {
   /// **'Account created. You can log in now.'**
   String get accountCreated;
 
-  /// No description provided for @darkTheme.
+  /// No description provided for @theme.
   ///
   /// In en, this message translates to:
-  /// **'Dark theme'**
-  String get darkTheme;
+  /// **'Theme'**
+  String get theme;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In en, this message translates to:
+  /// **'System'**
+  String get themeSystem;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In en, this message translates to:
+  /// **'Light'**
+  String get themeLight;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark'**
+  String get themeDark;
 
   /// No description provided for @language.
   ///

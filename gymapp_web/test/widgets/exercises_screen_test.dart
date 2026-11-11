@@ -4,7 +4,9 @@ import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_providers.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_screen.dart';
+import 'package:gymapp_web/features/gym/workouts/presentation/workout_providers.dart';
 
+import '../helpers/fake_workouts.dart';
 import '../helpers/test_app.dart';
 
 void main() {
@@ -19,7 +21,10 @@ void main() {
   Future<FakeExerciseRepository> pump(WidgetTester tester, [List<Exercise>? items]) async {
     final repo = FakeExerciseRepository(items ?? catalog());
     await pumpScreen(tester, const ExercisesScreen(),
-        overrides: [exerciseRepositoryProvider.overrideWithValue(repo)]);
+        overrides: [
+          exerciseRepositoryProvider.overrideWithValue(repo),
+          workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository()), // opened exercise loads its log
+        ]);
     return repo;
   }
 
@@ -63,7 +68,7 @@ void main() {
     expect(find.text('No exercises found'), findsOneWidget);
   });
 
-  testWidgets('tapping an exercise opens its details with the description', (tester) async {
+  testWidgets('tapping an exercise opens its screen: log first, description folded open while untrained', (tester) async {
     await pump(tester);
 
     await tester.tap(find.text('Bench press'));
@@ -109,5 +114,18 @@ void main() {
 
     expect(find.text('You already have an exercise with this name.'), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Save'), findsOneWidget); // still open
+  });
+
+  testWidgets('pull to refresh reloads page 1 and keeps the list on screen meanwhile', (tester) async {
+    final repo = await pump(tester);
+    final before = repo.queries.length;
+
+    await tester.fling(find.text('Bench press'), const Offset(0, 400), 1000);
+    await tester.pump(); // refresh started
+    expect(find.text('Bench press'), findsOneWidget); // the list is not replaced by a full-screen spinner
+    await tester.pumpAndSettle();
+
+    expect(repo.queries.length, before + 1);
+    expect(repo.queries.last.page, 1);
   });
 }

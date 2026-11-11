@@ -5,6 +5,7 @@ import 'package:gymapp_web/app/app.dart';
 import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/core/providers/retry.dart';
 import 'package:gymapp_web/features/auth/presentation/auth_providers.dart';
+import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/settings/presentation/settings_providers.dart';
 import 'package:gymapp_web/features/settings/settings_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,14 +16,15 @@ void main() {
   setUp(() => SharedPreferences.setMockInitialValues({'settings.locale': 'en'}));
 
   group('Settings', () {
-    testWidgets('dark theme switch toggles the theme and is persisted', (tester) async {
+    testWidgets('theme follows the phone by default; Dark is chosen and persisted', (tester) async {
       late WidgetRef ref;
       await pumpScreen(tester, Consumer(builder: (context, r, _) {
         ref = r;
         return const SettingsScreen();
       }));
 
-      await tester.tap(find.text('Dark theme'));
+      expect(ref.read(themeProvider), ThemeMode.system);
+      await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
 
       expect(ref.read(themeProvider), ThemeMode.dark);
@@ -35,6 +37,7 @@ void main() {
         retry: noRetry,
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
+          restAlarmProvider.overrideWithValue(FakeRestAlarm()),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
         ],
         child: const GymApp(),
@@ -57,6 +60,7 @@ void main() {
         retry: noRetry,
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
+          restAlarmProvider.overrideWithValue(FakeRestAlarm()),
           authRepositoryProvider.overrideWithValue(repo),
         ],
         child: const GymApp(),

@@ -157,6 +157,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String get noDescription => 'Brak opisu';
 
   @override
+  String get aboutExercise => 'O ćwiczeniu';
+
+  @override
   String get allCategories => 'Wszystkie';
 
   @override
@@ -274,6 +277,25 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get restOver => 'Koniec przerwy — następna seria!';
+
+  @override
+  String get restNotificationTitle => 'Przerwa';
+
+  @override
+  String get restNotificationBody => 'Następna seria po końcu odliczania';
+
+  @override
+  String get restCountdownChannel => 'Odliczanie przerwy';
+
+  @override
+  String get restOverChannel => 'Koniec przerwy';
+
+  @override
+  String get restExactAlarm => 'Powiadomienie dokładnie na czas';
+
+  @override
+  String get restExactAlarmHint =>
+      'Zezwól na alarmy, żeby powiadomienie o końcu przerwy nie spóźniało się przy zablokowanym telefonie';
 
   @override
   String get quickLog => 'Szybki zapis';
@@ -403,7 +425,16 @@ class AppLocalizationsPl extends AppLocalizations {
   String get accountCreated => 'Konto utworzone. Zaloguj się.';
 
   @override
-  String get darkTheme => 'Ciemny motyw';
+  String get theme => 'Motyw';
+
+  @override
+  String get themeSystem => 'Systemowy';
+
+  @override
+  String get themeLight => 'Jasny';
+
+  @override
+  String get themeDark => 'Ciemny';
 
   @override
   String get language => 'Język';

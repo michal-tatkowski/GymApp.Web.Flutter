@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
@@ -31,12 +33,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   Future<void> _onLogin() async {
     if (!_formKey.currentState!.validate()) return;
-    await ref.read(authControllerProvider.notifier).login(
-          email: _emailCtrl.text.trim(),
-          password: _passwordCtrl.text,
-          rememberMe: _rememberMe,
-        );
-    // Router auto-redirects on authenticated state; nothing to do on success.
+    await ref
+        .read(authControllerProvider.notifier)
+        .login(email: _emailCtrl.text.trim(), password: _passwordCtrl.text, rememberMe: _rememberMe);
+    // Router auto-redirects on authenticated state. On success, let the password
+    // manager offer to save the credentials (Android Autofill / iCloud Keychain).
+    if (!ref.read(authControllerProvider).hasError) TextInput.finishAutofillContext();
   }
 
   @override
@@ -66,73 +68,74 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             constraints: const BoxConstraints(maxWidth: 420),
             child: Form(
               key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _emailCtrl,
-                    keyboardType: TextInputType.emailAddress,
-                    autofillHints: const [AutofillHints.email],
-                    decoration: InputDecoration(
-                      labelText: t.email,
-                      prefixIcon: const Icon(Icons.alternate_email),
+              child: AutofillGroup(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const AppLogo(),
+                    const SizedBox(height: 32),
+                    TextFormField(
+                      controller: _emailCtrl,
+                      keyboardType: TextInputType.emailAddress,
+                      textInputAction: TextInputAction.next,
+                      autocorrect: false,
+                      autofillHints: const [AutofillHints.email, AutofillHints.username],
+                      decoration: InputDecoration(labelText: t.email, prefixIcon: const Icon(Icons.alternate_email)),
+                      validator: (v) => validateEmail(t, v),
                     ),
-                    validator: (v) => validateEmail(t, v),
-                  ),
-                  const SizedBox(height: 12),
-                  TextFormField(
-                    controller: _passwordCtrl,
-                    obscureText: _obscure,
-                    autofillHints: const [AutofillHints.password],
-                    decoration: InputDecoration(
-                      labelText: t.password,
-                      prefixIcon: const Icon(Icons.lock),
-                      suffixIcon: IconButton(
-                        onPressed: () => setState(() => _obscure = !_obscure),
-                        icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _passwordCtrl,
+                      obscureText: _obscure,
+                      textInputAction: TextInputAction.done,
+                      onFieldSubmitted: (_) => isLoading ? null : _onLogin(),
+                      autofillHints: const [AutofillHints.password],
+                      decoration: InputDecoration(
+                        labelText: t.password,
+                        prefixIcon: const Icon(Icons.lock),
+                        suffixIcon: IconButton(
+                          onPressed: () => setState(() => _obscure = !_obscure),
+                          icon: Icon(_obscure ? Icons.visibility : Icons.visibility_off),
+                        ),
+                      ),
+                      validator: (v) => validatePassword(t, v),
+                    ),
+                    const SizedBox(height: 8),
+                    // Whole row is the tap target, not just the 18 dp box.
+                    CheckboxListTile(
+                      value: _rememberMe,
+                      onChanged: (v) => setState(() => _rememberMe = v ?? false),
+                      title: Text(t.rememberMe),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      contentPadding: EdgeInsets.zero,
+                      dense: true,
+                    ),
+                    const SizedBox(height: 16),
+                    SizedBox(
+                      height: 48,
+                      child: FilledButton(
+                        onPressed: isLoading ? null : _onLogin,
+                        child: isLoading
+                            ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2))
+                            : Text(t.login),
                       ),
                     ),
-                    validator: (v) => validatePassword(t, v),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: _rememberMe,
-                        onChanged: (v) => setState(() => _rememberMe = v ?? false),
-                      ),
-                      Text(t.rememberMe),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 48,
-                    child: FilledButton(
-                      onPressed: isLoading ? null : _onLogin,
-                      child: isLoading
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Text(t.login),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        const Expanded(child: Divider()),
+                        Padding(padding: const EdgeInsets.symmetric(horizontal: 8), child: Text(t.or)),
+                        const Expanded(child: Divider()),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(children: [
-                    const Expanded(child: Divider()),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(t.or),
+                    const SizedBox(height: 16),
+                    OutlinedButton(
+                      onPressed: isLoading ? null : () => context.go(AppRoutes.register),
+                      child: Text(t.register),
                     ),
-                    const Expanded(child: Divider()),
-                  ]),
-                  const SizedBox(height: 16),
-                  OutlinedButton(
-                    onPressed: isLoading ? null : () => context.go(AppRoutes.register),
-                    child: Text(t.register),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
@@ -141,4 +144,3 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     );
   }
 }
-

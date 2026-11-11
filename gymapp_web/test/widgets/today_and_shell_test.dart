@@ -8,6 +8,7 @@ import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_providers.dart';
 import 'package:gymapp_web/features/gym/today/today_screen.dart';
 import 'package:gymapp_web/features/gym/workouts/data/workout_models.dart';
+import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/workout_providers.dart';
 import 'package:gymapp_web/features/profile/data/models/user_profile.dart';
 import 'package:gymapp_web/features/profile/presentation/profile_providers.dart';
@@ -87,6 +88,7 @@ void main() {
         retry: noRetry,
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
+          restAlarmProvider.overrideWithValue(FakeRestAlarm()),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
           exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository(catalog())),
           workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository()),
@@ -129,14 +131,14 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Barbell row'));
       await tester.pumpAndSettle();
-      expect(find.byKey(const Key('exercise.openWorkouts')), findsOneWidget);
+      expect(find.byKey(const Key('workout.log')), findsOneWidget);
 
       await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Today')));
       await tester.pumpAndSettle();
       await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Exercises')));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('exercise.openWorkouts')), findsOneWidget);
+      expect(find.byKey(const Key('workout.log')), findsOneWidget);
     });
 
     testWidgets('Android Back: pops the tab stack, then goes to Today, then leaves the app', (tester) async {
@@ -153,7 +155,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(await systemBack(), isTrue); // details -> list
-      expect(find.byKey(const Key('exercise.openWorkouts')), findsNothing);
+      expect(find.byKey(const Key('workout.log')), findsNothing);
       expect(find.text('Barbell row'), findsOneWidget);
 
       expect(await systemBack(), isTrue); // Exercises -> Today, app stays open

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/widgets/app_logo.dart';
+
 /// Briefly shown while the auth controller restores the session.
 /// Navigation away happens in go_router's `redirect` based on auth state.
 class SplashScreen extends StatelessWidget {
@@ -8,7 +10,7 @@ class SplashScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Scaffold(
-      body: Center(child: CircularProgressIndicator()),
+      body: Center(child: AppLogo(showName: false)),
     );
   }
 }

@@ -20,7 +20,9 @@ class GradientBackground extends StatelessWidget {
           ],
         ),
       ),
-      child: child,
+      // Fill the whole body even when the content is short (e.g. the profile),
+      // otherwise the gradient stops where the content ends.
+      child: SizedBox.expand(child: child),
     );
   }
 }

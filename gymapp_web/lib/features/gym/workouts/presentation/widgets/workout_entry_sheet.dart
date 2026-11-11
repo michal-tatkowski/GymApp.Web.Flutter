@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -265,7 +267,6 @@ class _StepperField extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final stepText = step == step.roundToDouble() ? '${step.round()}' : '$step';
-    const compact = BoxConstraints(minWidth: 36, minHeight: 36);
     return TextFormField(
       key: fieldKey,
       controller: controller,
@@ -277,22 +278,75 @@ class _StepperField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: '0',
-        prefixIcon: IconButton(
-          tooltip: t.decreaseBy(stepText),
-          constraints: compact,
-          visualDensity: VisualDensity.compact,
-          onPressed: enabled ? () => _change(-1) : null,
-          icon: const Icon(Icons.remove),
+        prefixIcon: _RepeatingButton(
+          label: t.decreaseBy(stepText),
+          icon: Icons.remove,
+          onStep: enabled ? () => _change(-1) : null,
         ),
-        suffixIcon: IconButton(
-          tooltip: t.increaseBy(stepText),
-          constraints: compact,
-          visualDensity: VisualDensity.compact,
-          onPressed: enabled ? () => _change(1) : null,
-          icon: const Icon(Icons.add),
+        suffixIcon: _RepeatingButton(
+          label: t.increaseBy(stepText),
+          icon: Icons.add,
+          onStep: enabled ? () => _change(1) : null,
         ),
       ),
       validator: validator,
     );
   }
+}
+
+/// −/+ button: a tap is one step; hold it to keep stepping (60 → 100 kg
+/// without 16 taps). No Tooltip on purpose: on phones a tooltip also reacts to
+/// a long press and would take the gesture; the label goes to screen readers
+/// through Semantics instead.
+class _RepeatingButton extends StatefulWidget {
+  const _RepeatingButton({required this.label, required this.icon, required this.onStep});
+
+  final String label;
+  final IconData icon;
+  final VoidCallback? onStep;
+
+  static const interval = Duration(milliseconds: 100);
+
+  @override
+  State<_RepeatingButton> createState() => _RepeatingButtonState();
+}
+
+class _RepeatingButtonState extends State<_RepeatingButton> {
+  Timer? _timer;
+
+  void _start() {
+    final step = widget.onStep;
+    if (step == null) return;
+    step();
+    _timer = Timer.periodic(_RepeatingButton.interval, (_) => step());
+  }
+
+  void _stop() {
+    _timer?.cancel();
+    _timer = null;
+  }
+
+  @override
+  void dispose() {
+    _stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+        label: widget.label,
+        button: true,
+        excludeSemantics: true,
+        child: GestureDetector(
+          onLongPressStart: (_) => _start(),
+          onLongPressEnd: (_) => _stop(),
+          onLongPressCancel: _stop,
+          child: IconButton(
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+            visualDensity: VisualDensity.compact,
+            onPressed: widget.onStep,
+            icon: Icon(widget.icon),
+          ),
+        ),
+      );
 }

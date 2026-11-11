@@ -25,6 +25,18 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   bool _editing = false;
   bool _saving = false;
 
+  Future<void> _refresh() async {
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(profileControllerProvider.notifier).refresh();
+    } catch (e) {
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(SnackBar(content: Text(describeError(t, e))));
+    }
+  }
+
   Future<void> _save() async {
     final req = _formKey.currentState?.buildRequest();
     if (req == null) return;
@@ -84,7 +96,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
             ),
             data: (profile) => _editing
                 ? ProfileEditForm(key: _formKey, initial: profile, enabled: !busy)
-                : ProfileView(profile: profile),
+                : RefreshIndicator(onRefresh: _refresh, child: ProfileView(profile: profile)),
           ),
         ),
       ),

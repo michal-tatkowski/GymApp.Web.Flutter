@@ -157,6 +157,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noDescription => 'No description';
 
   @override
+  String get aboutExercise => 'About this exercise';
+
+  @override
   String get allCategories => 'All';
 
   @override
@@ -274,6 +277,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restOver => 'Rest is over — next set!';
+
+  @override
+  String get restNotificationTitle => 'Rest';
+
+  @override
+  String get restNotificationBody => 'Next set when the countdown ends';
+
+  @override
+  String get restCountdownChannel => 'Rest countdown';
+
+  @override
+  String get restOverChannel => 'End of rest';
+
+  @override
+  String get restExactAlarm => 'Alert exactly on time';
+
+  @override
+  String get restExactAlarmHint =>
+      'Allow alarms so the end-of-rest alert is not delayed when the phone is locked';
 
   @override
   String get quickLog => 'Quick log';
@@ -401,7 +423,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get accountCreated => 'Account created. You can log in now.';
 
   @override
-  String get darkTheme => 'Dark theme';
+  String get theme => 'Theme';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeDark => 'Dark';
 
   @override
   String get language => 'Language';

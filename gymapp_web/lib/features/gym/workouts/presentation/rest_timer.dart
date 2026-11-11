@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,6 +8,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/storage/secure_storage_keys.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../settings/presentation/settings_providers.dart';
+import 'rest_alarm.dart';
 
 /// Rest durations offered in Settings; 0 = timer off.
 const restTimerOptions = [0, 60, 90, 120, 180];
@@ -53,12 +56,24 @@ class RestTimerState {
 /// on every tab, so the user can check it from anywhere.
 final restTimerProvider = NotifierProvider<RestTimerNotifier, RestTimerState>(RestTimerNotifier.new);
 
+/// Counts toward a fixed end time (not tick by tick), so the countdown is right
+/// after the app was in the background — Android freezes background apps and
+/// their timers. While in the background, [RestAlarm] shows the countdown and
+/// the end alert as system notifications.
 class RestTimerNotifier extends Notifier<RestTimerState> {
   Timer? _ticker;
+  DateTime? _endsAt;
+  AppLifecycleListener? _lifecycle;
+  bool _askedPermission = false;
+
+  RestAlarm get _alarm => ref.read(restAlarmProvider);
 
   @override
   RestTimerState build() {
-    ref.onDispose(() => _ticker?.cancel());
+    ref.onDispose(() {
+      _ticker?.cancel();
+      _lifecycle?.dispose();
+    });
     return const RestTimerState();
   }
 
@@ -70,33 +85,63 @@ class RestTimerNotifier extends Notifier<RestTimerState> {
 
   void start(Duration duration) {
     _ticker?.cancel();
+    _endsAt = clock.now().add(duration);
     state = RestTimerState(remaining: duration, total: duration);
     _ticker = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+    _lifecycle ??= AppLifecycleListener(onHide: _onBackground, onShow: _onForeground);
+    if (!_askedPermission) {
+      _askedPermission = true;
+      _alarm.requestPermission();
+    }
   }
 
   void adjust(Duration delta) {
-    if (!state.running) return;
-    final remaining = state.remaining + delta;
-    if (remaining <= Duration.zero) return _finish();
-    state = RestTimerState(remaining: remaining, total: state.total + delta);
+    final endsAt = _endsAt;
+    if (!state.running || endsAt == null) return;
+    _endsAt = endsAt.add(delta);
+    final total = state.total + delta;
+    if (_remaining() <= Duration.zero) return _finish();
+    state = RestTimerState(remaining: _remaining(), total: total);
   }
 
   void stop() {
     _ticker?.cancel();
+    _endsAt = null;
     state = const RestTimerState();
+    _alarm.clear();
+  }
+
+  /// Whole seconds left, rounded up — "0:01" until it is really over.
+  Duration _remaining() {
+    final left = _endsAt!.difference(clock.now());
+    return Duration(seconds: (left.inMilliseconds / 1000).ceil());
   }
 
   void _tick() {
-    final remaining = state.remaining - const Duration(seconds: 1);
+    if (_endsAt == null) return;
+    final remaining = _remaining();
     if (remaining <= Duration.zero) return _finish();
     state = RestTimerState(remaining: remaining, total: state.total);
   }
 
   void _finish() {
     _ticker?.cancel();
+    _endsAt = null;
     state = RestTimerState(total: state.total, finished: true);
     HapticFeedback.heavyImpact();
     SystemSound.play(SystemSoundType.alert);
+  }
+
+  void _onBackground() {
+    final endsAt = _endsAt;
+    if (endsAt == null || !state.running) return;
+    final t = lookupAppLocalizations(ref.read(localeProvider));
+    _alarm.showInBackground(endsAt: endsAt, t: t);
+  }
+
+  void _onForeground() {
+    _alarm.clear();
+    _tick(); // catch up at once instead of on the next tick
   }
 }
 
