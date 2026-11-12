@@ -13,6 +13,7 @@ import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/workout_providers.dart';
 import 'package:gymapp_web/features/profile/data/models/user_profile.dart';
 import 'package:gymapp_web/features/profile/presentation/profile_providers.dart';
+import 'package:gymapp_web/features/settings/privacy_policy_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../helpers/fake_workouts.dart';
@@ -79,7 +80,10 @@ void main() {
   });
 
   group('Navigation', () {
+    late FakeAuthRepository auth;
+
     Future<void> pumpApp(WidgetTester tester, Size size) async {
+      auth = FakeAuthRepository();
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
@@ -91,7 +95,7 @@ void main() {
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
           planRepositoryProvider.overrideWithValue(FakePlanRepository()),
-          authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
+          authRepositoryProvider.overrideWithValue(auth),
           exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository(catalog())),
           workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository()),
           profileRepositoryProvider.overrideWithValue(FakeProfileRepository(const UserProfile(nickname: 'Tester'))),
@@ -180,10 +184,79 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byTooltip('Settings'));
       await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.text('Logout'), 200, scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Logout'));
       await tester.pumpAndSettle();
 
       expect(find.text('Remember me'), findsOneWidget); // back on the login screen
     });
+
+    Future<void> openDeleteDialog(WidgetTester tester) async {
+      await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Profile')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Settings'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.byKey(const Key('settings.deleteAccount')), 200,
+          scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('settings.deleteAccount')));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('delete account: wrong password is shown in the dialog, the right one signs out', (tester) async {
+      await pumpApp(tester, const Size(400, 800));
+      await openDeleteDialog(tester);
+
+      expect(find.text('Delete your account?'), findsOneWidget);
+      expect(tester.widget<FilledButton>(find.byKey(const Key('deleteAccount.confirm'))).onPressed, isNull);
+
+      await tester.enterText(find.byKey(const Key('deleteAccount.password')), 'nope');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('deleteAccount.confirm')));
+      await tester.pumpAndSettle();
+      expect(find.text('Incorrect password.'), findsOneWidget);
+      expect(auth.deletions, 0);
+
+      await tester.enterText(find.byKey(const Key('deleteAccount.password')), FakeAuthRepository.validPassword);
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('deleteAccount.confirm')));
+      await tester.pumpAndSettle();
+
+      expect(auth.deletions, 1);
+      expect(find.text('Remember me'), findsOneWidget); // back on the login screen
+    });
+
+    testWidgets('delete account: cancel keeps everything', (tester) async {
+      await pumpApp(tester, const Size(400, 800));
+      await openDeleteDialog(tester);
+      await tester.tap(find.text('Cancel'));
+      await tester.pumpAndSettle();
+
+      expect(auth.deletions, 0);
+      expect(find.byKey(const Key('settings.deleteAccount')), findsOneWidget);
+    });
+
+    testWidgets('privacy policy opens from Settings', (tester) async {
+      await pumpApp(tester, const Size(400, 800));
+      await tester.tap(find.descendant(of: find.byType(NavigationBar), matching: find.text('Profile')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byTooltip('Settings'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(find.byKey(const Key('settings.privacy')), 200,
+          scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('settings.privacy')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('1. Data controller'), findsOneWidget);
+    });
+  });
+
+  test('privacy policy has the same sections in both languages', () {
+    final pl = PrivacyPolicyScreen.sections('pl'), en = PrivacyPolicyScreen.sections('en');
+    expect(pl.length, en.length);
+    expect(pl.any((s) => s.body.contains('Usuń konto')), isTrue);
+    expect(en.any((s) => s.body.contains('Delete account')), isTrue);
   });
 }

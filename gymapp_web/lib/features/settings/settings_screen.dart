@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
+import '../../core/errors/failure_messages.dart';
 import '../../core/units/weight_unit.dart';
 import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
+import '../gym/session/session_providers.dart';
+import 'privacy_policy_screen.dart';
 import '../gym/workouts/presentation/pending_workouts.dart';
 import '../gym/workouts/presentation/rest_alarm.dart';
 import '../gym/workouts/presentation/rest_timer.dart';
@@ -89,9 +92,23 @@ class SettingsScreen extends ConsumerWidget {
             const _RemindersSection(),
             const Divider(),
             ListTile(
+              key: const Key('settings.privacy'),
+              leading: const Icon(Icons.privacy_tip_outlined),
+              title: Text(t.privacyPolicy),
+              onTap: () => PrivacyPolicyScreen.open(context),
+            ),
+            const Divider(),
+            ListTile(
               leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
               title: Text(t.logout, style: TextStyle(color: Theme.of(context).colorScheme.error)),
               onTap: () => _logout(context, ref),
+            ),
+            ListTile(
+              key: const Key('settings.deleteAccount'),
+              leading: Icon(Icons.delete_forever_outlined, color: Theme.of(context).colorScheme.error),
+              title: Text(t.deleteAccount, style: TextStyle(color: Theme.of(context).colorScheme.error)),
+              subtitle: Text(t.deleteAccountHint),
+              onTap: () => _deleteAccount(context, ref),
             ),
           ],
         ),
@@ -117,8 +134,106 @@ class SettingsScreen extends ConsumerWidget {
       );
       if (confirmed != true) return;
     }
-    await ref.read(pendingWorkoutsProvider.notifier).clear();
+    await _forgetLocalData(ref);
     await ref.read(authControllerProvider.notifier).logout();
+  }
+
+  /// The password dialog calls the API itself, so a wrong password is shown
+  /// in place and the user can retry without starting over.
+  Future<void> _deleteAccount(BuildContext context, WidgetRef ref) async {
+    final deleted = await showDialog<bool>(context: context, builder: (_) => const _DeleteAccountDialog());
+    if (deleted == true) await _forgetLocalData(ref);
+  }
+
+  /// What this device keeps for the signed-in account: the offline queue and
+  /// an unfinished session. Device settings (theme, unit, reminders) stay.
+  static Future<void> _forgetLocalData(WidgetRef ref) async {
+    await ref.read(pendingWorkoutsProvider.notifier).clear();
+    if (ref.read(activeSessionProvider) != null) ref.read(activeSessionProvider.notifier).discard();
+  }
+}
+
+class _DeleteAccountDialog extends ConsumerStatefulWidget {
+  const _DeleteAccountDialog();
+
+  @override
+  ConsumerState<_DeleteAccountDialog> createState() => _DeleteAccountDialogState();
+}
+
+class _DeleteAccountDialogState extends ConsumerState<_DeleteAccountDialog> {
+  final _password = TextEditingController();
+  bool _busy = false;
+  String? _error;
+
+  @override
+  void dispose() {
+    _password.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_password.text.isEmpty || _busy) return;
+    setState(() {
+      _busy = true;
+      _error = null;
+    });
+    try {
+      await ref.read(authControllerProvider.notifier).deleteAccount(_password.text);
+      if (mounted) Navigator.pop(context, true);
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _busy = false;
+          _error = describeError(AppLocalizations.of(context)!, e);
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final pending = ref.watch(pendingWorkoutsProvider);
+    final error = Theme.of(context).colorScheme.error;
+    return AlertDialog(
+      icon: Icon(Icons.warning_amber_rounded, color: error),
+      title: Text(t.deleteAccountTitle),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(t.deleteAccountBody),
+            if (pending.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              Text('${t.pendingCount(pending.length)}. ${t.logoutPendingBody}'),
+            ],
+            const SizedBox(height: 16),
+            TextField(
+              key: const Key('deleteAccount.password'),
+              controller: _password,
+              obscureText: true,
+              autofocus: true,
+              enabled: !_busy,
+              onChanged: (_) => setState(() {}),
+              onSubmitted: (_) => _submit(),
+              decoration: InputDecoration(labelText: t.deleteAccountPassword, errorText: _error),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(onPressed: _busy ? null : () => Navigator.pop(context, false), child: Text(t.cancel)),
+        FilledButton(
+          key: const Key('deleteAccount.confirm'),
+          style: FilledButton.styleFrom(backgroundColor: error, foregroundColor: Theme.of(context).colorScheme.onError),
+          onPressed: _busy || _password.text.isEmpty ? null : _submit,
+          child: _busy
+              ? const SizedBox.square(dimension: 18, child: CircularProgressIndicator(strokeWidth: 2))
+              : Text(t.deleteAccountConfirm),
+        ),
+      ],
+    );
   }
 }
 

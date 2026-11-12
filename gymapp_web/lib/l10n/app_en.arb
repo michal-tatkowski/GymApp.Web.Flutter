@@ -271,5 +271,15 @@
   "errNotFound": "Not found.",
   "errConflict": "This already exists.",
   "errTooManyRequests": "Too many attempts. Wait a minute and try again.",
-  "errUnknown": "An unexpected error occurred."
+  "errUnknown": "An unexpected error occurred.",
+  "privacyPolicy": "Privacy policy",
+  "privacyUpdated": "Last updated: {date}",
+  "@privacyUpdated": { "placeholders": { "date": { "type": "String" } } },
+  "privacyAgree": "By creating an account you accept the privacy policy.",
+  "deleteAccount": "Delete account",
+  "deleteAccountHint": "Permanently, with all your data",
+  "deleteAccountTitle": "Delete your account?",
+  "deleteAccountBody": "Your profile, workouts, plans, custom exercises and body weight will be deleted from the server. This cannot be undone.",
+  "deleteAccountPassword": "Password to confirm",
+  "deleteAccountConfirm": "Delete forever"
 }

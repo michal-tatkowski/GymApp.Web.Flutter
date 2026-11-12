@@ -772,4 +772,35 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errUnknown => 'An unexpected error occurred.';
+
+  @override
+  String get privacyPolicy => 'Privacy policy';
+
+  @override
+  String privacyUpdated(String date) {
+    return 'Last updated: $date';
+  }
+
+  @override
+  String get privacyAgree =>
+      'By creating an account you accept the privacy policy.';
+
+  @override
+  String get deleteAccount => 'Delete account';
+
+  @override
+  String get deleteAccountHint => 'Permanently, with all your data';
+
+  @override
+  String get deleteAccountTitle => 'Delete your account?';
+
+  @override
+  String get deleteAccountBody =>
+      'Your profile, workouts, plans, custom exercises and body weight will be deleted from the server. This cannot be undone.';
+
+  @override
+  String get deleteAccountPassword => 'Password to confirm';
+
+  @override
+  String get deleteAccountConfirm => 'Delete forever';
 }

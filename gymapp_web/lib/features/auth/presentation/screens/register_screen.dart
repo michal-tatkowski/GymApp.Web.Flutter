@@ -6,6 +6,7 @@ import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
+import '../../../settings/privacy_policy_screen.dart';
 import '../auth_providers.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
@@ -102,6 +103,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                           : const Icon(Icons.person_add),
                       label: Text(isLoading ? t.registering : t.registerButton),
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    key: const Key('register.privacy'),
+                    onPressed: () => PrivacyPolicyScreen.open(context),
+                    child: Text(t.privacyAgree, textAlign: TextAlign.center),
                   ),
                 ],
               ),

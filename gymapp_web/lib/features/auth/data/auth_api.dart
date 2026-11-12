@@ -53,4 +53,10 @@ class AuthApi {
       // Ignore — client will clear tokens regardless.
     }
   }
+
+  /// Permanently deletes the account and all its data: DELETE /Account { password }.
+  /// Wrong password → 400 with code `WrongPassword`.
+  Future<void> deleteAccount(String password) async {
+    await _dio.delete<dynamic>('Account', data: {'password': password});
+  }
 }
