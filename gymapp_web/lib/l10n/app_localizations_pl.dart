@@ -274,11 +274,60 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String shareTitle(String name) {
+    return 'Udostępnij „$name”';
+  }
+
+  @override
+  String get shareHint =>
+      'Każdy z tym kodem doda kopię w GymApp (Nowy plan → Z kodu).';
+
+  @override
+  String shareMessage(String name, String code) {
+    return 'Mój „$name” w GymApp — dodaj go kodem $code (Nowy plan → Z kodu).';
+  }
+
+  @override
+  String get codeCopied => 'Kod skopiowany';
+
+  @override
+  String get copy => 'Kopiuj';
+
+  @override
+  String get importFromCode => 'Z kodu';
+
+  @override
+  String get importFromCodeHint =>
+      'Plan albo ćwiczenie, które ktoś Ci udostępnił';
+
+  @override
+  String get shareCode => 'Kod udostępnienia';
+
+  @override
+  String get showShared => 'Pokaż';
+
+  @override
+  String get addToMyPlans => 'Dodaj do moich planów';
+
+  @override
+  String get addToMyExercises => 'Dodaj do moich ćwiczeń';
+
+  @override
+  String planImported(String name) {
+    return 'Dodano plan „$name”';
+  }
+
+  @override
+  String exerciseImported(String name) {
+    return 'Dodano ćwiczenie „$name”';
+  }
+
+  @override
   String get rir => 'RIR';
 
   @override
   String get rirExplained =>
-      'Powtórzenia w zapasie: ile jeszcze dałbyś radę zrobić. Wpływa na następną podpowiedź.';
+      'Powtórzenia w zapasie: ile jeszcze dało się zrobić. Wpływa na następną podpowiedź.';
 
   @override
   String get rirZero => '0 — nic w zapasie, do upadku';

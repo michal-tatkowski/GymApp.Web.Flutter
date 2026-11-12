@@ -6,6 +6,7 @@ import '../../../../core/errors/failure_messages.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../exercises/presentation/category_ui.dart';
 import '../data/plan_models.dart';
+import '../../sharing/sharing.dart';
 import 'exercise_picker_sheet.dart';
 import 'plan_providers.dart';
 
@@ -98,6 +99,13 @@ class _PlanEditorScreenState extends ConsumerState<PlanEditorScreen> {
       appBar: AppBar(
         title: Text(widget.plan == null ? t.newPlan : t.editPlan),
         actions: [
+          if (widget.plan != null)
+            IconButton(
+              key: const Key('plan.share'),
+              tooltip: t.share,
+              icon: const Icon(Icons.share_outlined),
+              onPressed: _saving ? null : () => shareItem(context, ref, name: widget.plan!.name, planId: widget.plan!.id),
+            ),
           if (widget.plan != null)
             IconButton(tooltip: t.delete, icon: const Icon(Icons.delete_outline), onPressed: _saving ? null : _delete),
           TextButton(key: const Key('plan.save'), onPressed: _saving ? null : _save, child: Text(t.save)),

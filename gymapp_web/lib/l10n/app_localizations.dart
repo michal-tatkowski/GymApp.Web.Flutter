@@ -614,6 +614,84 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @shareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share \"{name}\"'**
+  String shareTitle(String name);
+
+  /// No description provided for @shareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with this code can add a copy in GymApp (New plan → From a code).'**
+  String get shareHint;
+
+  /// No description provided for @shareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'My \"{name}\" in GymApp — add it with the code {code} (New plan → From a code).'**
+  String shareMessage(String name, String code);
+
+  /// No description provided for @codeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied'**
+  String get codeCopied;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @importFromCode.
+  ///
+  /// In en, this message translates to:
+  /// **'From a code'**
+  String get importFromCode;
+
+  /// No description provided for @importFromCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A plan or exercise someone shared with you'**
+  String get importFromCodeHint;
+
+  /// No description provided for @shareCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Share code'**
+  String get shareCode;
+
+  /// No description provided for @showShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get showShared;
+
+  /// No description provided for @addToMyPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my plans'**
+  String get addToMyPlans;
+
+  /// No description provided for @addToMyExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my exercises'**
+  String get addToMyExercises;
+
+  /// No description provided for @planImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan \"{name}\" added'**
+  String planImported(String name);
+
+  /// No description provided for @exerciseImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise \"{name}\" added'**
+  String exerciseImported(String name);
+
   /// No description provided for @rir.
   ///
   /// In en, this message translates to:

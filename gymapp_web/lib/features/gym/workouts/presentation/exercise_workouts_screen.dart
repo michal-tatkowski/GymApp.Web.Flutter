@@ -17,6 +17,7 @@ import '../../exercises/presentation/favorite_button.dart';
 import '../../exercises/presentation/illustration/motion.dart';
 import '../../exercises/presentation/illustration/motions.dart';
 import '../data/workout_models.dart';
+import '../../sharing/sharing.dart';
 import 'widgets/progress_chart.dart';
 import 'pending_workouts.dart';
 import 'rest_timer.dart';
@@ -169,7 +170,16 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.exerciseName),
-        actions: [if (exercise != null) _FavoriteAction(exercise: exercise)],
+        actions: [
+          if (exercise != null && exercise.isCustom)
+            IconButton(
+              key: const Key('exercise.share'),
+              tooltip: AppLocalizations.of(context)!.share,
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => shareItem(context, ref, name: exercise.name, exerciseId: exercise.id),
+            ),
+          if (exercise != null) _FavoriteAction(exercise: exercise),
+        ],
       ),
       floatingActionButton: ScrollAwareFab(
         key: const Key('workout.log'),

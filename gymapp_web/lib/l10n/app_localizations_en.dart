@@ -274,6 +274,54 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String shareTitle(String name) {
+    return 'Share \"$name\"';
+  }
+
+  @override
+  String get shareHint =>
+      'Anyone with this code can add a copy in GymApp (New plan → From a code).';
+
+  @override
+  String shareMessage(String name, String code) {
+    return 'My \"$name\" in GymApp — add it with the code $code (New plan → From a code).';
+  }
+
+  @override
+  String get codeCopied => 'Code copied';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get importFromCode => 'From a code';
+
+  @override
+  String get importFromCodeHint => 'A plan or exercise someone shared with you';
+
+  @override
+  String get shareCode => 'Share code';
+
+  @override
+  String get showShared => 'Show';
+
+  @override
+  String get addToMyPlans => 'Add to my plans';
+
+  @override
+  String get addToMyExercises => 'Add to my exercises';
+
+  @override
+  String planImported(String name) {
+    return 'Plan \"$name\" added';
+  }
+
+  @override
+  String exerciseImported(String name) {
+    return 'Exercise \"$name\" added';
+  }
+
+  @override
   String get rir => 'RIR';
 
   @override
