@@ -274,6 +274,148 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get records => 'Rekordy';
+
+  @override
+  String get recordOneRepMax => 'Najlepsze 1RM (szac.)';
+
+  @override
+  String get recordHeaviest => 'Najcięższa seria';
+
+  @override
+  String get recordDayVolume => 'Najlepszy dzień (objętość)';
+
+  @override
+  String get recordMostReps => 'Najwięcej powtórzeń w serii';
+
+  @override
+  String get recordLongest => 'Najdłuższa seria';
+
+  @override
+  String get recordDistance => 'Najdłuższy dystans';
+
+  @override
+  String get summaryTitle => 'Podsumowanie';
+
+  @override
+  String get summaryMonth => 'Miesiąc';
+
+  @override
+  String get summaryYear => 'Rok';
+
+  @override
+  String get summaryEmpty => 'Brak treningów w tym okresie.';
+
+  @override
+  String get summaryWorkouts => 'treningi';
+
+  @override
+  String get summarySets => 'serie';
+
+  @override
+  String get summaryVolume => 'podniesione';
+
+  @override
+  String get summaryTime => 'czas treningu';
+
+  @override
+  String get summaryRecords => 'rekordy';
+
+  @override
+  String get summarySetsPerWorkout => 'serie / trening';
+
+  @override
+  String get summaryTopExercises => 'Najczęściej';
+
+  @override
+  String get share => 'Udostępnij';
+
+  @override
+  String get previous => 'Poprzedni';
+
+  @override
+  String get next => 'Następny';
+
+  @override
+  String get more => 'Więcej';
+
+  @override
+  String get goals => 'Cele';
+
+  @override
+  String get addGoal => 'Nowy cel';
+
+  @override
+  String get noGoalsYet =>
+      'Ustaw cel: ciężar do podniesienia, treningi w tygodniu albo masę ciała.';
+
+  @override
+  String get goalKindExercise => 'Ciężar';
+
+  @override
+  String get goalKindWeekly => 'W tygodniu';
+
+  @override
+  String get goalKindBodyWeight => 'Masa ciała';
+
+  @override
+  String get goalPickExercise => 'Wybierz ćwiczenie';
+
+  @override
+  String get goalTargetWeight => 'Docelowy ciężar';
+
+  @override
+  String get goalTargetWorkouts => 'Treningi w tygodniu';
+
+  @override
+  String get goalNoDeadline => 'Bez terminu (opcjonalnie)';
+
+  @override
+  String goalBy(String date) {
+    return 'do $date';
+  }
+
+  @override
+  String goalExerciseTitle(String exercise, String weight) {
+    return '$exercise: $weight';
+  }
+
+  @override
+  String goalWeeklyTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treningów w tygodniu',
+      few: '$count treningi w tygodniu',
+      one: '1 trening w tygodniu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalBodyWeightTitle(String weight) {
+    return 'Masa ciała $weight';
+  }
+
+  @override
+  String goalNow(String value) {
+    return 'teraz $value';
+  }
+
+  @override
+  String goalThisWeek(int count) {
+    return '$count w tym tygodniu';
+  }
+
+  @override
+  String get goalNoData => 'jeszcze bez danych';
+
+  @override
+  String goalReached(String goal) {
+    return 'Cel osiągnięty: $goal 🎉';
+  }
+
+  @override
   String get history => 'Historia';
 
   @override

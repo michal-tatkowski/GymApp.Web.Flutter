@@ -23,6 +23,15 @@ class FakeWorkoutRepository extends WorkoutRepository {
     if (offline) throw const NetworkFailure();
   }
 
+  /// Returned by [getRecords] (set by the test).
+  List<ExerciseRecords> exerciseRecords = const [];
+
+  @override
+  Future<List<ExerciseRecords>> getRecords() async {
+    _online();
+    return exerciseRecords;
+  }
+
   /// Sessions posted at the end of a workout.
   final sessions = <({String name, DateTime date})>[];
 

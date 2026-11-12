@@ -368,3 +368,68 @@ class TrainingDayDetails {
         sessions: (json['sessions'] as List? ?? const []).cast<Map<String, dynamic>>().map(WorkoutSessionInfo.fromJson).toList(),
       );
 }
+
+/// A best result: value, the day it was first reached and (for a set) reps × weight.
+class RecordValue {
+  const RecordValue({required this.value, required this.date, this.reps, this.weight});
+
+  final double value;
+  final DateTime date;
+  final int? reps;
+  final double? weight;
+
+  static RecordValue? fromJson(dynamic json) => json is Map<String, dynamic>
+      ? RecordValue(
+          value: _num(json['value']),
+          date: fromApiDate(json['date'] as String),
+          reps: (json['reps'] as num?)?.toInt(),
+          weight: (json['weight'] as num?)?.toDouble(),
+        )
+      : null;
+}
+
+/// All-time bests of one exercise (api/Workouts/records).
+class ExerciseRecords {
+  const ExerciseRecords({
+    required this.exerciseId,
+    required this.exerciseName,
+    required this.category,
+    required this.tracking,
+    required this.trainingDays,
+    required this.lastDate,
+    this.bestOneRepMax,
+    this.heaviestWeight,
+    this.bestDayVolume,
+    this.mostReps,
+    this.longestDuration,
+    this.longestDistance,
+  });
+
+  final String exerciseId;
+  final String exerciseName;
+  final ExerciseCategory category;
+  final Tracking tracking;
+  final int trainingDays;
+  final DateTime lastDate;
+  final RecordValue? bestOneRepMax;
+  final RecordValue? heaviestWeight;
+  final RecordValue? bestDayVolume;
+  final RecordValue? mostReps;
+  final RecordValue? longestDuration;
+  final RecordValue? longestDistance;
+
+  factory ExerciseRecords.fromJson(Map<String, dynamic> json) => ExerciseRecords(
+        exerciseId: json['exerciseId'].toString(),
+        exerciseName: json['exerciseName'] as String,
+        category: ExerciseCategoryX.fromJson(json['category']),
+        tracking: TrackingX.fromJson(json['tracking']),
+        trainingDays: (json['trainingDays'] as num?)?.toInt() ?? 0,
+        lastDate: fromApiDate(json['lastDate'] as String),
+        bestOneRepMax: RecordValue.fromJson(json['bestOneRepMax']),
+        heaviestWeight: RecordValue.fromJson(json['heaviestWeight']),
+        bestDayVolume: RecordValue.fromJson(json['bestDayVolume']),
+        mostReps: RecordValue.fromJson(json['mostReps']),
+        longestDuration: RecordValue.fromJson(json['longestDuration']),
+        longestDistance: RecordValue.fromJson(json['longestDistance']),
+      );
+}

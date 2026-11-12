@@ -14,6 +14,8 @@ import '../../exercises/data/models/exercise.dart';
 import '../../exercises/presentation/category_ui.dart';
 import '../../history/history_screen.dart';
 import '../../progress/progress_cards.dart';
+import '../../progress/records_screen.dart';
+import '../../progress/summary_screen.dart';
 import '../data/workout_models.dart';
 import 'exercise_workouts_screen.dart';
 import 'workout_providers.dart';
@@ -31,6 +33,18 @@ class MyWorkoutsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(t.progress),
         actions: [
+          IconButton(
+            key: const Key('progress.records'),
+            tooltip: t.records,
+            icon: const Icon(Icons.emoji_events_outlined),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const RecordsScreen())),
+          ),
+          IconButton(
+            key: const Key('progress.summary'),
+            tooltip: t.summaryTitle,
+            icon: const Icon(Icons.insights),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SummaryScreen())),
+          ),
           IconButton(
             key: const Key('progress.history'),
             tooltip: t.history,

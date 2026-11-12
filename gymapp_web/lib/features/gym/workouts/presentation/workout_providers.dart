@@ -120,6 +120,7 @@ class WorkoutActions {
     _container.invalidate(workoutStatsProvider);
     _container.invalidate(yearStatsProvider);
     _container.invalidate(trainingDaysProvider);
+    _container.invalidate(recordsProvider);
   }
 }
 
@@ -184,3 +185,9 @@ class TrainingHistoryNotifier extends AsyncNotifier<TrainingHistory> {
     }
   }
 }
+
+/// All-time bests of every trained exercise — the records screen and exercise goals.
+final recordsProvider = FutureProvider.autoDispose<List<ExerciseRecords>>(
+  (ref) => ref.watch(workoutRepositoryProvider).getRecords(),
+  retry: noRetry,
+);

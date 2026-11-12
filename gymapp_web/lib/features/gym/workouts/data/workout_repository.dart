@@ -46,6 +46,11 @@ class WorkoutRepository {
         return WorkoutStats.fromJson(res.data as Map<String, dynamic>);
       });
 
+  Future<List<ExerciseRecords>> getRecords() => _guard(() async {
+        final res = await _dio.get<dynamic>('Workouts/records');
+        return (res.data as List).cast<Map<String, dynamic>>().map(ExerciseRecords.fromJson).toList();
+      });
+
   /// History day by day, newest first: days [from]–[to] (API default: the last 30 days, at most 400).
   Future<List<TrainingDayDetails>> getDays({DateTime? from, DateTime? to}) => _guard(() async {
         final res = await _dio.get<dynamic>('Workouts/days', queryParameters: {

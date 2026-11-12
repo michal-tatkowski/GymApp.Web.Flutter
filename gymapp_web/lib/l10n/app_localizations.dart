@@ -614,6 +614,246 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @records.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get records;
+
+  /// No description provided for @recordOneRepMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Best 1RM (estimated)'**
+  String get recordOneRepMax;
+
+  /// No description provided for @recordHeaviest.
+  ///
+  /// In en, this message translates to:
+  /// **'Heaviest set'**
+  String get recordHeaviest;
+
+  /// No description provided for @recordDayVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Best day (volume)'**
+  String get recordDayVolume;
+
+  /// No description provided for @recordMostReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Most reps in a set'**
+  String get recordMostReps;
+
+  /// No description provided for @recordLongest.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest set'**
+  String get recordLongest;
+
+  /// No description provided for @recordDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest distance'**
+  String get recordDistance;
+
+  /// No description provided for @summaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get summaryTitle;
+
+  /// No description provided for @summaryMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get summaryMonth;
+
+  /// No description provided for @summaryYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get summaryYear;
+
+  /// No description provided for @summaryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts in this period.'**
+  String get summaryEmpty;
+
+  /// No description provided for @summaryWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'workouts'**
+  String get summaryWorkouts;
+
+  /// No description provided for @summarySets.
+  ///
+  /// In en, this message translates to:
+  /// **'sets'**
+  String get summarySets;
+
+  /// No description provided for @summaryVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'lifted'**
+  String get summaryVolume;
+
+  /// No description provided for @summaryTime.
+  ///
+  /// In en, this message translates to:
+  /// **'training time'**
+  String get summaryTime;
+
+  /// No description provided for @summaryRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'records'**
+  String get summaryRecords;
+
+  /// No description provided for @summarySetsPerWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'sets / workout'**
+  String get summarySetsPerWorkout;
+
+  /// No description provided for @summaryTopExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Most trained'**
+  String get summaryTopExercises;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previous;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @more.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get more;
+
+  /// No description provided for @goals.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get goals;
+
+  /// No description provided for @addGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'New goal'**
+  String get addGoal;
+
+  /// No description provided for @noGoalsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a goal: a weight to lift, workouts per week or a body weight.'**
+  String get noGoalsYet;
+
+  /// No description provided for @goalKindExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Lift'**
+  String get goalKindExercise;
+
+  /// No description provided for @goalKindWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Per week'**
+  String get goalKindWeekly;
+
+  /// No description provided for @goalKindBodyWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Body weight'**
+  String get goalKindBodyWeight;
+
+  /// No description provided for @goalPickExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the exercise'**
+  String get goalPickExercise;
+
+  /// No description provided for @goalTargetWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Target weight'**
+  String get goalTargetWeight;
+
+  /// No description provided for @goalTargetWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts per week'**
+  String get goalTargetWorkouts;
+
+  /// No description provided for @goalNoDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'No deadline (optional)'**
+  String get goalNoDeadline;
+
+  /// No description provided for @goalBy.
+  ///
+  /// In en, this message translates to:
+  /// **'by {date}'**
+  String goalBy(String date);
+
+  /// No description provided for @goalExerciseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{exercise}: {weight}'**
+  String goalExerciseTitle(String exercise, String weight);
+
+  /// No description provided for @goalWeeklyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 workout a week} other{{count} workouts a week}}'**
+  String goalWeeklyTitle(int count);
+
+  /// No description provided for @goalBodyWeightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Body weight {weight}'**
+  String goalBodyWeightTitle(String weight);
+
+  /// No description provided for @goalNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now {value}'**
+  String goalNow(String value);
+
+  /// No description provided for @goalThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} this week'**
+  String goalThisWeek(int count);
+
+  /// No description provided for @goalNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'no data yet'**
+  String get goalNoData;
+
+  /// No description provided for @goalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached: {goal} 🎉'**
+  String goalReached(String goal);
+
   /// No description provided for @history.
   ///
   /// In en, this message translates to:
