@@ -94,6 +94,9 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
   /// Starts [plan]: loads the last workout of each exercise (for the hints); offline
   /// the exercises simply start without hints.
   Future<void> start(WorkoutPlan plan) async {
+    // In context: the workout notification (and the rest alerts) need it, and leaving
+    // the app before the first rest — the timer's own ask — would show nothing.
+    unawaited(ref.read(restAlarmProvider).requestPermission());
     final repo = ref.read(workoutRepositoryProvider);
     final weights = ref.read(weightFormatProvider);
     final last = await Future.wait(plan.items.map((item) async {
