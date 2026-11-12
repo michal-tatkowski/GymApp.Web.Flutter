@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/units/measures.dart';
 import '../../../../core/units/weight_unit.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/gradient_background.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
+import '../../exercises/data/models/exercise.dart';
 import '../../exercises/presentation/category_ui.dart';
 import '../../progress/progress_cards.dart';
 import '../data/workout_models.dart';
@@ -95,6 +97,7 @@ class _SummaryTile extends StatelessWidget {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     final bodyweight = summary.bestVolume == 0;
+    final timed = summary.tracking != Tracking.weight;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -112,10 +115,14 @@ class _SummaryTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              bodyweight ? t.repsValue(summary.lastTotalReps) : weights.withUnit(summary.lastVolume),
+              switch (summary.tracking) {
+                Tracking.time => formatDuration(summary.lastDurationSeconds),
+                Tracking.distance => formatDistance(summary.lastDistanceMeters, decimalSeparator: locale.startsWith('pl') ? ',' : '.'),
+                Tracking.weight => bodyweight ? t.repsValue(summary.lastTotalReps) : weights.withUnit(summary.lastVolume),
+              },
               style: theme.textTheme.labelLarge,
             ),
-            if (!bodyweight)
+            if (!bodyweight && !timed)
               Text(t.bestValue(weights.withUnit(summary.bestVolume)), style: theme.textTheme.labelSmall),
           ],
         ),

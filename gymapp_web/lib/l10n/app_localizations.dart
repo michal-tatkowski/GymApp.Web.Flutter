@@ -500,6 +500,132 @@ abstract class AppLocalizations {
   /// **'Reps'**
   String get metricReps;
 
+  /// No description provided for @metricTotalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get metricTotalTime;
+
+  /// No description provided for @metricLongestSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest'**
+  String get metricLongestSet;
+
+  /// No description provided for @metricDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get metricDistance;
+
+  /// No description provided for @durationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time (m:ss)'**
+  String get durationLabel;
+
+  /// No description provided for @invalidDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the time as m:ss, e.g. 1:30'**
+  String get invalidDuration;
+
+  /// No description provided for @distanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'km'**
+  String get distanceKm;
+
+  /// No description provided for @trackingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured by'**
+  String get trackingLabel;
+
+  /// No description provided for @trackingWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps × weight'**
+  String get trackingWeight;
+
+  /// No description provided for @trackingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get trackingTime;
+
+  /// No description provided for @trackingDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance + time'**
+  String get trackingDistance;
+
+  /// No description provided for @plateCalculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Plates'**
+  String get plateCalculator;
+
+  /// No description provided for @platesPerSide.
+  ///
+  /// In en, this message translates to:
+  /// **'On each side'**
+  String get platesPerSide;
+
+  /// No description provided for @platesBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar {weight}'**
+  String platesBar(String weight);
+
+  /// No description provided for @platesRemainder.
+  ///
+  /// In en, this message translates to:
+  /// **'{weight} short — not possible exactly with standard plates'**
+  String platesRemainder(String weight);
+
+  /// No description provided for @platesJustBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Just the empty bar'**
+  String get platesJustBar;
+
+  /// No description provided for @platesBelowBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighter than the bar — use dumbbells or a lighter bar'**
+  String get platesBelowBar;
+
+  /// No description provided for @barWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Barbell'**
+  String get barWeight;
+
+  /// No description provided for @barWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For the plate calculator in a workout (tap the weight)'**
+  String get barWeightHint;
+
+  /// No description provided for @plateCalculatorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the weight to see the plates'**
+  String get plateCalculatorHint;
+
+  /// No description provided for @hintBeatLastTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Try to beat last time'**
+  String get hintBeatLastTime;
+
+  /// No description provided for @sessionTargetSets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Target: 1 set} other{Target: {count} sets}}'**
+  String sessionTargetSets(int count);
+
   /// No description provided for @range1M.
   ///
   /// In en, this message translates to:

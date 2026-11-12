@@ -46,7 +46,7 @@ class TodayScreen extends ConsumerWidget {
         if (!isOfflineFailure(e)) rethrow;
       }
       if (!context.mounted) return;
-      await ExerciseWorkoutsScreen.openEntrySheet(context, ref, exercise.id, prefill: prefill);
+      await ExerciseWorkoutsScreen.openEntrySheet(context, ref, exercise.id, prefill: prefill, tracking: exercise.tracking);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(describeError(t, e))));

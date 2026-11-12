@@ -6,8 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/theme/app_theme.dart';
 import '../../../core/errors/failure_messages.dart';
+import '../../../core/units/measures.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../l10n/app_localizations.dart';
+import '../exercises/data/models/exercise.dart';
 import '../exercises/presentation/category_ui.dart';
 import '../exercises/presentation/illustration/motion.dart';
 import '../exercises/presentation/illustration/motions.dart';
@@ -15,6 +17,7 @@ import '../plans/data/plan_models.dart';
 import '../plans/presentation/exercise_picker_sheet.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/workout_providers.dart';
+import 'plate_calculator.dart';
 import 'session_models.dart';
 import 'session_providers.dart';
 
@@ -178,7 +181,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                 if (group.end > group.start)
                   _SupersetBanner(position: index - group.start + 1, size: group.end - group.start + 1),
                 _ExerciseHeader(exercise: exercise, weights: weights),
-                if (!exercise.saved && exercise.doneSets.isEmpty) _WarmUpCard(exercise: exercise, weights: weights),
+                if (!exercise.saved && exercise.doneSets.isEmpty && exercise.tracking == Tracking.weight) _WarmUpCard(exercise: exercise, weights: weights),
                 const SizedBox(height: 12),
                 for (var i = 0; i < exercise.sets.length; i++)
                   _SetRow(
@@ -190,6 +193,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                     onChanged: (v) => _session.updateSet(index, i, v),
                     onToggle: () => _session.toggleDone(index, i),
                     onRemove: exercise.sets.length > 1 ? () => _session.removeSet(index, i) : null,
+                    tracking: exercise.tracking,
+                    onWeightTap: exercise.tracking == Tracking.weight ? (kg) => showPlateCalculator(context, kg) : null,
                   ),
                 if (!exercise.saved)
                   Align(
@@ -295,6 +300,7 @@ class _ExerciseHeader extends StatelessWidget {
     final hint = switch (exercise.hint) {
       HintKind.addWeight when today != null => t.hintAddWeight(weights.withUnit(today.weightKg), today.reps),
       HintKind.addReps => t.hintAddReps,
+      HintKind.repeat when exercise.tracking != Tracking.weight => t.hintBeatLastTime,
       HintKind.repeat => t.hintRepeat(exercise.repsMax),
       _ => t.hintFirstTime,
     };
@@ -316,7 +322,10 @@ class _ExerciseHeader extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        Text(t.sessionTarget(exercise.target), style: theme.textTheme.bodyMedium),
+        Text(
+          exercise.tracking == Tracking.weight ? t.sessionTarget(exercise.target) : t.sessionTargetSets(exercise.sets.length),
+          style: theme.textTheme.bodyMedium,
+        ),
         const SizedBox(height: 8),
         Card(
           key: const Key('session.hint'),
@@ -401,7 +410,8 @@ class _WarmUpCard extends StatelessWidget {
   }
 }
 
-/// "1   [− 10 +] reps   [− 100 +] kg   ✓"
+/// "1   [− 10 +] reps   [− 100 +] kg   ✓" — or time (+ kg) for timed exercises,
+/// distance + time for cardio.
 class _SetRow extends StatelessWidget {
   const _SetRow({
     super.key,
@@ -412,6 +422,8 @@ class _SetRow extends StatelessWidget {
     required this.onChanged,
     required this.onToggle,
     required this.onRemove,
+    this.tracking = Tracking.weight,
+    this.onWeightTap,
   });
 
   final int number;
@@ -421,6 +433,12 @@ class _SetRow extends StatelessWidget {
   final ValueChanged<SessionSet> onChanged;
   final VoidCallback onToggle;
   final VoidCallback? onRemove;
+  final Tracking tracking;
+
+  /// Tap on the weight (kg) — the plate calculator.
+  final ValueChanged<double>? onWeightTap;
+
+  static const _timeStep = 15, _cardioTimeStep = 60, _distanceStep = 500.0;
 
   @override
   Widget build(BuildContext context) {
@@ -428,6 +446,56 @@ class _SetRow extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     final editable = !readOnly;
     final display = weights.fromKg(set.weightKg);
+    final seconds = set.durationSeconds ?? 0;
+    final meters = set.distanceMeters ?? 0;
+
+    Widget weightStepper() => _Stepper(
+          key: const Key('weight'),
+          text: weights.number(set.weightKg),
+          unit: weights.label,
+          onTextTap: onWeightTap == null || set.weightKg <= 0 ? null : () => onWeightTap!(set.weightKg),
+          onMinus: editable && display > 0
+              ? () => onChanged(set.copyWith(weightKg: weights.toKg((display - weights.step).clamp(0, weights.maxSetWeight))))
+              : null,
+          onPlus: editable && display < weights.maxSetWeight
+              ? () => onChanged(set.copyWith(weightKg: weights.toKg(display + weights.step)))
+              : null,
+        );
+
+    Widget timeStepper(int step) => _Stepper(
+          key: const Key('time'),
+          text: formatDuration(seconds),
+          unit: t.metricTotalTime.toLowerCase(),
+          onMinus: editable && seconds > step ? () => onChanged(set.copyWith(durationSeconds: seconds - step)) : null,
+          onPlus: editable ? () => onChanged(set.copyWith(durationSeconds: seconds + step)) : null,
+        );
+
+    final fields = switch (tracking) {
+      Tracking.weight => [
+          _Stepper(
+            key: const Key('reps'),
+            text: '${set.reps}',
+            unit: t.repsShort,
+            onMinus: editable && set.reps > 1 ? () => onChanged(set.copyWith(reps: set.reps - 1)) : null,
+            onPlus: editable && set.reps < 1000 ? () => onChanged(set.copyWith(reps: set.reps + 1)) : null,
+          ),
+          weightStepper(),
+        ],
+      Tracking.time => [timeStepper(_timeStep), weightStepper()],
+      Tracking.distance => [
+          _Stepper(
+            key: const Key('distance'),
+            text: formatDistance(meters).replaceAll(' km', '').replaceAll(' m', ''),
+            unit: meters < 1000 ? 'm' : 'km',
+            onMinus: editable && meters > _distanceStep
+                ? () => onChanged(set.copyWith(distanceMeters: meters - _distanceStep))
+                : null,
+            onPlus: editable ? () => onChanged(set.copyWith(distanceMeters: meters + _distanceStep)) : null,
+          ),
+          timeStepper(_cardioTimeStep),
+        ],
+    };
+
     return Card(
       color: set.done ? colors.primaryContainer.withValues(alpha: 0.6) : null,
       margin: const EdgeInsets.only(bottom: 8),
@@ -439,28 +507,7 @@ class _SetRow extends StatelessWidget {
               onLongPress: editable ? onRemove : null,
               child: CircleAvatar(radius: 14, child: Text('$number', style: Theme.of(context).textTheme.labelMedium)),
             ),
-            Expanded(
-              child: _Stepper(
-                key: const Key('reps'),
-                text: '${set.reps}',
-                unit: t.repsShort,
-                onMinus: editable && set.reps > 1 ? () => onChanged(set.copyWith(reps: set.reps - 1)) : null,
-                onPlus: editable && set.reps < 1000 ? () => onChanged(set.copyWith(reps: set.reps + 1)) : null,
-              ),
-            ),
-            Expanded(
-              child: _Stepper(
-                key: const Key('weight'),
-                text: weights.number(set.weightKg),
-                unit: weights.label,
-                onMinus: editable && display > 0
-                    ? () => onChanged(set.copyWith(weightKg: weights.toKg((display - weights.step).clamp(0, weights.maxSetWeight))))
-                    : null,
-                onPlus: editable && display < weights.maxSetWeight
-                    ? () => onChanged(set.copyWith(weightKg: weights.toKg(display + weights.step)))
-                    : null,
-              ),
-            ),
+            for (final f in fields) Expanded(child: f),
             IconButton.filled(
               key: const Key('done'),
               tooltip: set.done ? t.sessionUndoSet : t.sessionDoneSet,
@@ -477,7 +524,10 @@ class _SetRow extends StatelessWidget {
 }
 
 class _Stepper extends StatelessWidget {
-  const _Stepper({super.key, required this.text, required this.unit, required this.onMinus, required this.onPlus});
+  const _Stepper({super.key, required this.text, required this.unit, required this.onMinus, required this.onPlus, this.onTextTap});
+
+  /// Tap on the number (weight → plate calculator); shown underlined when set.
+  final VoidCallback? onTextTap;
 
   final String text;
   final String unit;
@@ -501,12 +551,28 @@ class _Stepper extends StatelessWidget {
           onPressed: onMinus == null ? null : () => _tap(onMinus!),
           icon: const Icon(Icons.remove),
         ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(text, style: theme.textTheme.titleMedium?.copyWith(fontFeatures: const [FontFeature.tabularFigures()])),
-            Text(unit, style: theme.textTheme.labelSmall),
-          ],
+        Flexible(
+          child: InkWell(
+            onTap: onTextTap,
+            borderRadius: BorderRadius.circular(6),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    text,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontFeatures: const [FontFeature.tabularFigures()],
+                      decoration: onTextTap == null ? null : TextDecoration.underline,
+                      decorationStyle: TextDecorationStyle.dotted,
+                    ),
+                  ),
+                ),
+                Text(unit, style: theme.textTheme.labelSmall),
+              ],
+            ),
+          ),
         ),
         IconButton(
           key: const Key('plus'),

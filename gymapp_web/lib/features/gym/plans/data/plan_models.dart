@@ -16,6 +16,7 @@ class PlanItem {
     this.repsMin = 8,
     this.repsMax = 12,
     this.supersetWithNext = false,
+    this.tracking = Tracking.weight,
   });
 
   final String exerciseId;
@@ -28,6 +29,9 @@ class PlanItem {
   /// Done in turns with the next exercise, no rest in between (a chain of 3+ = circuit).
   final bool supersetWithNext;
 
+  /// From the API (the exercise's type); not sent back.
+  final Tracking tracking;
+
   PlanItem copyWith({int? sets, int? repsMin, int? repsMax, bool? supersetWithNext}) => PlanItem(
         exerciseId: exerciseId,
         exerciseName: exerciseName,
@@ -36,6 +40,7 @@ class PlanItem {
         repsMin: repsMin ?? this.repsMin,
         repsMax: repsMax ?? this.repsMax,
         supersetWithNext: supersetWithNext ?? this.supersetWithNext,
+        tracking: tracking,
       );
 
   /// "3 × 8–12" or "4 × 5".
@@ -49,6 +54,7 @@ class PlanItem {
         repsMin: (json['repsMin'] as num).toInt(),
         repsMax: (json['repsMax'] as num).toInt(),
         supersetWithNext: json['supersetWithNext'] == true,
+        tracking: TrackingX.fromJson(json['tracking']),
       );
 
   Map<String, dynamic> toJson() => {

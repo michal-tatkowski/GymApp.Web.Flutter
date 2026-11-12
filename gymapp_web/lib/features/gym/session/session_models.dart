@@ -2,25 +2,49 @@ import '../../../core/units/weight_unit.dart';
 import '../exercises/data/models/exercise.dart';
 import '../plans/data/plan_models.dart';
 import '../workouts/data/workout_models.dart';
+import '../workouts/presentation/widgets/workout_entry_sheet.dart' show defaultSet;
 
 /// One set in a live session. [weightKg] always in kg (like the API).
 class SessionSet {
-  const SessionSet({required this.reps, required this.weightKg, this.done = false});
+  const SessionSet({required this.reps, required this.weightKg, this.done = false, this.durationSeconds, this.distanceMeters});
 
   final int reps;
   final double weightKg;
   final bool done;
 
-  SessionSet copyWith({int? reps, double? weightKg, bool? done}) =>
-      SessionSet(reps: reps ?? this.reps, weightKg: weightKg ?? this.weightKg, done: done ?? this.done);
+  /// Timed / cardio sets ([Tracking.time], [Tracking.distance]).
+  final int? durationSeconds;
+  final double? distanceMeters;
 
-  Map<String, dynamic> toJson() => {'reps': reps, 'weightKg': weightKg, 'done': done};
+  SessionSet copyWith({int? reps, double? weightKg, bool? done, int? durationSeconds, double? distanceMeters}) => SessionSet(
+        reps: reps ?? this.reps,
+        weightKg: weightKg ?? this.weightKg,
+        done: done ?? this.done,
+        durationSeconds: durationSeconds ?? this.durationSeconds,
+        distanceMeters: distanceMeters ?? this.distanceMeters,
+      );
+
+  WorkoutSet toWorkoutSet() =>
+      WorkoutSet(reps: reps, weight: weightKg, durationSeconds: durationSeconds, distanceMeters: distanceMeters);
+
+  Map<String, dynamic> toJson() => {
+        'reps': reps,
+        'weightKg': weightKg,
+        'done': done,
+        if (durationSeconds != null) 'durationSeconds': durationSeconds,
+        if (distanceMeters != null) 'distanceMeters': distanceMeters,
+      };
 
   factory SessionSet.fromJson(Map<String, dynamic> j) => SessionSet(
         reps: (j['reps'] as num).toInt(),
         weightKg: (j['weightKg'] as num).toDouble(),
         done: j['done'] as bool? ?? false,
+        durationSeconds: (j['durationSeconds'] as num?)?.toInt(),
+        distanceMeters: (j['distanceMeters'] as num?)?.toDouble(),
       );
+
+  static SessionSet fromWorkoutSet(WorkoutSet s) =>
+      SessionSet(reps: s.reps, weightKg: s.weight, durationSeconds: s.durationSeconds, distanceMeters: s.distanceMeters);
 }
 
 /// What to aim for today, from the last workout and the plan's rep range
@@ -117,6 +141,7 @@ class SessionExercise {
     this.hint,
     this.savedEntryId,
     this.supersetWithNext = false,
+    this.tracking = Tracking.weight,
   });
 
   final String exerciseId;
@@ -135,6 +160,8 @@ class SessionExercise {
 
   /// From the plan: done in turns with the next exercise (see [WorkoutSession.groupOf]).
   final bool supersetWithNext;
+
+  final Tracking tracking;
 
   bool get saved => savedEntryId != null;
 
@@ -155,10 +182,27 @@ class SessionExercise {
         hint: hint,
         savedEntryId: savedEntryId ?? this.savedEntryId,
         supersetWithNext: supersetWithNext,
+        tracking: tracking,
       );
 
   /// From a plan item; prefilled with the progression hint, or empty sets without history.
   factory SessionExercise.fromPlan(PlanItem item, List<WorkoutSet>? last, WeightFormat weights) {
+    // Timed / cardio: no progression rule — start from last time (or a sensible default).
+    if (item.tracking != Tracking.weight) {
+      final from = last != null && last.isNotEmpty ? last : [defaultSet(item.tracking)];
+      return SessionExercise(
+        exerciseId: item.exerciseId,
+        name: item.exerciseName,
+        category: item.category,
+        repsMin: item.repsMin,
+        repsMax: item.repsMax,
+        sets: [for (var i = 0; i < item.sets; i++) SessionSet.fromWorkoutSet(from[i < from.length ? i : from.length - 1])],
+        lastSets: last,
+        hint: last == null ? null : HintKind.repeat,
+        supersetWithNext: item.supersetWithNext,
+        tracking: item.tracking,
+      );
+    }
     final hint = suggestNext(
       last: last,
       targetSets: item.sets,
@@ -176,6 +220,7 @@ class SessionExercise {
       lastSets: last,
       hint: hint?.kind,
       supersetWithNext: item.supersetWithNext,
+      tracking: item.tracking,
     );
   }
 
@@ -190,6 +235,7 @@ class SessionExercise {
         if (hint != null) 'hint': hint!.name,
         if (savedEntryId != null) 'savedEntryId': savedEntryId,
         if (supersetWithNext) 'supersetWithNext': true,
+        if (tracking != Tracking.weight) 'tracking': tracking.apiName,
       };
 
   factory SessionExercise.fromJson(Map<String, dynamic> j) => SessionExercise(
@@ -203,6 +249,7 @@ class SessionExercise {
         hint: HintKind.values.where((h) => h.name == j['hint']).firstOrNull,
         savedEntryId: j['savedEntryId'] as String?,
         supersetWithNext: j['supersetWithNext'] == true,
+        tracking: TrackingX.fromJson(j['tracking']),
       );
 }
 

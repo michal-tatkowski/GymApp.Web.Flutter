@@ -37,7 +37,7 @@ class _PlanEditorScreenState extends ConsumerState<PlanEditorScreen> {
     final exercise = await pickExercise(context, alreadyAdded: {for (final i in _items) i.exerciseId});
     if (exercise == null || !mounted) return;
     setState(() => _items.add(
-          PlanItem(exerciseId: exercise.id, exerciseName: exercise.name, category: exercise.category),
+          PlanItem(exerciseId: exercise.id, exerciseName: exercise.name, category: exercise.category, tracking: exercise.tracking),
         ));
   }
 

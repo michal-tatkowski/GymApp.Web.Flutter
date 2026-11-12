@@ -20,6 +20,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
   final _nameCtrl = TextEditingController();
   final _descCtrl = TextEditingController();
   ExerciseCategory _category = ExerciseCategory.other;
+  Tracking _tracking = Tracking.weight;
   bool _saving = false;
 
   @override
@@ -36,6 +37,7 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
     final req = CreateExerciseRequest(
       name: _nameCtrl.text.trim(),
       category: _category,
+      tracking: _tracking,
       description: _descCtrl.text.trim().isEmpty ? null : _descCtrl.text.trim(),
     );
 
@@ -122,6 +124,21 @@ class _AddExerciseSheetState extends ConsumerState<AddExerciseSheet> {
               onChanged: _saving
                   ? null
                   : (v) => setState(() => _category = v ?? _category),
+            ),
+            const SizedBox(height: 12),
+            // ── How sets are measured ─────────────────────────────────
+            Text(t.trackingLabel, style: Theme.of(context).textTheme.labelLarge),
+            const SizedBox(height: 4),
+            SegmentedButton<Tracking>(
+              key: const Key('exercise.tracking'),
+              showSelectedIcon: false,
+              segments: [
+                ButtonSegment(value: Tracking.weight, icon: const Icon(Icons.fitness_center), label: Text(t.trackingWeight)),
+                ButtonSegment(value: Tracking.time, icon: const Icon(Icons.timer_outlined), label: Text(t.trackingTime)),
+                ButtonSegment(value: Tracking.distance, icon: const Icon(Icons.route_outlined), label: Text(t.trackingDistance)),
+              ],
+              selected: {_tracking},
+              onSelectionChanged: _saving ? null : (v) => setState(() => _tracking = v.single),
             ),
             const SizedBox(height: 12),
             // ── Description ───────────────────────────────────────────

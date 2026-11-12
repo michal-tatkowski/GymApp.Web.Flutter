@@ -137,7 +137,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
   Future<void> addExercise(Exercise exercise, WorkoutActions actions) async {
     final s = state;
     if (s == null) return;
-    final item = PlanItem(exerciseId: exercise.id, exerciseName: exercise.name, category: exercise.category);
+    final item = PlanItem(exerciseId: exercise.id, exerciseName: exercise.name, category: exercise.category, tracking: exercise.tracking);
     List<WorkoutSet>? last;
     try {
       last = (await ref.read(workoutRepositoryProvider).getLog(exercise.id)).entries.firstOrNull?.sets;
@@ -177,7 +177,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       exercise.exerciseId,
       WorkoutEntryRequest(
         date: DateTime(now.year, now.month, now.day),
-        sets: [for (final s in exercise.doneSets) WorkoutSet(reps: s.reps, weight: s.weightKg)],
+        sets: [for (final s in exercise.doneSets) s.toWorkoutSet()],
       ),
     );
     if (record != null) _records.add(exercise.name);
