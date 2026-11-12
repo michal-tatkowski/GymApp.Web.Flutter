@@ -274,6 +274,206 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get exerciseNote => 'Notatka do ćwiczenia';
+
+  @override
+  String get exerciseNoteHint =>
+      'Wysokość siedziska, chwyt, wskazówki: widoczne przy każdym treningu';
+
+  @override
+  String get addExerciseNote => 'Dodaj notatkę';
+
+  @override
+  String get editExerciseNote => 'Edytuj notatkę';
+
+  @override
+  String get swapExercise => 'Zamień ćwiczenie';
+
+  @override
+  String swapExerciseTitle(String name) {
+    return 'Zamiast: $name';
+  }
+
+  @override
+  String get swapNotAfterSets =>
+      'Zrobione serie zostają przy tym ćwiczeniu: zamień przed pierwszą serią.';
+
+  @override
+  String swapped(String name) {
+    return 'Zamienione na: $name';
+  }
+
+  @override
+  String get timedSetStart => 'Włącz odliczanie';
+
+  @override
+  String get timedSetTitle => 'Trzymaj';
+
+  @override
+  String get getReady => 'Przygotuj się';
+
+  @override
+  String get timedSetPause => 'Pauza';
+
+  @override
+  String get timedSetResume => 'Wznów';
+
+  @override
+  String get timedSetFinishNow => 'Zakończ teraz';
+
+  @override
+  String get warmUpRoutineTitle => 'Najpierw rozgrzewka (5 min)';
+
+  @override
+  String get coolDownTitle => 'Na koniec rozciąganie (5 min)';
+
+  @override
+  String routineProgress(int done, int total) {
+    return '$done z $total';
+  }
+
+  @override
+  String get routinesSetting => 'Rozgrzewka i rozciąganie';
+
+  @override
+  String get routinesSettingHint =>
+      'Krótkie listy na początek i koniec treningu';
+
+  @override
+  String get wuCardio =>
+      '5 min lekkiego cardio (rower, wioślarz, szybki marsz)';
+
+  @override
+  String get wuArmCircles => 'Krążenia ramion, po 10 w każdą stronę';
+
+  @override
+  String get wuBandPullApart => 'Rozciąganie gumy przed sobą, 15';
+
+  @override
+  String get wuCatCow => 'Koci grzbiet, 8';
+
+  @override
+  String get wuHipCircles => 'Krążenia bioder, po 10 w każdą stronę';
+
+  @override
+  String get wuLegSwings => 'Wymachy nóg, po 10 na nogę';
+
+  @override
+  String get wuSquats => 'Przysiady bez obciążenia, 10';
+
+  @override
+  String get cdChest => 'Rozciąganie klatki w futrynie, 30 s';
+
+  @override
+  String get cdLat => 'Rozciąganie najszerszego grzbietu, po 30 s na stronę';
+
+  @override
+  String get cdShoulder => 'Rozciąganie barku przed sobą, po 30 s na stronę';
+
+  @override
+  String get cdQuad => 'Rozciąganie czworogłowego na stojąco, po 30 s na nogę';
+
+  @override
+  String get cdHamstring => 'Rozciąganie tyłu uda, po 30 s na nogę';
+
+  @override
+  String get cdHipFlexor =>
+      'Rozciąganie zginaczy biodra w klęku, po 30 s na stronę';
+
+  @override
+  String get cdChildPose => 'Pozycja dziecka, 30 s';
+
+  @override
+  String get cdBreathing => 'Spokojne oddychanie, 1 min';
+
+  @override
+  String get compareTitle => 'W porównaniu z poprzednim';
+
+  @override
+  String get compareWeek => 'Tydzień';
+
+  @override
+  String get compareMonth => 'Miesiąc';
+
+  @override
+  String get compareHintWeek =>
+      'Ten tydzień do dziś vs te same dni poprzedniego tygodnia';
+
+  @override
+  String get compareHintMonth =>
+      'Ten miesiąc do dziś vs te same dni poprzedniego miesiąca';
+
+  @override
+  String get compareNew => 'nowe';
+
+  @override
+  String goalForecastWeeks(int weeks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      weeks,
+      locale: localeName,
+      other: 'W tym tempie: około $weeks tygodni',
+      few: 'W tym tempie: około $weeks tygodni',
+      one: 'W tym tempie: około tygodnia',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get goalForecastSoon => 'W tym tempie: lada dzień';
+
+  @override
+  String get goalForecastNoTrend =>
+      'Na razie bez trendu w stronę celu: zapisuj dalej';
+
+  @override
+  String get goalForecastLate => 'W tym tempie: trochę po terminie';
+
+  @override
+  String challengesTitle(String month) {
+    return 'Wyzwania · $month';
+  }
+
+  @override
+  String challengeSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Zrób $count serii',
+      few: 'Zrób $count serie',
+      one: 'Zrób 1 serię',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeDone => 'Zrobione!';
+
+  @override
+  String challengesCompleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ukończonych wyzwań',
+      few: '$count ukończone wyzwania',
+      one: '1 ukończone wyzwanie',
+      zero: 'Jeszcze bez ukończonego wyzwania',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeDaysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Zostało $count dni',
+      few: 'Zostały $count dni',
+      one: 'Został 1 dzień',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get pureBlack => 'Czysta czerń (OLED)';
 
   @override

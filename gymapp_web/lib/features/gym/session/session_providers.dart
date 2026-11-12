@@ -21,6 +21,7 @@ import '../workouts/presentation/rest_alarm.dart';
 import '../workouts/presentation/rest_timer.dart';
 import '../workouts/presentation/workout_providers.dart';
 import 'session_models.dart';
+import 'routines.dart';
 
 /// The workout in progress (null = none). Persisted on every change, so closing
 /// the app — or the phone killing it between sets — does not lose it.
@@ -108,6 +109,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       }
     }));
     _records.clear();
+    ref.read(routineChecksProvider.notifier).clear();
     _set(WorkoutSession(
       planId: plan.id.isEmpty ? null : plan.id, // "" = a repeated workout, not a saved plan
       planName: plan.name,
@@ -167,6 +169,15 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
     if (again.isNotEmpty) _set(now.copyWith(current: again.first));
   }
 
+  /// A timed set held for [seconds] (the timer): only this set gets that time — finishing
+  /// early once does not shorten the next ones — and it is ticked off.
+  void completeTimedSet(int exercise, int set, int seconds) {
+    _updateExercise(exercise, (e) => e.copyWith(sets: [
+          for (var i = 0; i < e.sets.length; i++) i == set ? e.sets[i].copyWith(durationSeconds: seconds) : e.sets[i],
+        ]));
+    if (!(state?.exercises[exercise].sets[set].done ?? true)) toggleDone(exercise, set);
+  }
+
   /// One more set, same as the last one.
   void addSet(int exercise) => _updateExercise(exercise, (e) {
         final last = e.sets.lastOrNull ?? SessionSet(reps: e.repsMin, weightKg: 0);
@@ -193,6 +204,33 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
     if (latest == null) return;
     _set(latest.copyWith(exercises: [...latest.exercises]..insert(at, added)));
     await goTo(at, actions);
+  }
+
+  /// Puts [exercise] in place of the one at [index] (not started yet): same number of
+  /// sets, rep range and superset link; its own last workout for the hint.
+  Future<void> replaceExercise(int index, Exercise exercise) async {
+    final s = state;
+    if (s == null || index < 0 || index >= s.exercises.length) return;
+    final old = s.exercises[index];
+    final item = PlanItem(
+      exerciseId: exercise.id,
+      exerciseName: exercise.name,
+      category: exercise.category,
+      tracking: exercise.tracking,
+      sets: old.sets.isEmpty ? 3 : old.sets.length,
+      repsMin: old.repsMin,
+      repsMax: old.repsMax,
+      supersetWithNext: old.supersetWithNext,
+    );
+    List<WorkoutSet>? last;
+    try {
+      last = (await ref.read(workoutRepositoryProvider).getLog(exercise.id)).entries.firstOrNull?.sets;
+    } catch (e) {
+      if (!isOfflineFailure(e)) rethrow;
+    }
+    final latest = state;
+    if (latest == null) return;
+    _updateExercise(index, (_) => SessionExercise.fromPlan(item, last, ref.read(weightFormatProvider)));
   }
 
   /// Moves to another exercise. Leaving a group (a single exercise, or a whole

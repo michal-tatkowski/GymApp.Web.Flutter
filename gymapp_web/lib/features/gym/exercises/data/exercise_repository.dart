@@ -39,6 +39,24 @@ class ExerciseRepository {
     }
   }
 
+  Future<Map<String, String>> getNotes() async {
+    try {
+      return await api.getNotes();
+    } on DioException catch (e) {
+      throw mapDioErrorToFailure(e);
+    } on TypeError {
+      throw const ServerFailure();
+    }
+  }
+
+  Future<void> setNote(String exerciseId, String? note) async {
+    try {
+      await api.setNote(exerciseId, note);
+    } on DioException catch (e) {
+      throw mapDioErrorToFailure(e);
+    }
+  }
+
   Future<Exercise> createExercise(CreateExerciseRequest req) async {
     try {
       return await api.createExercise(req);

@@ -13,6 +13,7 @@ import '../../../../routing/app_routes.dart';
 import '../../exercises/data/models/exercise.dart';
 import '../../exercises/presentation/category_ui.dart';
 import '../../history/history_screen.dart';
+import '../../progress/compare_challenges.dart';
 import '../../progress/lifetime_muscles.dart';
 import '../../progress/progress_cards.dart';
 import '../../progress/records_screen.dart';
@@ -101,6 +102,7 @@ class MyWorkoutsScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(16),
                       children: [
                         const ActivityCard(),
+                        const PeriodCompareCard(),
                         const MuscleBalanceCard(),
                         const LifetimeCard(),
                         BadgesCard(distinctExercises: items.length),

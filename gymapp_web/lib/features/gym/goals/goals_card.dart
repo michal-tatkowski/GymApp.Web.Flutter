@@ -156,6 +156,7 @@ class _GoalTile extends ConsumerWidget {
               if (goal.deadline != null) t.goalBy(DateFormat.yMMMd(locale).format(goal.deadline!)),
             ].join(' · '),
           ),
+          if (!achieved && !progress.reached && goal.kind != GoalKind.weeklyWorkouts) _GoalForecastLine(goal: goal),
         ],
       ),
       trailing: PopupMenuButton<String>(
@@ -351,6 +352,50 @@ class _AddGoalSheetState extends ConsumerState<_AddGoalSheet> {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// "At this pace: about 6 weeks" under a weight or body-weight goal, from the trend of
+/// the last 12 weeks. Nothing while loading or with too little data.
+class _GoalForecastLine extends ConsumerWidget {
+  const _GoalForecastLine({required this.goal});
+
+  final Goal goal;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    final List<(DateTime, double)>? points = switch (goal.kind) {
+      GoalKind.exerciseWeight when goal.exerciseId != null => ref
+          .watch(workoutProgressProvider(goal.exerciseId!))
+          .value
+          ?.where((p) => p.maxWeight > 0)
+          .map((p) => (p.date, p.maxWeight))
+          .toList(),
+      GoalKind.bodyWeight => ref.watch(bodyWeightsProvider).value?.map((w) => (w.date, w.kg)).toList(),
+      _ => null,
+    };
+    if (points == null) return const SizedBox.shrink();
+    final forecast = forecastGoal(points, goal.target, DateUtils.dateOnly(DateTime.now()), deadline: goal.deadline);
+    final text = switch (forecast) {
+      null => null,
+      ForecastSoon() => t.goalForecastSoon,
+      ForecastWeeks(late: true) => t.goalForecastLate,
+      ForecastWeeks(:final weeks) => t.goalForecastWeeks(weeks),
+      ForecastNoTrend() => t.goalForecastNoTrend,
+    };
+    if (text == null) return const SizedBox.shrink();
+    final late = forecast is ForecastWeeks && forecast.late;
+    return Padding(
+      padding: const EdgeInsets.only(top: 2),
+      child: Row(
+        children: [
+          Icon(Icons.trending_up, size: 16, color: late ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.primary),
+          const SizedBox(width: 4),
+          Expanded(child: Text(text, key: Key('goal.forecast.${goal.id}'), style: Theme.of(context).textTheme.bodySmall)),
+        ],
       ),
     );
   }

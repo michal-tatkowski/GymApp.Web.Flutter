@@ -614,6 +614,300 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @exerciseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note for this exercise'**
+  String get exerciseNote;
+
+  /// No description provided for @exerciseNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Seat height, grip, cues: shown every workout'**
+  String get exerciseNoteHint;
+
+  /// No description provided for @addExerciseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a note'**
+  String get addExerciseNote;
+
+  /// No description provided for @editExerciseNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit note'**
+  String get editExerciseNote;
+
+  /// No description provided for @swapExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Swap exercise'**
+  String get swapExercise;
+
+  /// No description provided for @swapExerciseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Instead of {name}'**
+  String swapExerciseTitle(String name);
+
+  /// No description provided for @swapNotAfterSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Done sets stay with this exercise: swap before the first set.'**
+  String get swapNotAfterSets;
+
+  /// No description provided for @swapped.
+  ///
+  /// In en, this message translates to:
+  /// **'Swapped for {name}'**
+  String swapped(String name);
+
+  /// No description provided for @timedSetStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Start the timer'**
+  String get timedSetStart;
+
+  /// No description provided for @timedSetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hold it'**
+  String get timedSetTitle;
+
+  /// No description provided for @getReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Get ready'**
+  String get getReady;
+
+  /// No description provided for @timedSetPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get timedSetPause;
+
+  /// No description provided for @timedSetResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get timedSetResume;
+
+  /// No description provided for @timedSetFinishNow.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish now'**
+  String get timedSetFinishNow;
+
+  /// No description provided for @warmUpRoutineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm up first (5 min)'**
+  String get warmUpRoutineTitle;
+
+  /// No description provided for @coolDownTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stretch to finish (5 min)'**
+  String get coolDownTitle;
+
+  /// No description provided for @routineProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{done} of {total}'**
+  String routineProgress(int done, int total);
+
+  /// No description provided for @routinesSetting.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm-up and stretching'**
+  String get routinesSetting;
+
+  /// No description provided for @routinesSettingHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Short checklists at the start and end of a workout'**
+  String get routinesSettingHint;
+
+  /// No description provided for @wuCardio.
+  ///
+  /// In en, this message translates to:
+  /// **'5 min of light cardio (bike, rower, brisk walk)'**
+  String get wuCardio;
+
+  /// No description provided for @wuArmCircles.
+  ///
+  /// In en, this message translates to:
+  /// **'Arm circles, 10 each way'**
+  String get wuArmCircles;
+
+  /// No description provided for @wuBandPullApart.
+  ///
+  /// In en, this message translates to:
+  /// **'Band pull-aparts, 15'**
+  String get wuBandPullApart;
+
+  /// No description provided for @wuCatCow.
+  ///
+  /// In en, this message translates to:
+  /// **'Cat-cow, 8'**
+  String get wuCatCow;
+
+  /// No description provided for @wuHipCircles.
+  ///
+  /// In en, this message translates to:
+  /// **'Hip circles, 10 each way'**
+  String get wuHipCircles;
+
+  /// No description provided for @wuLegSwings.
+  ///
+  /// In en, this message translates to:
+  /// **'Leg swings, 10 per leg'**
+  String get wuLegSwings;
+
+  /// No description provided for @wuSquats.
+  ///
+  /// In en, this message translates to:
+  /// **'Bodyweight squats, 10'**
+  String get wuSquats;
+
+  /// No description provided for @cdChest.
+  ///
+  /// In en, this message translates to:
+  /// **'Chest stretch in a doorway, 30 s'**
+  String get cdChest;
+
+  /// No description provided for @cdLat.
+  ///
+  /// In en, this message translates to:
+  /// **'Lat stretch, 30 s per side'**
+  String get cdLat;
+
+  /// No description provided for @cdShoulder.
+  ///
+  /// In en, this message translates to:
+  /// **'Cross-body shoulder stretch, 30 s per side'**
+  String get cdShoulder;
+
+  /// No description provided for @cdQuad.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing quad stretch, 30 s per leg'**
+  String get cdQuad;
+
+  /// No description provided for @cdHamstring.
+  ///
+  /// In en, this message translates to:
+  /// **'Hamstring stretch, 30 s per leg'**
+  String get cdHamstring;
+
+  /// No description provided for @cdHipFlexor.
+  ///
+  /// In en, this message translates to:
+  /// **'Kneeling hip flexor stretch, 30 s per side'**
+  String get cdHipFlexor;
+
+  /// No description provided for @cdChildPose.
+  ///
+  /// In en, this message translates to:
+  /// **'Child\'s pose, 30 s'**
+  String get cdChildPose;
+
+  /// No description provided for @cdBreathing.
+  ///
+  /// In en, this message translates to:
+  /// **'Slow breathing, 1 min'**
+  String get cdBreathing;
+
+  /// No description provided for @compareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Compared with before'**
+  String get compareTitle;
+
+  /// No description provided for @compareWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Week'**
+  String get compareWeek;
+
+  /// No description provided for @compareMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get compareMonth;
+
+  /// No description provided for @compareHintWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week so far vs. the same days last week'**
+  String get compareHintWeek;
+
+  /// No description provided for @compareHintMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'This month so far vs. the same days last month'**
+  String get compareHintMonth;
+
+  /// No description provided for @compareNew.
+  ///
+  /// In en, this message translates to:
+  /// **'new'**
+  String get compareNew;
+
+  /// No description provided for @goalForecastWeeks.
+  ///
+  /// In en, this message translates to:
+  /// **'{weeks, plural, =1{At this pace: about a week} other{At this pace: about {weeks} weeks}}'**
+  String goalForecastWeeks(int weeks);
+
+  /// No description provided for @goalForecastSoon.
+  ///
+  /// In en, this message translates to:
+  /// **'At this pace: any day now'**
+  String get goalForecastSoon;
+
+  /// No description provided for @goalForecastNoTrend.
+  ///
+  /// In en, this message translates to:
+  /// **'No trend towards it yet: keep logging'**
+  String get goalForecastNoTrend;
+
+  /// No description provided for @goalForecastLate.
+  ///
+  /// In en, this message translates to:
+  /// **'At this pace: a bit after the deadline'**
+  String get goalForecastLate;
+
+  /// No description provided for @challengesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Challenges · {month}'**
+  String challengesTitle(String month);
+
+  /// No description provided for @challengeSets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Do 1 set} other{Do {count} sets}}'**
+  String challengeSets(int count);
+
+  /// No description provided for @challengeDone.
+  ///
+  /// In en, this message translates to:
+  /// **'Done!'**
+  String get challengeDone;
+
+  /// No description provided for @challengesCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No challenge completed yet} =1{1 challenge completed so far} other{{count} challenges completed so far}}'**
+  String challengesCompleted(int count);
+
+  /// No description provided for @challengeDaysLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day left} other{{count} days left}}'**
+  String challengeDaysLeft(int count);
+
   /// No description provided for @pureBlack.
   ///
   /// In en, this message translates to:

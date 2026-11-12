@@ -11,19 +11,22 @@ import '../../exercises/presentation/exercises_providers.dart';
 
 /// Bottom sheet: search the catalog and pick one exercise (favorites first).
 /// Returns null when dismissed.
-Future<Exercise?> pickExercise(BuildContext context, {Set<String> alreadyAdded = const {}}) =>
+/// [category]: only that muscle group (swapping an exercise mid-workout), with [title] above the search.
+Future<Exercise?> pickExercise(BuildContext context, {Set<String> alreadyAdded = const {}, ExerciseCategory? category, String? title}) =>
     showModalBottomSheet<Exercise>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
-      builder: (_) => _ExercisePicker(alreadyAdded: alreadyAdded),
+      builder: (_) => _ExercisePicker(alreadyAdded: alreadyAdded, category: category, title: title),
     );
 
 class _ExercisePicker extends ConsumerStatefulWidget {
-  const _ExercisePicker({required this.alreadyAdded});
+  const _ExercisePicker({required this.alreadyAdded, this.category, this.title});
 
   final Set<String> alreadyAdded;
+  final ExerciseCategory? category;
+  final String? title;
 
   @override
   ConsumerState<_ExercisePicker> createState() => _ExercisePickerState();
@@ -34,7 +37,7 @@ class _ExercisePickerState extends ConsumerState<_ExercisePicker> {
   late Future<List<Exercise>> _results = _search('');
 
   Future<List<Exercise>> _search(String q) =>
-      ref.read(exerciseRepositoryProvider).getExercises(search: q.trim().isEmpty ? null : q, pageSize: 50);
+      ref.read(exerciseRepositoryProvider).getExercises(category: widget.category, search: q.trim().isEmpty ? null : q, pageSize: 50);
 
   void _onChanged(String q) {
     _debounce?.cancel();
@@ -57,11 +60,16 @@ class _ExercisePickerState extends ConsumerState<_ExercisePicker> {
       height: MediaQuery.sizeOf(context).height * 0.85,
       child: Column(
         children: [
+          if (widget.title case final title?)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
+              child: Text(title, style: Theme.of(context).textTheme.titleMedium),
+            ),
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: TextField(
               key: const Key('picker.search'),
-              autofocus: true,
+              autofocus: widget.category == null, // swapping: pick from the list, no keyboard over it
               decoration: InputDecoration(prefixIcon: const Icon(Icons.search), hintText: t.searchExercises),
               onChanged: _onChanged,
             ),
@@ -80,6 +88,8 @@ class _ExercisePickerState extends ConsumerState<_ExercisePicker> {
                   itemBuilder: (context, i) {
                     final e = items[i];
                     final added = widget.alreadyAdded.contains(e.id);
+                    // Swapping: the exercises already in the workout are not alternatives.
+                    if (added && widget.category != null) return const SizedBox.shrink();
                     return ListTile(
                       leading: Icon(categoryIcon(e.category)),
                       title: Text(e.name),

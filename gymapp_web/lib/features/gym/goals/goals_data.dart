@@ -127,3 +127,57 @@ final goalRepositoryProvider = Provider<GoalRepository>((ref) => GoalRepository(
 
 final goalsProvider =
     FutureProvider.autoDispose<List<Goal>>((ref) => ref.watch(goalRepositoryProvider).list(), retry: noRetry);
+
+/// When a goal will be reached at the current pace.
+sealed class GoalForecast {
+  const GoalForecast();
+}
+
+/// Within a week.
+class ForecastSoon extends GoalForecast {
+  const ForecastSoon();
+}
+
+class ForecastWeeks extends GoalForecast {
+  const ForecastWeeks(this.weeks, {this.late = false});
+
+  final int weeks;
+
+  /// Later than the goal's deadline.
+  final bool late;
+}
+
+/// Flat, going the other way, or too far off (over two years) to promise anything.
+class ForecastNoTrend extends GoalForecast {
+  const ForecastNoTrend();
+}
+
+/// Straight line through the last 12 weeks of [points] (date, value): heaviest set for an
+/// exercise goal, body weight for a weight goal. Null with too little data (under three
+/// days or two weeks) — then the card simply says nothing.
+GoalForecast? forecastGoal(List<(DateTime, double)> points, double target, DateTime today, {DateTime? deadline}) {
+  final from = today.subtract(const Duration(days: 84));
+  final recent = points.where((p) => !p.$1.isBefore(from)).toList()..sort((a, b) => a.$1.compareTo(b.$1));
+  if (recent.length < 3 || recent.last.$1.difference(recent.first.$1).inDays < 14) return null;
+
+  // Least squares: value = a + b * day.
+  final xs = [for (final p in recent) p.$1.difference(from).inHours / 24.0];
+  final ys = [for (final p in recent) p.$2];
+  final n = xs.length;
+  final mx = xs.reduce((a, b) => a + b) / n, my = ys.reduce((a, b) => a + b) / n;
+  var sxy = 0.0, sxx = 0.0;
+  for (var i = 0; i < n; i++) {
+    sxy += (xs[i] - mx) * (ys[i] - my);
+    sxx += (xs[i] - mx) * (xs[i] - mx);
+  }
+  if (sxx == 0) return const ForecastNoTrend();
+  final slope = sxy / sxx;
+  final now = my + slope * (today.difference(from).inHours / 24.0 - mx);
+  final gap = target - now;
+  if (gap == 0 || gap.sign != slope.sign || slope.abs() < 1e-6) return gap.abs() < 1e-9 ? const ForecastSoon() : const ForecastNoTrend();
+  final days = gap / slope;
+  if (days > 730) return const ForecastNoTrend();
+  if (days <= 7) return const ForecastSoon();
+  final late = deadline != null && today.add(Duration(days: days.ceil())).isAfter(deadline);
+  return ForecastWeeks((days / 7).round(), late: late);
+}
