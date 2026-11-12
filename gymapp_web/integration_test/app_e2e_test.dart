@@ -159,7 +159,11 @@ void main() {
     await tester.tap(find.byKey(const Key('plan.start.p1')));
     await tester.pumpAndSettle();
     for (var i = 0; i < 2; i++) {
-      await tester.tap(find.descendant(of: find.byKey(Key('session.set$i')), matching: find.byKey(const Key('done'))));
+      final done = find.descendant(of: find.byKey(Key('session.set$i')), matching: find.byKey(const Key('done')));
+      // On a small screen the set can sit under the bottom bar: bring it to the middle first.
+      await Scrollable.ensureVisible(tester.element(done), alignment: 0.5);
+      await tester.pumpAndSettle();
+      await tester.tap(done);
       await tester.pump();
     }
     await tester.tap(find.byKey(const Key('session.finish')));
