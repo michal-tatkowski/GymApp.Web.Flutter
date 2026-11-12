@@ -184,6 +184,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                 if (!exercise.saved && exercise.doneSets.isEmpty && exercise.tracking == Tracking.weight) _WarmUpCard(exercise: exercise, weights: weights),
                 const SizedBox(height: 12),
                 for (var i = 0; i < exercise.sets.length; i++)
+                  Column(children: [
                   _SetRow(
                     key: Key('session.set$i'),
                     number: i + 1,
@@ -196,6 +197,15 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                     tracking: exercise.tracking,
                     onWeightTap: exercise.tracking == Tracking.weight ? (kg) => showPlateCalculator(context, kg) : null,
                   ),
+                  // After the set: how hard it was (RIR) and an optional note.
+                  if (exercise.sets[i].done && !exercise.saved)
+                    _SetFeedback(
+                      key: Key('session.feedback$i'),
+                      set: exercise.sets[i],
+                      askRir: exercise.tracking == Tracking.weight,
+                      onChanged: (v) => _session.updateSet(index, i, v),
+                    ),
+                  ]),
                 if (!exercise.saved)
                   Align(
                     alignment: Alignment.centerLeft,
@@ -634,6 +644,117 @@ class _SummaryDialog extends ConsumerWidget {
         ],
       ),
       actions: [FilledButton(onPressed: () => Navigator.pop(context), child: Text(t.done))],
+    );
+  }
+}
+
+/// Under a done set: "RIR 0 1 2 3 4+" (reps left in the tank — feeds the next hint)
+/// and a note button. Both optional, one tap each.
+class _SetFeedback extends StatelessWidget {
+  const _SetFeedback({super.key, required this.set, required this.askRir, required this.onChanged});
+
+  final SessionSet set;
+  final bool askRir;
+  final ValueChanged<SessionSet> onChanged;
+
+  Future<void> _editNote(BuildContext context) async {
+    final note = await showDialog<String>(context: context, builder: (_) => _NoteDialog(initial: set.note ?? ''));
+    if (note == null) return;
+    final trimmed = note.trim();
+    onChanged(trimmed.isEmpty ? set.copyWith(clearNote: true) : set.copyWith(note: trimmed));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(8, 0, 0, 8),
+      child: Row(
+        children: [
+          if (askRir) ...[
+            Tooltip(
+              message: t.rirExplained,
+              child: Text(t.rir, style: theme.textTheme.labelMedium),
+            ),
+            const SizedBox(width: 4),
+            Expanded(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: [
+                    for (final r in const [0, 1, 2, 3, 4])
+                      Padding(
+                        padding: const EdgeInsets.only(right: 4),
+                        child: ChoiceChip(
+                          key: Key('rir.$r'),
+                          label: Text(r == 4 ? '4+' : '$r'),
+                          tooltip: r == 0 ? t.rirZero : t.rirValue(r == 4 ? '4+' : '$r'),
+                          selected: set.rir == r,
+                          showCheckmark: false,
+                          onSelected: (on) => onChanged(on ? set.copyWith(rir: r) : set.copyWith(clearRir: true)),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ] else
+            const Spacer(),
+          IconButton(
+            key: const Key('setNote'),
+            tooltip: set.note ?? t.setNote,
+            isSelected: set.note != null,
+            icon: const Icon(Icons.sticky_note_2_outlined),
+            selectedIcon: const Icon(Icons.sticky_note_2),
+            onPressed: () => _editNote(context),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Must match the API (WorkoutRules.MaxSetNoteLength).
+const kMaxSetNoteLength = 100;
+
+/// Owns its text controller: disposing it right after `showDialog` returns broke the
+/// dialog's closing animation, which still draws the field.
+class _NoteDialog extends StatefulWidget {
+  const _NoteDialog({required this.initial});
+
+  final String initial;
+
+  @override
+  State<_NoteDialog> createState() => _NoteDialogState();
+}
+
+class _NoteDialogState extends State<_NoteDialog> {
+  late final _controller = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(t.setNote),
+      content: TextField(
+        key: const Key('setNote.field'),
+        controller: _controller,
+        autofocus: true,
+        maxLength: kMaxSetNoteLength,
+        decoration: InputDecoration(hintText: t.setNoteHint),
+        onSubmitted: (v) => Navigator.pop(context, v),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(t.cancel)),
+        TextButton(key: const Key('setNote.save'), onPressed: () => Navigator.pop(context, _controller.text), child: Text(t.save)),
+      ],
     );
   }
 }

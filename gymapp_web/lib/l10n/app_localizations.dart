@@ -614,6 +614,42 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @rir.
+  ///
+  /// In en, this message translates to:
+  /// **'RIR'**
+  String get rir;
+
+  /// No description provided for @rirExplained.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps in reserve: how many more you could have done. Feeds the next hint.'**
+  String get rirExplained;
+
+  /// No description provided for @rirZero.
+  ///
+  /// In en, this message translates to:
+  /// **'0 — nothing left, to failure'**
+  String get rirZero;
+
+  /// No description provided for @rirValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more in reserve'**
+  String rirValue(String count);
+
+  /// No description provided for @setNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to this set'**
+  String get setNote;
+
+  /// No description provided for @setNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. elbow hurt, slow negative'**
+  String get setNoteHint;
+
   /// No description provided for @exportData.
   ///
   /// In en, this message translates to:

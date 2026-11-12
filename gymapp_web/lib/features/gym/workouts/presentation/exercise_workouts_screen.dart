@@ -108,12 +108,17 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
   static String describeSets(List<WorkoutSet> sets, [WeightFormat w = WeightFormat.kg]) {
     if (sets.any((s) => s.durationSeconds != null || s.distanceMeters != null)) return describeTimedSets(sets, w);
     String one(WorkoutSet s) => s.weight == 0 ? '${s.reps}' : '${s.reps}×${w.number(s.weight)}';
-    if (sets.length > 1 && sets.every((s) => s == sets.first)) {
-      final s = sets.first;
-      return s.weight == 0 ? '${sets.length} × ${s.reps}' : '${sets.length} × ${s.reps} × ${w.withUnit(s.weight)}';
+    // "· RIR 2/1/0" when logged (– for sets without it).
+    final rir = sets.any((s) => s.rir != null) ? ' · RIR ${sets.map((s) => s.rir?.toString() ?? '–').join('/')}' : '';
+    final first = sets.first;
+    if (sets.length > 1 && sets.every((s) => s.reps == first.reps && s.weight == first.weight)) {
+      return (first.weight == 0
+              ? '${sets.length} × ${first.reps}'
+              : '${sets.length} × ${first.reps} × ${w.withUnit(first.weight)}') +
+          rir;
     }
     final text = sets.map(one).join(', ');
-    return sets.any((s) => s.weight > 0) ? '$text ${w.label}' : text;
+    return (sets.any((s) => s.weight > 0) ? '$text ${w.label}' : text) + rir;
   }
 
   @override

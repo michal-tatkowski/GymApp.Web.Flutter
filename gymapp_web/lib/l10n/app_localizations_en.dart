@@ -274,6 +274,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String get rir => 'RIR';
+
+  @override
+  String get rirExplained =>
+      'Reps in reserve: how many more you could have done. Feeds the next hint.';
+
+  @override
+  String get rirZero => '0 — nothing left, to failure';
+
+  @override
+  String rirValue(String count) {
+    return '$count more in reserve';
+  }
+
+  @override
+  String get setNote => 'Note to this set';
+
+  @override
+  String get setNoteHint => 'e.g. elbow hurt, slow negative';
+
+  @override
   String get exportData => 'Export my data';
 
   @override

@@ -274,6 +274,27 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get rir => 'RIR';
+
+  @override
+  String get rirExplained =>
+      'Powtórzenia w zapasie: ile jeszcze dałbyś radę zrobić. Wpływa na następną podpowiedź.';
+
+  @override
+  String get rirZero => '0 — nic w zapasie, do upadku';
+
+  @override
+  String rirValue(String count) {
+    return '$count w zapasie';
+  }
+
+  @override
+  String get setNote => 'Notatka do serii';
+
+  @override
+  String get setNoteHint => 'np. bolał łokieć, wolne opuszczanie';
+
+  @override
   String get exportData => 'Eksportuj moje dane';
 
   @override

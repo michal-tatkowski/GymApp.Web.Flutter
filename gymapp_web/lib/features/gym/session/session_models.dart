@@ -6,7 +6,15 @@ import '../workouts/presentation/widgets/workout_entry_sheet.dart' show defaultS
 
 /// One set in a live session. [weightKg] always in kg (like the API).
 class SessionSet {
-  const SessionSet({required this.reps, required this.weightKg, this.done = false, this.durationSeconds, this.distanceMeters});
+  const SessionSet({
+    required this.reps,
+    required this.weightKg,
+    this.done = false,
+    this.durationSeconds,
+    this.distanceMeters,
+    this.rir,
+    this.note,
+  });
 
   final int reps;
   final double weightKg;
@@ -16,16 +24,34 @@ class SessionSet {
   final int? durationSeconds;
   final double? distanceMeters;
 
-  SessionSet copyWith({int? reps, double? weightKg, bool? done, int? durationSeconds, double? distanceMeters}) => SessionSet(
+  /// Reps in reserve, chosen after the set is done.
+  final int? rir;
+  final String? note;
+
+  /// [clearRir] / [clearNote] remove them (null alone means "keep").
+  SessionSet copyWith({
+    int? reps,
+    double? weightKg,
+    bool? done,
+    int? durationSeconds,
+    double? distanceMeters,
+    int? rir,
+    String? note,
+    bool clearRir = false,
+    bool clearNote = false,
+  }) =>
+      SessionSet(
         reps: reps ?? this.reps,
         weightKg: weightKg ?? this.weightKg,
         done: done ?? this.done,
         durationSeconds: durationSeconds ?? this.durationSeconds,
         distanceMeters: distanceMeters ?? this.distanceMeters,
+        rir: clearRir ? null : rir ?? this.rir,
+        note: clearNote ? null : note ?? this.note,
       );
 
   WorkoutSet toWorkoutSet() =>
-      WorkoutSet(reps: reps, weight: weightKg, durationSeconds: durationSeconds, distanceMeters: distanceMeters);
+      WorkoutSet(reps: reps, weight: weightKg, durationSeconds: durationSeconds, distanceMeters: distanceMeters, rir: rir, note: note);
 
   Map<String, dynamic> toJson() => {
         'reps': reps,
@@ -33,6 +59,8 @@ class SessionSet {
         'done': done,
         if (durationSeconds != null) 'durationSeconds': durationSeconds,
         if (distanceMeters != null) 'distanceMeters': distanceMeters,
+        if (rir != null) 'rir': rir,
+        if (note != null) 'note': note,
       };
 
   factory SessionSet.fromJson(Map<String, dynamic> j) => SessionSet(
@@ -41,6 +69,8 @@ class SessionSet {
         done: j['done'] as bool? ?? false,
         durationSeconds: (j['durationSeconds'] as num?)?.toInt(),
         distanceMeters: (j['distanceMeters'] as num?)?.toDouble(),
+        rir: (j['rir'] as num?)?.toInt(),
+        note: j['note'] as String?,
       );
 
   static SessionSet fromWorkoutSet(WorkoutSet s) =>
@@ -63,6 +93,9 @@ class ProgressionHint {
   final List<SessionSet> sets;
 }
 
+/// Reps in reserve from which a set counts as easy (see [suggestNext]).
+const kEasyRir = 3;
+
 /// Double progression. Every planned set uses the working (heaviest) weight of
 /// last time; when all of last time's sets reached [repsMax], the weight goes up by
 /// one plate step of the user's unit and reps restart at [repsMin]. Bodyweight
@@ -78,6 +111,8 @@ ProgressionHint? suggestNext({
   final working = last.map((s) => s.weight).reduce((a, b) => a > b ? a : b);
   final atWorking = last.where((s) => s.weight == working).toList();
   final allAtTop = atWorking.every((s) => s.reps >= repsMax);
+  // RIR (when logged for every working set): 3+ in reserve everywhere = clearly too light.
+  final easy = atWorking.every((s) => s.rir != null && s.rir! >= kEasyRir);
 
   if (working == 0) {
     final reps = atWorking.map((s) => s.reps).reduce((a, b) => a < b ? a : b) + (allAtTop ? 1 : 0);
@@ -87,8 +122,11 @@ ProgressionHint? suggestNext({
       sets: List.filled(targetSets, SessionSet(reps: reps, weightKg: 0)),
     );
   }
-  if (allAtTop) {
-    final heavier = weights.toKg(weights.fromKg(working) + weights.step);
+  // Top of the range: one plate step up — two when it was still easy. Easy without reaching
+  // the top (reps held back): one step up anyway instead of grinding out more reps.
+  if (allAtTop || (easy && atWorking.every((s) => s.reps >= repsMin))) {
+    final steps = allAtTop && easy ? 2 : 1;
+    final heavier = weights.toKg(weights.fromKg(working) + steps * weights.step);
     return ProgressionHint(
       kind: HintKind.addWeight,
       lastSets: last,
