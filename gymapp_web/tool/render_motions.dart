@@ -1,5 +1,6 @@
-// Contact sheet of every exercise movement (start | end) for visual checks:
+// Contact sheet of every exercise movement in four phases, for visual checks:
 //   flutter test tool/render_motions.dart   → build/motions.png
+// A pair (start ⇄ end) is shown at 0, ⅓, ⅔, 1; a sequence at the start of each phase.
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -11,33 +12,35 @@ import 'package:gymapp_web/features/gym/exercises/presentation/illustration/moti
 void main() {
   testWidgets('render motions', (tester) async {
     await tester.runAsync(() async {
-      const cell = 140.0, cols = 6;
-      final entries = motionsByKey.entries.toList();
-      final rows = (entries.length / (cols / 2)).ceil();
+      const cell = 110.0, perMotion = 4, perRow = 2;
+      final only = Platform.environment['MOTIONS']?.split(',');
+      final entries = motionsByKey.entries.where((e) => only == null || only.contains(e.key)).toList();
+      final rows = (entries.length / perRow).ceil();
+      final width = cell * perMotion * perRow, height = cell * rows;
       final recorder = ui.PictureRecorder();
-      final canvas = Canvas(recorder)..drawRect(Rect.fromLTWH(0, 0, cell * cols, cell * rows), Paint()..color = Colors.white);
+      final canvas = Canvas(recorder)..drawRect(Rect.fromLTWH(0, 0, width, height), Paint()..color = Colors.white);
       for (var i = 0; i < entries.length; i++) {
-        for (final (j, t) in [(0, 0.0), (1, 1.0)]) {
-          final x = ((i % (cols ~/ 2)) * 2 + j) * cell, y = (i ~/ (cols ~/ 2)) * cell;
+        final m = entries[i].value;
+        final ts = m.isSequence
+            ? [for (var k = 0; k < perMotion; k++) k * (m.frames!.length / perMotion).floor() / m.frames!.length]
+            : [0.0, 1 / 3, 2 / 3, 1.0];
+        for (var j = 0; j < perMotion; j++) {
+          final x = ((i % perRow) * perMotion + j) * cell, y = (i ~/ perRow) * cell;
           canvas
             ..save()
             ..translate(x, y)
-            ..drawRect(const Rect.fromLTWH(0, 0, cell, cell), Paint()..color = j == 0 ? const Color(0xFFF7F7F7) : Colors.white);
-          MotionPainter(motion: entries[i].value, t: t, body: Colors.black87, weight: Colors.deepOrange, prop: Colors.grey)
-              .paint(canvas, const Size(cell, cell - 14));
-          final label = TextPainter(
-            text: TextSpan(text: j == 0 ? entries[i].key : '', style: const TextStyle(fontSize: 10, color: Colors.black)),
-            textDirection: TextDirection.ltr,
-          )..layout(maxWidth: cell * 2);
-          label.paint(canvas, Offset(4, cell - 13));
+            ..drawRect(const Rect.fromLTWH(0, 0, cell, cell), Paint()..color = j.isEven ? const Color(0xFFF7F7F7) : Colors.white);
+          MotionPainter(motion: m, t: ts[j], body: Colors.black87, weight: Colors.deepOrange, prop: Colors.grey)
+              .paint(canvas, const Size(cell, cell));
           canvas.restore();
         }
       }
-      final image = await recorder.endRecording().toImage((cell * cols).toInt(), (cell * rows).toInt());
+      final image = await recorder.endRecording().toImage(width.toInt(), height.toInt());
       final png = await image.toByteData(format: ui.ImageByteFormat.png);
       File('build/motions.png')
         ..createSync(recursive: true)
         ..writeAsBytesSync(png!.buffer.asUint8List());
+      File('build/motions.txt').writeAsStringSync(entries.map((e) => e.key).join('\n'));
     });
   });
 }

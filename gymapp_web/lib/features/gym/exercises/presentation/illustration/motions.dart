@@ -160,10 +160,10 @@ final _cableFly = Motion(
 );
 
 final _dips = Motion(
-  _hip(const Offset(50, 60), torso: 175, thigh: 10, shin: -60, upperArm: 0, forearm: 0),
-  _hip(const Offset(50, 72), torso: 168, thigh: 10, shin: -60, upperArm: -45, forearm: 40),
-  props: const [Prop.line(Offset(40, 60), Offset(70, 60), width: 3)],
-  floor: false,
+  _hip(const Offset(50, 60), torso: 175, thigh: 15, shin: -100, upperArm: 0, forearm: 0),
+  _hip(const Offset(50, 72), torso: 168, thigh: 15, shin: -100, upperArm: -70, forearm: 42),
+  // Parallel bar at hand height on a post.
+  props: const [Prop.line(Offset(42, 61), Offset(64, 61)), Prop.line(Offset(62, 61), Offset(62, floorY))],
 );
 
 final _pushUp = Motion(
@@ -225,9 +225,9 @@ final _legExtension = Motion(
 );
 
 final _calfRaise = Motion(
-  _stand(upperArm: -40, forearm: 160),
-  _stand(root: const Offset(46, floorY - 6), upperArm: -40, forearm: 160),
-  held: Held.barbell,
+  _stand(),
+  _stand(root: const Offset(46, floorY - 6)),
+  held: Held.dumbbell,
 );
 
 final _hipThrust = Motion(
@@ -300,9 +300,16 @@ final _jumpRope = Motion(
   _stand(root: const Offset(46, floorY - 9), upperArm: 25, forearm: 70),
 );
 
-final _burpee = Motion(
-  _stand(shin: 140, thigh: -95, torso: 135, upperArm: 10, forearm: 10),
-  _stand(root: const Offset(46, floorY - 6), upperArm: 178, forearm: 178),
+// Phases: stand → squat, hands down → plank (feet jumped back) → squat → jump, arms up.
+final _burpee = Motion.sequence(
+  [
+    _hip(const Offset(46, 52), torso: 180, thigh: 0, shin: 0, upperArm: 0, forearm: 0),
+    _hip(const Offset(44, 74), torso: 140, thigh: 80, shin: -43, upperArm: 5, forearm: 5),
+    _hip(const Offset(50, 78), torso: 115, thigh: -70, shin: -70, upperArm: 0, forearm: 0),
+    _hip(const Offset(44, 74), torso: 140, thigh: 80, shin: -43, upperArm: 5, forearm: 5),
+    _hip(const Offset(46, 44), torso: 180, thigh: 0, shin: 0, upperArm: 175, forearm: 178),
+  ],
+  still: 2,
 );
 
 final _farmersWalk = Motion(

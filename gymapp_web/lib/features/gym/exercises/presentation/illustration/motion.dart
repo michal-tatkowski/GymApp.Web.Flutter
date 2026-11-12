@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-import 'dart:ui' show lerpDouble;
 
 import 'package:flutter/material.dart';
 
@@ -46,7 +45,9 @@ class Pose {
   /// Head tilt relative to the torso.
   final double head;
 
-  static double _l(double a, double b, double t) => lerpDouble(a, b, t)!;
+  /// Angles turn the short way round: −150° → 180° is a 30° turn, not 330°
+  /// through "pointing down" (the figure would fold up halfway through).
+  static double _l(double a, double b, double t) => a + (((b - a + 540) % 360) - 180) * t;
   static double? _ln(double? a, double? b, double t) => a == null || b == null ? a ?? b : _l(a, b, t);
 
   static Pose lerp(Pose a, Pose b, double t) => Pose(
@@ -117,9 +118,36 @@ enum Held { none, barbell, dumbbell, kettlebell, wheel }
 
 @immutable
 class Motion {
-  const Motion(this.start, this.end, {this.held = Held.none, this.props = const [], this.cable, this.floor = true});
+  const Motion(this.start, this.end, {this.held = Held.none, this.props = const [], this.cable, this.floor = true})
+      : frames = null,
+        stillT = 1;
+
+  /// A movement with phases (e.g. burpee: squat → plank → squat → jump): plays the
+  /// [frames] in order and loops back to the first, instead of there-and-back.
+  /// All frames must use the same root (ankle or hip). The still picture (reduced
+  /// motion) is the frame at [still].
+  Motion.sequence(List<Pose> this.frames, {int still = 0, this.held = Held.none, this.props = const [], this.cable, this.floor = true})
+      : start = frames[0],
+        end = frames[still],
+        stillT = still / frames.length;
 
   final Pose start, end;
+  final List<Pose>? frames;
+
+  /// Animation value of the still picture.
+  final double stillT;
+
+  bool get isSequence => frames != null;
+
+  /// Pose at [t]: for a pair 0 = start, 1 = end (the caller eases t); for a
+  /// sequence t runs over the whole cycle and each phase is eased on its own.
+  Pose poseAt(double t) {
+    final f = frames;
+    if (f == null) return Pose.lerp(start, end, t);
+    final pos = (t % 1) * f.length;
+    final i = pos.floor() % f.length;
+    return Pose.lerp(f[i], f[(i + 1) % f.length], Curves.easeInOut.transform(pos - pos.floor()));
+  }
   final Held held;
 
   /// Static equipment drawn behind the person.
@@ -158,7 +186,7 @@ class MotionPainter extends CustomPainter {
       ..translate((size.width - 100 * scale) / 2, (size.height - 100 * scale) / 2)
       ..scale(scale);
 
-    final s = Skeleton.of(Pose.lerp(motion.start, motion.end, t));
+    final s = Skeleton.of(motion.poseAt(t));
     Paint stroke(Color c, double w) => Paint()
       ..color = c
       ..strokeWidth = w
@@ -251,7 +279,11 @@ class MotionView extends StatefulWidget {
 }
 
 class _MotionViewState extends State<MotionView> with SingleTickerProviderStateMixin {
-  late final _controller = AnimationController(vsync: this, duration: widget.period);
+  // A sequence plays each phase in about half the time of a there-and-back pair.
+  late final _controller = AnimationController(
+    vsync: this,
+    duration: widget.motion.isSequence ? widget.period * (widget.motion.frames!.length / 2) : widget.period,
+  );
   late final _curve = CurvedAnimation(parent: _controller, curve: Curves.easeInOut);
 
   @override
@@ -260,9 +292,9 @@ class _MotionViewState extends State<MotionView> with SingleTickerProviderStateM
     if (!MotionView.animate || MediaQuery.of(context).disableAnimations) {
       _controller
         ..stop()
-        ..value = 1;
+        ..value = widget.motion.stillT;
     } else if (!_controller.isAnimating) {
-      _controller.repeat(reverse: true);
+      _controller.repeat(reverse: !widget.motion.isSequence);
     }
   }
 
@@ -283,7 +315,7 @@ class _MotionViewState extends State<MotionView> with SingleTickerProviderStateM
           builder: (_, __) => CustomPaint(
             painter: MotionPainter(
               motion: widget.motion,
-              t: _curve.value,
+              t: widget.motion.isSequence ? _controller.value : _curve.value,
               body: colors.onSurface,
               weight: colors.primary,
               prop: colors.outline,
