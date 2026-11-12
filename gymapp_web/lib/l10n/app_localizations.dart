@@ -614,6 +614,114 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @onboardingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s set you up'**
+  String get onboardingTitle;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @onboardingGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your main goal?'**
+  String get onboardingGoal;
+
+  /// No description provided for @goalStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Get stronger'**
+  String get goalStrength;
+
+  /// No description provided for @goalMuscle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle'**
+  String get goalMuscle;
+
+  /// No description provided for @goalFitness.
+  ///
+  /// In en, this message translates to:
+  /// **'General fitness'**
+  String get goalFitness;
+
+  /// No description provided for @goalFatLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose fat'**
+  String get goalFatLoss;
+
+  /// No description provided for @onboardingPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do you train?'**
+  String get onboardingPlace;
+
+  /// No description provided for @placeGym.
+  ///
+  /// In en, this message translates to:
+  /// **'At a gym'**
+  String get placeGym;
+
+  /// No description provided for @placeHome.
+  ///
+  /// In en, this message translates to:
+  /// **'At home, no equipment'**
+  String get placeHome;
+
+  /// No description provided for @onboardingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'How many days a week?'**
+  String get onboardingDays;
+
+  /// No description provided for @onboardingPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get onboardingPlanTitle;
+
+  /// No description provided for @onboardingPlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A proven plan to start with — change anything later in Plans.'**
+  String get onboardingPlanHint;
+
+  /// No description provided for @onboardingSplitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} plans to rotate, one per workout — change anything later in Plans.'**
+  String onboardingSplitHint(int count);
+
+  /// No description provided for @onboardingReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me on training days'**
+  String get onboardingReminders;
+
+  /// No description provided for @onboardingRemindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days a week, at 18:00 — adjust in Settings'**
+  String onboardingRemindersHint(int count);
+
+  /// No description provided for @onboardingAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Add plan and weekly goal'**
+  String get onboardingAccept;
+
+  /// No description provided for @onboardingReady.
+  ///
+  /// In en, this message translates to:
+  /// **'All set — start your first workout from Plans'**
+  String get onboardingReady;
+
   /// No description provided for @shareTitle.
   ///
   /// In en, this message translates to:

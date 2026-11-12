@@ -274,6 +274,65 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String get onboardingTitle => 'Let\'s set you up';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get onboardingGoal => 'What\'s your main goal?';
+
+  @override
+  String get goalStrength => 'Get stronger';
+
+  @override
+  String get goalMuscle => 'Build muscle';
+
+  @override
+  String get goalFitness => 'General fitness';
+
+  @override
+  String get goalFatLoss => 'Lose fat';
+
+  @override
+  String get onboardingPlace => 'Where do you train?';
+
+  @override
+  String get placeGym => 'At a gym';
+
+  @override
+  String get placeHome => 'At home, no equipment';
+
+  @override
+  String get onboardingDays => 'How many days a week?';
+
+  @override
+  String get onboardingPlanTitle => 'Your plan';
+
+  @override
+  String get onboardingPlanHint =>
+      'A proven plan to start with — change anything later in Plans.';
+
+  @override
+  String onboardingSplitHint(int count) {
+    return '$count plans to rotate, one per workout — change anything later in Plans.';
+  }
+
+  @override
+  String get onboardingReminders => 'Remind me on training days';
+
+  @override
+  String onboardingRemindersHint(int count) {
+    return '$count days a week, at 18:00 — adjust in Settings';
+  }
+
+  @override
+  String get onboardingAccept => 'Add plan and weekly goal';
+
+  @override
+  String get onboardingReady => 'All set — start your first workout from Plans';
+
+  @override
   String shareTitle(String name) {
     return 'Share \"$name\"';
   }

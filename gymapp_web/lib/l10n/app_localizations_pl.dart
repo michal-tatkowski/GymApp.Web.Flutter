@@ -274,6 +274,71 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get onboardingTitle => 'Zaczynamy';
+
+  @override
+  String get skip => 'Pomiń';
+
+  @override
+  String get onboardingGoal => 'Jaki jest Twój główny cel?';
+
+  @override
+  String get goalStrength => 'Więcej siły';
+
+  @override
+  String get goalMuscle => 'Więcej mięśni';
+
+  @override
+  String get goalFitness => 'Ogólna sprawność';
+
+  @override
+  String get goalFatLoss => 'Redukcja tkanki tłuszczowej';
+
+  @override
+  String get onboardingPlace => 'Gdzie trenujesz?';
+
+  @override
+  String get placeGym => 'Na siłowni';
+
+  @override
+  String get placeHome => 'W domu, bez sprzętu';
+
+  @override
+  String get onboardingDays => 'Ile dni w tygodniu?';
+
+  @override
+  String get onboardingPlanTitle => 'Twój plan';
+
+  @override
+  String get onboardingPlanHint =>
+      'Sprawdzony plan na start — wszystko zmienisz później w Planach.';
+
+  @override
+  String onboardingSplitHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count planów na zmianę, jeden na trening',
+      few: '$count plany na zmianę, jeden na trening',
+    );
+    return '$_temp0 — wszystko zmienisz później w Planach.';
+  }
+
+  @override
+  String get onboardingReminders => 'Przypominaj w dni treningowe';
+
+  @override
+  String onboardingRemindersHint(int count) {
+    return '$count dni w tygodniu, o 18:00 — zmienisz w Ustawieniach';
+  }
+
+  @override
+  String get onboardingAccept => 'Dodaj plan i cel tygodniowy';
+
+  @override
+  String get onboardingReady => 'Gotowe — pierwszy trening zaczniesz z Planów';
+
+  @override
   String shareTitle(String name) {
     return 'Udostępnij „$name”';
   }
