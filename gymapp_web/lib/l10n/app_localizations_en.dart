@@ -1010,4 +1010,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String badgeGoalVariety(int count) {
     return 'Train $count different exercises';
   }
+
+  @override
+  String offlineData(String time) {
+    return 'Offline · showing data saved $time. Pull down to refresh.';
+  }
 }

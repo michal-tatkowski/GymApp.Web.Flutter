@@ -1025,4 +1025,9 @@ class AppLocalizationsPl extends AppLocalizations {
   String badgeGoalVariety(int count) {
     return 'Wykonaj $count różnych ćwiczeń';
   }
+
+  @override
+  String offlineData(String time) {
+    return 'Offline · dane zapisane $time. Pociągnij w dół, aby odświeżyć.';
+  }
 }

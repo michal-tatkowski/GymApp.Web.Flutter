@@ -297,5 +297,6 @@
   "badgeGoalBusyWeek": "Trenuj {count} razy w jednym tygodniu",
   "badgeGoalRecords": "{count, plural, =1{Pobij rekord} few{Pobij {count} rekordy} other{Pobij {count} rekordów}}",
   "badgeGoalVolume": "Podnieś łącznie {weight}",
-  "badgeGoalVariety": "Wykonaj {count} różnych ćwiczeń"
+  "badgeGoalVariety": "Wykonaj {count} różnych ćwiczeń",
+  "offlineData": "Offline · dane zapisane {time}. Pociągnij w dół, aby odświeżyć."
 }
