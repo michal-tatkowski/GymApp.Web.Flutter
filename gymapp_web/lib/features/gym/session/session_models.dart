@@ -356,6 +356,8 @@ class SessionSummary {
     required this.sets,
     required this.volumeKg,
     required this.records,
+    this.sessionId,
+    this.recorded,
   });
 
   final String planName;
@@ -366,4 +368,10 @@ class SessionSummary {
 
   /// Names of the exercises that set a new record.
   final List<String> records;
+
+  /// Id of the session sent to the history (null when nothing was done).
+  final String? sessionId;
+
+  /// Completes with true once the session reached the API (mood / note can then be attached).
+  final Future<bool>? recorded;
 }

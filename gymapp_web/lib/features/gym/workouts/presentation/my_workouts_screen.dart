@@ -13,6 +13,7 @@ import '../../../../routing/app_routes.dart';
 import '../../exercises/data/models/exercise.dart';
 import '../../exercises/presentation/category_ui.dart';
 import '../../history/history_screen.dart';
+import '../../progress/lifetime_muscles.dart';
 import '../../progress/progress_cards.dart';
 import '../../progress/records_screen.dart';
 import '../../progress/summary_screen.dart';
@@ -64,6 +65,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
             data: (items) => RefreshIndicator(
               onRefresh: () {
                 ref.invalidate(yearStatsProvider);
+                ref.invalidate(lifetimeStatsProvider);
+                ref.invalidate(muscleDaysProvider);
                 return ref.refresh(workoutSummariesProvider.future);
               },
               child: items.isEmpty
@@ -98,6 +101,8 @@ class MyWorkoutsScreen extends ConsumerWidget {
                       padding: const EdgeInsets.all(16),
                       children: [
                         const ActivityCard(),
+                        const MuscleBalanceCard(),
+                        const LifetimeCard(),
                         BadgesCard(distinctExercises: items.length),
                         for (final s in items) _SummaryTile(summary: s, weights: ref.watch(weightFormatProvider)),
                       ],

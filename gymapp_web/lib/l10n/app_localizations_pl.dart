@@ -274,6 +274,127 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get pureBlack => 'Czysta czerń (OLED)';
+
+  @override
+  String get pureBlackHint =>
+      'Ciemny motyw na czarnym tle: oszczędza baterię na ekranach OLED';
+
+  @override
+  String get largeSessionControls => 'Duże przyciski w trakcie treningu';
+
+  @override
+  String get largeSessionControlsHint => 'Łatwiej trafić jedną ręką na siłowni';
+
+  @override
+  String get moodQuestion => 'Jak poszło?';
+
+  @override
+  String get mood1 => 'Bardzo źle';
+
+  @override
+  String get mood2 => 'Słabo';
+
+  @override
+  String get mood3 => 'Średnio';
+
+  @override
+  String get mood4 => 'Dobrze';
+
+  @override
+  String get mood5 => 'Świetnie';
+
+  @override
+  String get workoutNote => 'Notatka do treningu';
+
+  @override
+  String get workoutNoteHint => 'Co poszło dobrze, co zmienić następnym razem';
+
+  @override
+  String get sessionFeedback => 'Samopoczucie i notatka';
+
+  @override
+  String get lifetimeTitle => 'Od początku';
+
+  @override
+  String lifetimeSince(String date) {
+    return 'Od $date';
+  }
+
+  @override
+  String get lifetimeDays => 'Dni treningowe';
+
+  @override
+  String get lifetimeSets => 'Serie';
+
+  @override
+  String get lifetimeReps => 'Powtórzenia';
+
+  @override
+  String get lifetimeVolume => 'Podniesione';
+
+  @override
+  String get lifetimeTime => 'Czas treningów';
+
+  @override
+  String get lifetimeDistance => 'Dystans';
+
+  @override
+  String get lifetimeRecords => 'Rekordy';
+
+  @override
+  String get lifetimeExercises => 'Ćwiczenia';
+
+  @override
+  String hoursShort(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String get badgeWorkouts250 => 'Oddanie';
+
+  @override
+  String get badgeWorkouts500 => 'Na całe życie';
+
+  @override
+  String get badgeStreak26 => 'Pół roku';
+
+  @override
+  String get badgeStreak52 => 'Cały rok';
+
+  @override
+  String get badgeRecord50 => 'Maszyna do rekordów';
+
+  @override
+  String get badgeVolume1000t => 'Tysiąc ton';
+
+  @override
+  String get badgeVariety25 => 'Kolekcja';
+
+  @override
+  String get musclesTitle => 'Serie na partię mięśni';
+
+  @override
+  String get musclesThisWeek => 'Ten tydzień';
+
+  @override
+  String get musclesAverage => 'Średnia z 4 tygodni';
+
+  @override
+  String get musclesEmpty => 'Brak serii w tym okresie.';
+
+  @override
+  String get musclesMorePush =>
+      'Więcej pchania niż przyciągania: dodaj wiosłowanie albo podciąganie.';
+
+  @override
+  String get musclesMorePull =>
+      'Więcej przyciągania niż pchania: dodaj wyciskanie.';
+
+  @override
+  String get musclesNoLegs => 'Brak ćwiczeń na nogi w tym okresie.';
+
+  @override
   String get onboardingTitle => 'Zaczynamy';
 
   @override

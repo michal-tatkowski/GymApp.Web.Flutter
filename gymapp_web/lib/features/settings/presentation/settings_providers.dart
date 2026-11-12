@@ -37,6 +37,39 @@ class ThemeNotifier extends Notifier<ThemeMode> {
   }
 }
 
+/// Dark theme on pure black (OLED: black pixels are off). Off by default.
+final pureBlackProvider = NotifierProvider<BoolSetting, bool>(() => BoolSetting(StorageKeys.pureBlack));
+
+/// Bigger steppers and a full-width "set done" button during a workout. Off by default.
+final largeSessionControlsProvider =
+    NotifierProvider<BoolSetting, bool>(() => BoolSetting(StorageKeys.largeSessionControls));
+
+/// An on/off preference in SharedPreferences, false until stored otherwise.
+class BoolSetting extends Notifier<bool> {
+  BoolSetting(this._key);
+
+  final String _key;
+  bool _changedByUser = false;
+
+  @override
+  bool build() {
+    _restore();
+    return false;
+  }
+
+  Future<void> _restore() async {
+    final value = (await SharedPreferences.getInstance()).getBool(_key);
+    if (!ref.mounted || _changedByUser || value == null) return;
+    state = value;
+  }
+
+  Future<void> set(bool value) async {
+    _changedByUser = true;
+    state = value;
+    await (await SharedPreferences.getInstance()).setBool(_key, value);
+  }
+}
+
 /// ─── Locale ──────────────────────────────────────────────────────────────
 
 final localeProvider = NotifierProvider<LocaleNotifier, Locale>(LocaleNotifier.new);

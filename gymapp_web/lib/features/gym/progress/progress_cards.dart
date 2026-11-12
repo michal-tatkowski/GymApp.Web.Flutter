@@ -177,7 +177,8 @@ class _BadgesCardState extends ConsumerState<BadgesCard> {
     final theme = Theme.of(context);
     final weights = ref.watch(weightFormatProvider);
     final earned = ref.watch(earnedBadgesProvider);
-    final badges = computeBadges(stats, widget.distinctExercises, MaterialLocalizations.of(context).firstDayOfWeekIndex);
+    final badges = computeBadges(stats, widget.distinctExercises, MaterialLocalizations.of(context).firstDayOfWeekIndex,
+        lifetime: ref.watch(lifetimeStatsProvider).value);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
@@ -226,13 +227,20 @@ String badgeTitle(AppLocalizations t, BadgeDef def) => switch (def.id) {
       'workouts10' => t.badgeWorkouts10,
       'workouts50' => t.badgeWorkouts50,
       'workouts100' => t.badgeWorkouts100,
+      'workouts250' => t.badgeWorkouts250,
+      'workouts500' => t.badgeWorkouts500,
       'streak4' => t.badgeStreak4,
       'streak12' => t.badgeStreak12,
+      'streak26' => t.badgeStreak26,
+      'streak52' => t.badgeStreak52,
       'busyWeek3' => t.badgeBusyWeek,
       'record1' => t.badgeRecord1,
       'record10' => t.badgeRecord10,
+      'record50' => t.badgeRecord50,
       'volume10t' => t.badgeVolume10t,
       'volume100t' => t.badgeVolume100t,
+      'volume1000t' => t.badgeVolume1000t,
+      'variety25' => t.badgeVariety25,
       _ => t.badgeVariety,
     };
 

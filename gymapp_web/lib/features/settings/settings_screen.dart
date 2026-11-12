@@ -53,6 +53,23 @@ class SettingsScreen extends ConsumerWidget {
                 onSelectionChanged: (v) => ref.read(themeProvider.notifier).set(v.single),
               ),
             ),
+            SwitchListTile(
+              key: const Key('settings.pureBlack'),
+              secondary: const Icon(Icons.contrast),
+              title: Text(t.pureBlack),
+              subtitle: Text(t.pureBlackHint),
+              value: ref.watch(pureBlackProvider),
+              // Only the dark theme has it: with Light chosen the switch would do nothing.
+              onChanged: themeMode == ThemeMode.light ? null : (v) => ref.read(pureBlackProvider.notifier).set(v),
+            ),
+            SwitchListTile(
+              key: const Key('settings.largeControls'),
+              secondary: const Icon(Icons.touch_app_outlined),
+              title: Text(t.largeSessionControls),
+              subtitle: Text(t.largeSessionControlsHint),
+              value: ref.watch(largeSessionControlsProvider),
+              onChanged: (v) => ref.read(largeSessionControlsProvider.notifier).set(v),
+            ),
             const Divider(),
             ListTile(leading: const Icon(Icons.fitness_center), title: Text(t.weightUnit), subtitle: Text(t.weightUnitHint)),
             Padding(

@@ -96,7 +96,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('Badges'), findsOneWidget);
-      expect(find.text('1 of 12 earned'), findsOneWidget); // First step
+      expect(find.text('1 of 19 earned'), findsOneWidget); // First step
       expect(find.textContaining('New badge: First step'), findsOneWidget); // one new badge is announced
       expect(c.read(earnedBadgesProvider).keys, ['workouts1']);
       expect((await SharedPreferences.getInstance()).getString('badges.earned'), contains('workouts1'));
@@ -111,7 +111,7 @@ void main() {
       await pumpProgress(tester, prefs: {'badges.earned': '{"record1":"2025-12-01T00:00:00.000"}'});
       await tester.pumpAndSettle();
 
-      expect(find.text('2 of 12 earned'), findsOneWidget); // record1 (stored) + workouts1 (new)
+      expect(find.text('2 of 19 earned'), findsOneWidget); // record1 (stored) + workouts1 (new)
       expect(find.textContaining('New badge: First step'), findsOneWidget);
     });
   });

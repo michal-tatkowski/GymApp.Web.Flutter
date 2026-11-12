@@ -274,6 +274,127 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String get pureBlack => 'Pure black (OLED)';
+
+  @override
+  String get pureBlackHint =>
+      'Dark theme on a black background: saves battery on OLED screens';
+
+  @override
+  String get largeSessionControls => 'Large buttons during a workout';
+
+  @override
+  String get largeSessionControlsHint =>
+      'Easier to hit with one hand at the gym';
+
+  @override
+  String get moodQuestion => 'How did it go?';
+
+  @override
+  String get mood1 => 'Very bad';
+
+  @override
+  String get mood2 => 'Bad';
+
+  @override
+  String get mood3 => 'Okay';
+
+  @override
+  String get mood4 => 'Good';
+
+  @override
+  String get mood5 => 'Great';
+
+  @override
+  String get workoutNote => 'Workout note';
+
+  @override
+  String get workoutNoteHint => 'What went well, what to change next time';
+
+  @override
+  String get sessionFeedback => 'Mood and note';
+
+  @override
+  String get lifetimeTitle => 'All time';
+
+  @override
+  String lifetimeSince(String date) {
+    return 'Since $date';
+  }
+
+  @override
+  String get lifetimeDays => 'Training days';
+
+  @override
+  String get lifetimeSets => 'Sets';
+
+  @override
+  String get lifetimeReps => 'Reps';
+
+  @override
+  String get lifetimeVolume => 'Lifted';
+
+  @override
+  String get lifetimeTime => 'Workout time';
+
+  @override
+  String get lifetimeDistance => 'Distance';
+
+  @override
+  String get lifetimeRecords => 'Records';
+
+  @override
+  String get lifetimeExercises => 'Exercises';
+
+  @override
+  String hoursShort(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String get badgeWorkouts250 => 'Dedicated';
+
+  @override
+  String get badgeWorkouts500 => 'Lifer';
+
+  @override
+  String get badgeStreak26 => 'Half a year';
+
+  @override
+  String get badgeStreak52 => 'Whole year';
+
+  @override
+  String get badgeRecord50 => 'Record machine';
+
+  @override
+  String get badgeVolume1000t => 'Thousand tonnes';
+
+  @override
+  String get badgeVariety25 => 'Collector';
+
+  @override
+  String get musclesTitle => 'Sets per muscle group';
+
+  @override
+  String get musclesThisWeek => 'This week';
+
+  @override
+  String get musclesAverage => '4-week average';
+
+  @override
+  String get musclesEmpty => 'No sets in this period yet.';
+
+  @override
+  String get musclesMorePush =>
+      'More pushing than pulling: add a row or a pull-up.';
+
+  @override
+  String get musclesMorePull => 'More pulling than pushing: add a press.';
+
+  @override
+  String get musclesNoLegs => 'No leg work in this period.';
+
+  @override
   String get onboardingTitle => 'Let\'s set you up';
 
   @override
