@@ -614,6 +614,36 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @exportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export my data'**
+  String get exportData;
+
+  /// No description provided for @exportDataHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything as JSON, workouts as CSV (Excel, Sheets)'**
+  String get exportDataHint;
+
+  /// No description provided for @sessionChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout in progress'**
+  String get sessionChannel;
+
+  /// No description provided for @sessionNotificationSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {set} of {total}'**
+  String sessionNotificationSet(int set, int total);
+
+  /// No description provided for @sessionNotificationDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All sets done — on to the next exercise'**
+  String get sessionNotificationDone;
+
   /// No description provided for @measurements.
   ///
   /// In en, this message translates to:

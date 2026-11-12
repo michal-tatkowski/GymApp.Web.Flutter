@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../../app/theme/app_theme.dart';
+import '../../../core/home_widget_sync.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../l10n/app_localizations.dart';
 import '../workouts/data/workout_models.dart';
@@ -77,6 +78,16 @@ class WeekSummaryCard extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toString();
     final today = DateUtils.dateOnly(now ?? DateTime.now());
     final s = summarizeWeek(stats, today, MaterialLocalizations.of(context).firstDayOfWeekIndex);
+    final statsLine = s.workouts == 0
+        ? t.weekNothingYet
+        : [t.weekWorkouts(s.workouts), t.weekSets(s.sets), if (s.volumeKg > 0) weights.withUnit(s.volumeKg)].join(' · ');
+    // The same week on the home screen widget (Android).
+    ref.read(homeWidgetSyncProvider).update(
+          title: t.thisWeek,
+          days: [for (var i = 0; i < 7; i++) s.trainedDays.contains(i) ? '●' : '○'].join(' '),
+          line: statsLine,
+          streak: s.weekStreak > 1 ? '🔥 ${t.weekStreak(s.weekStreak)}' : '',
+        );
 
     return Card(
       key: const Key('today.week'),
@@ -106,13 +117,7 @@ class WeekSummaryCard extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              s.workouts == 0
-                  ? t.weekNothingYet
-                  : [
-                      t.weekWorkouts(s.workouts),
-                      t.weekSets(s.sets),
-                      if (s.volumeKg > 0) weights.withUnit(s.volumeKg),
-                    ].join(' · '),
+              statsLine,
               key: const Key('today.weekStats'),
             ),
             if (s.records.isNotEmpty) ...[

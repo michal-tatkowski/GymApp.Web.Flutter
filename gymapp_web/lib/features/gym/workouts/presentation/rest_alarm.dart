@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:clock/clock.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart' show Color;
@@ -29,7 +31,18 @@ abstract class RestAlarm {
   Future<bool> canAlertOnTime();
 
   Future<void> openExactAlarmSettings();
+
+  /// Ongoing notification while a workout is in progress and the app is in the
+  /// background: what is next, with a "Set done" button that opens the app.
+  Future<void> showSession({required String title, required String body, required AppLocalizations t});
+
+  Future<void> clearSession();
+
+  /// [kSessionDoneAction] when "Set done" was tapped.
+  Stream<String> get actions;
 }
+
+const kSessionDoneAction = 'session_done';
 
 final restAlarmProvider = Provider<RestAlarm>(
   (ref) => kIsWeb ? const NoRestAlarm() : LocalNotificationsRestAlarm(),
@@ -48,6 +61,12 @@ class NoRestAlarm implements RestAlarm {
   Future<bool> canAlertOnTime() async => true;
   @override
   Future<void> openExactAlarmSettings() async {}
+  @override
+  Future<void> showSession({required String title, required String body, required AppLocalizations t}) async {}
+  @override
+  Future<void> clearSession() async {}
+  @override
+  Stream<String> get actions => const Stream.empty();
 }
 
 class LocalNotificationsRestAlarm implements RestAlarm {
@@ -59,6 +78,11 @@ class LocalNotificationsRestAlarm implements RestAlarm {
 
   static const _countdownId = 1001;
   static const _endId = 1002;
+  static const _sessionId = 1003;
+  final _actions = StreamController<String>.broadcast();
+
+  @override
+  Stream<String> get actions => _actions.stream;
   static const _brand = Color(0xFFEF6C00);
 
   AndroidFlutterLocalNotificationsPlugin? get _android =>
@@ -80,6 +104,9 @@ class LocalNotificationsRestAlarm implements RestAlarm {
             requestSoundPermission: false,
           ),
         ),
+        onDidReceiveNotificationResponse: (r) {
+          if (r.actionId != null) _actions.add(r.actionId!);
+        },
       );
       return true;
     } catch (e) {
@@ -179,4 +206,32 @@ class LocalNotificationsRestAlarm implements RestAlarm {
   Future<void> openExactAlarmSettings() => _guard(() async {
     await _android?.requestExactAlarmsPermission();
   });
+
+  @override
+  Future<void> showSession({required String title, required String body, required AppLocalizations t}) => _guard(() async {
+    await _plugin.show(
+      id: _sessionId,
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(
+        android: AndroidNotificationDetails(
+          'session',
+          t.sessionChannel,
+          importance: Importance.low,
+          priority: Priority.low,
+          color: _brand,
+          ongoing: true,
+          onlyAlertOnce: true,
+          silent: true,
+          category: AndroidNotificationCategory.workout,
+          visibility: NotificationVisibility.public,
+          actions: [AndroidNotificationAction(kSessionDoneAction, t.sessionDoneSet, showsUserInterface: true)],
+        ),
+      ),
+    );
+  });
+
+  @override
+  Future<void> clearSession() => _guard(() => _plugin.cancel(id: _sessionId));
 }
+

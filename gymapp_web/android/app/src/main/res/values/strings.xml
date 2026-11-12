@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Ten tydzień treningów: dni, serie i seria tygodni</string>
+    <string name="widget_default_title">Ten tydzień</string>
+    <string name="widget_default_line">Otwórz GymApp, żeby zobaczyć tydzień</string>
+</resources>

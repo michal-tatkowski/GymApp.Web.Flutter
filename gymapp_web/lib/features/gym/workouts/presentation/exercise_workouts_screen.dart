@@ -464,3 +464,11 @@ String describeTimedSets(List<WorkoutSet> sets, [WeightFormat w = WeightFormat.k
   if (sets.length > 1 && sets.every((s) => s == sets.first)) return '${sets.length} × ${one(sets.first)}';
   return sets.map(one).join(', ');
 }
+
+/// One set for a notification line: "8 × 100 kg", "1:30", "5 km · 25:00".
+String describeTimedOrPlain(WorkoutSet s, WeightFormat w) =>
+    s.durationSeconds != null || s.distanceMeters != null
+        ? describeTimedSets([s], w)
+        : s.weight > 0
+            ? '${s.reps} × ${w.withUnit(s.weight)}'
+            : '${s.reps}';
