@@ -188,6 +188,9 @@ void main() {
 
   group('My workouts', () {
     testWidgets('lists trained exercises with last and best volume', (tester) async {
+      tester.view.physicalSize = const Size(500, 1600); // below the activity and badge cards
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       final repo = FakeWorkoutRepository()
         ..seed(bench, today.subtract(const Duration(days: 2)), [const WorkoutSet(reps: 12, weight: 100)])
         ..seed(bench, today, [const WorkoutSet(reps: 10, weight: 100)]);

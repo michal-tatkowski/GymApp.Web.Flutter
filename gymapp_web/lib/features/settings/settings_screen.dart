@@ -6,6 +6,7 @@ import '../../core/errors/failure_messages.dart';
 import '../../core/units/weight_unit.dart';
 import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
+import '../gym/progress/badges.dart';
 import '../gym/session/session_providers.dart';
 import 'privacy_policy_screen.dart';
 import '../gym/workouts/presentation/pending_workouts.dart';
@@ -145,11 +146,12 @@ class SettingsScreen extends ConsumerWidget {
     if (deleted == true) await _forgetLocalData(ref);
   }
 
-  /// What this device keeps for the signed-in account: the offline queue and
-  /// an unfinished session. Device settings (theme, unit, reminders) stay.
+  /// What this device keeps for the signed-in account: the offline queue,
+  /// an unfinished session and earned badges. Device settings (theme, unit, reminders) stay.
   static Future<void> _forgetLocalData(WidgetRef ref) async {
     await ref.read(pendingWorkoutsProvider.notifier).clear();
     if (ref.read(activeSessionProvider) != null) ref.read(activeSessionProvider.notifier).discard();
+    await ref.read(earnedBadgesProvider.notifier).clear();
   }
 }
 

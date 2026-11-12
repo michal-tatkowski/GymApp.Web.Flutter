@@ -30,6 +30,19 @@ final workoutStatsProvider = FutureProvider.autoDispose<WorkoutStats>(
   retry: noRetry,
 );
 
+/// Training days and records of the whole period the API allows (400 days) —
+/// the activity map and badges on Progress.
+final yearStatsProvider = FutureProvider.autoDispose<WorkoutStats>(
+  (ref) {
+    final now = DateTime.now();
+    return ref.watch(workoutRepositoryProvider).getStats(since: DateTime(now.year, now.month, now.day - kStatsMaxDays));
+  },
+  retry: noRetry,
+);
+
+/// Must match the API (GetWorkoutStatsQuery.MaxDays).
+const kStatsMaxDays = 400;
+
 /// Entries of one exercise, newest first. Changes go through [WorkoutActions].
 final workoutLogProvider = FutureProvider.autoDispose.family<WorkoutLog, String>(
   (ref, exerciseId) => ref.watch(workoutRepositoryProvider).getLog(exerciseId),
@@ -105,5 +118,6 @@ class WorkoutActions {
     _container.invalidate(workoutProgressProvider(exerciseId));
     _container.invalidate(workoutSummariesProvider);
     _container.invalidate(workoutStatsProvider);
+    _container.invalidate(yearStatsProvider);
   }
 }
