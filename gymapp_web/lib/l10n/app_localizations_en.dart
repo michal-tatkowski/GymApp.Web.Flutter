@@ -274,6 +274,67 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String get measurements => 'Measurements';
+
+  @override
+  String get addMeasurement => 'Today\'s measurements';
+
+  @override
+  String get measurementsEmpty =>
+      'Waist, chest, hips, arm, thigh, neck — track what you like.';
+
+  @override
+  String get measurementsHint => 'Fill in only what you measured (cm).';
+
+  @override
+  String get measurementsNeedOne => 'Enter at least one measurement.';
+
+  @override
+  String get partWaist => 'Waist';
+
+  @override
+  String get partChest => 'Chest';
+
+  @override
+  String get partHips => 'Hips';
+
+  @override
+  String get partArm => 'Arm';
+
+  @override
+  String get partThigh => 'Thigh';
+
+  @override
+  String get partNeck => 'Neck';
+
+  @override
+  String get progressPhotos => 'Progress photos';
+
+  @override
+  String get progressPhotosPrivate =>
+      'Stay only on this phone — never uploaded. Deleted when you log out.';
+
+  @override
+  String get addPhoto => 'Add a photo';
+
+  @override
+  String get photoCamera => 'Take a photo';
+
+  @override
+  String get photoGallery => 'Choose from gallery';
+
+  @override
+  String photoOf(String date) {
+    return 'Photo of $date';
+  }
+
+  @override
+  String get comparePhotos => 'Compare with the first';
+
+  @override
+  String get deletePhoto => 'Delete this photo?';
+
+  @override
   String get records => 'Records';
 
   @override

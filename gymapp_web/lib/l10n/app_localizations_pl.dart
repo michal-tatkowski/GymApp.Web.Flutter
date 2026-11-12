@@ -274,6 +274,67 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get measurements => 'Obwody';
+
+  @override
+  String get addMeasurement => 'Dzisiejsze pomiary';
+
+  @override
+  String get measurementsEmpty =>
+      'Talia, klatka, biodra, ramię, udo, szyja — mierz, co chcesz.';
+
+  @override
+  String get measurementsHint => 'Wpisz tylko to, co zmierzone (cm).';
+
+  @override
+  String get measurementsNeedOne => 'Wpisz co najmniej jeden pomiar.';
+
+  @override
+  String get partWaist => 'Talia';
+
+  @override
+  String get partChest => 'Klatka';
+
+  @override
+  String get partHips => 'Biodra';
+
+  @override
+  String get partArm => 'Ramię';
+
+  @override
+  String get partThigh => 'Udo';
+
+  @override
+  String get partNeck => 'Szyja';
+
+  @override
+  String get progressPhotos => 'Zdjęcia sylwetki';
+
+  @override
+  String get progressPhotosPrivate =>
+      'Tylko na tym telefonie — nigdzie nie są wysyłane. Znikają po wylogowaniu.';
+
+  @override
+  String get addPhoto => 'Dodaj zdjęcie';
+
+  @override
+  String get photoCamera => 'Zrób zdjęcie';
+
+  @override
+  String get photoGallery => 'Wybierz z galerii';
+
+  @override
+  String photoOf(String date) {
+    return 'Zdjęcie z $date';
+  }
+
+  @override
+  String get comparePhotos => 'Porównaj z pierwszym';
+
+  @override
+  String get deletePhoto => 'Usunąć to zdjęcie?';
+
+  @override
   String get records => 'Rekordy';
 
   @override

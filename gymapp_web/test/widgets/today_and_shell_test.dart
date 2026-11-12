@@ -13,6 +13,7 @@ import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/workout_providers.dart';
 import 'package:gymapp_web/features/profile/data/models/user_profile.dart';
 import 'package:gymapp_web/features/profile/presentation/profile_providers.dart';
+import 'package:gymapp_web/features/profile/presentation/widgets/progress_photos.dart';
 import 'package:gymapp_web/features/settings/privacy_policy_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -96,6 +97,7 @@ void main() {
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
           planRepositoryProvider.overrideWithValue(FakePlanRepository()),
           authRepositoryProvider.overrideWithValue(auth),
+          progressPhotoStoreProvider.overrideWithValue(null), // no file system in tests
           exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository(catalog())),
           workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository()),
           profileRepositoryProvider.overrideWithValue(FakeProfileRepository(const UserProfile(nickname: 'Tester'))),
