@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../core/errors/failure_messages.dart';
+import '../../core/logging/app_logger.dart';
 import '../../core/network/offline_cache.dart';
 import '../../core/units/weight_unit.dart';
 import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
 import '../gym/progress/badges.dart';
 import '../gym/session/session_providers.dart';
+import '../profile/presentation/widgets/progress_photos.dart';
 import 'privacy_policy_screen.dart';
 import '../gym/workouts/presentation/pending_workouts.dart';
 import '../gym/workouts/presentation/rest_alarm.dart';
@@ -148,13 +150,29 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   /// What this device keeps for the signed-in account: the offline queue,
-  /// an unfinished session, earned badges and data saved for offline use.
+  /// an unfinished session, earned badges, data saved for offline use and progress photos.
   /// Device settings (theme, unit, reminders) stay.
+  ///
+  /// Each step on its own: one failing (e.g. the file system) must not stop the
+  /// others, nor the logout itself.
   static Future<void> _forgetLocalData(WidgetRef ref) async {
-    await ref.read(pendingWorkoutsProvider.notifier).clear();
-    if (ref.read(activeSessionProvider) != null) ref.read(activeSessionProvider.notifier).discard();
-    await ref.read(earnedBadgesProvider.notifier).clear();
-    await ref.read(responseCacheProvider).clear();
+    final steps = <Future<void> Function()>[
+      () => ref.read(pendingWorkoutsProvider.notifier).clear(),
+      () async {
+        if (ref.read(activeSessionProvider) != null) ref.read(activeSessionProvider.notifier).discard();
+      },
+      () => ref.read(earnedBadgesProvider.notifier).clear(),
+      () => ref.read(responseCacheProvider).clear(),
+      // Photos are personal — the next account must not see them.
+      () async => ref.read(progressPhotoStoreProvider)?.clearAll(),
+    ];
+    for (final step in steps) {
+      try {
+        await step();
+      } catch (e) {
+        log.w('Clearing local data failed: $e');
+      }
+    }
   }
 }
 

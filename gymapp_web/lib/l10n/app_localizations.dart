@@ -614,6 +614,120 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @measurements.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurements'**
+  String get measurements;
+
+  /// No description provided for @addMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s measurements'**
+  String get addMeasurement;
+
+  /// No description provided for @measurementsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Waist, chest, hips, arm, thigh, neck — track what you like.'**
+  String get measurementsEmpty;
+
+  /// No description provided for @measurementsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in only what you measured (cm).'**
+  String get measurementsHint;
+
+  /// No description provided for @measurementsNeedOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one measurement.'**
+  String get measurementsNeedOne;
+
+  /// No description provided for @partWaist.
+  ///
+  /// In en, this message translates to:
+  /// **'Waist'**
+  String get partWaist;
+
+  /// No description provided for @partChest.
+  ///
+  /// In en, this message translates to:
+  /// **'Chest'**
+  String get partChest;
+
+  /// No description provided for @partHips.
+  ///
+  /// In en, this message translates to:
+  /// **'Hips'**
+  String get partHips;
+
+  /// No description provided for @partArm.
+  ///
+  /// In en, this message translates to:
+  /// **'Arm'**
+  String get partArm;
+
+  /// No description provided for @partThigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Thigh'**
+  String get partThigh;
+
+  /// No description provided for @partNeck.
+  ///
+  /// In en, this message translates to:
+  /// **'Neck'**
+  String get partNeck;
+
+  /// No description provided for @progressPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress photos'**
+  String get progressPhotos;
+
+  /// No description provided for @progressPhotosPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay only on this phone — never uploaded. Deleted when you log out.'**
+  String get progressPhotosPrivate;
+
+  /// No description provided for @addPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get addPhoto;
+
+  /// No description provided for @photoCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get photoCamera;
+
+  /// No description provided for @photoGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get photoGallery;
+
+  /// No description provided for @photoOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of {date}'**
+  String photoOf(String date);
+
+  /// No description provided for @comparePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with the first'**
+  String get comparePhotos;
+
+  /// No description provided for @deletePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this photo?'**
+  String get deletePhoto;
+
   /// No description provided for @records.
   ///
   /// In en, this message translates to:
