@@ -1759,6 +1759,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Train {count} different exercises'**
   String badgeGoalVariety(int count);
+
+  /// No description provided for @offlineData.
+  ///
+  /// In en, this message translates to:
+  /// **'Offline · showing data saved {time}. Pull down to refresh.'**
+  String offlineData(String time);
 }
 
 class _AppLocalizationsDelegate

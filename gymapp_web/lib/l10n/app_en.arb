@@ -347,5 +347,7 @@
   "badgeGoalVolume": "Lift {weight} in total",
   "@badgeGoalVolume": { "placeholders": { "weight": { "type": "String" } } },
   "badgeGoalVariety": "Train {count} different exercises",
-  "@badgeGoalVariety": { "placeholders": { "count": { "type": "int" } } }
+  "@badgeGoalVariety": { "placeholders": { "count": { "type": "int" } } },
+  "offlineData": "Offline · showing data saved {time}. Pull down to refresh.",
+  "@offlineData": { "placeholders": { "time": { "type": "String" } } }
 }

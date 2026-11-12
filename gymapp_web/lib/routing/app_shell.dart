@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../core/widgets/offline_data_bar.dart';
 import '../features/gym/workouts/presentation/pending_sync_bar.dart';
 import '../features/gym/workouts/presentation/rest_timer.dart';
 import '../l10n/app_localizations.dart';
@@ -63,6 +64,7 @@ class AppShell extends StatelessWidget {
               child: Column(
                 children: [
                   Expanded(child: navigationShell),
+                  const OfflineDataBar(),
                   const PendingSyncBar(),
                   const RestTimerBar(),
                 ],
@@ -79,6 +81,7 @@ class AppShell extends StatelessWidget {
       bottomNavigationBar: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const OfflineDataBar(),
           const PendingSyncBar(),
           const RestTimerBar(),
           NavigationBar(
