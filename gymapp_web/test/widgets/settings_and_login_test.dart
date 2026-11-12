@@ -5,6 +5,7 @@ import 'package:gymapp_web/app/app.dart';
 import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/core/providers/retry.dart';
 import 'package:gymapp_web/features/auth/presentation/auth_providers.dart';
+import 'package:gymapp_web/features/gym/plans/presentation/plan_providers.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/settings/presentation/settings_providers.dart';
 import 'package:gymapp_web/features/settings/settings_screen.dart';
@@ -38,6 +39,7 @@ void main() {
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
+          planRepositoryProvider.overrideWithValue(FakePlanRepository()),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
         ],
         child: const GymApp(),
@@ -61,6 +63,7 @@ void main() {
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
+          planRepositoryProvider.overrideWithValue(FakePlanRepository()),
           authRepositoryProvider.overrideWithValue(repo),
         ],
         child: const GymApp(),

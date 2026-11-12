@@ -5,6 +5,7 @@ import 'package:intl/intl.dart' show DateFormat;
 
 import '../../../../../app/theme/app_theme.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../core/units/weight_unit.dart';
 import '../../data/workout_models.dart';
 
 /// What the line shows.
@@ -26,7 +27,7 @@ double valueOf(ProgressPoint p, ProgressMetric m) => switch (m) {
       ProgressMetric.reps => p.totalReps.toDouble(),
     };
 
-String formatValue(double v) => v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
+String formatValue(double v) => WeightFormat.formatNumber(v);
 
 /// Time ranges of the chart; null days = everything.
 enum ProgressRange {
@@ -81,9 +82,12 @@ NewRecord? newRecordFor(List<ProgressPoint> before, WorkoutEntry saved) {
 /// Tap or drag over the chart to read a day (tap it again to go back to the latest);
 /// records are marked with a ring.
 class ProgressChart extends StatefulWidget {
-  const ProgressChart({super.key, required this.points, this.height = 200, this.today});
+  const ProgressChart({super.key, required this.points, this.height = 200, this.today, this.weights = WeightFormat.kg});
 
   final List<ProgressPoint> points;
+
+  /// Unit of the weight metrics (volume, 1RM, max) — kg or lb.
+  final WeightFormat weights;
   final double height;
 
   /// For tests; defaults to now.
@@ -112,7 +116,7 @@ class _ProgressChartState extends State<ProgressChart> {
         ProgressRange.all => t.rangeAll,
       };
 
-  String _unit(ProgressMetric m) => m == ProgressMetric.reps ? '' : ' kg';
+  String _unit(ProgressMetric m) => m == ProgressMetric.reps ? '' : ' ${widget.weights.label}';
 
   @override
   Widget build(BuildContext context) {
@@ -125,7 +129,10 @@ class _ProgressChartState extends State<ProgressChart> {
         : [ProgressMetric.volume, ProgressMetric.oneRepMax, ProgressMetric.maxWeight];
     final metric = metrics.contains(_metric) ? _metric! : metrics.first;
     final points = inRange(widget.points, _range, widget.today ?? DateTime.now());
-    final values = points.map((p) => valueOf(p, metric)).toList();
+    final values = [
+      for (final p in points)
+        metric == ProgressMetric.reps ? valueOf(p, metric) : widget.weights.fromKg(valueOf(p, metric)),
+    ];
     final selected = _selected != null && _selected! < points.length ? _selected : null;
 
     final header = <Widget>[

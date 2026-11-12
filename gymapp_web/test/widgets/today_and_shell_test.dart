@@ -8,6 +8,7 @@ import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
 import 'package:gymapp_web/features/gym/exercises/presentation/exercises_providers.dart';
 import 'package:gymapp_web/features/gym/today/today_screen.dart';
 import 'package:gymapp_web/features/gym/workouts/data/workout_models.dart';
+import 'package:gymapp_web/features/gym/plans/presentation/plan_providers.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/rest_alarm.dart';
 import 'package:gymapp_web/features/gym/workouts/presentation/workout_providers.dart';
 import 'package:gymapp_web/features/profile/data/models/user_profile.dart';
@@ -48,7 +49,7 @@ void main() {
       expect(find.text('Bench press'), findsOneWidget);
       expect(find.text('Squat'), findsOneWidget);
       expect(find.text('Barbell row'), findsNothing); // not a favorite
-      expect(find.textContaining('1000 kg'), findsOneWidget);
+      expect(find.textContaining(RegExp(r'Last: .* · 1000 kg')), findsOneWidget); // quick log row (the week card has its own total)
       expect(find.text('Not trained yet'), findsOneWidget);
       expect(find.text('Done today'), findsNothing);
     });
@@ -89,6 +90,7 @@ void main() {
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
+          planRepositoryProvider.overrideWithValue(FakePlanRepository()),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
           exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository(catalog())),
           workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository()),

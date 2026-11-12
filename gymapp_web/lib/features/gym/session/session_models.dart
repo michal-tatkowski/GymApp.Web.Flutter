@@ -1,0 +1,241 @@
+import '../../../core/units/weight_unit.dart';
+import '../exercises/data/models/exercise.dart';
+import '../plans/data/plan_models.dart';
+import '../workouts/data/workout_models.dart';
+
+/// One set in a live session. [weightKg] always in kg (like the API).
+class SessionSet {
+  const SessionSet({required this.reps, required this.weightKg, this.done = false});
+
+  final int reps;
+  final double weightKg;
+  final bool done;
+
+  SessionSet copyWith({int? reps, double? weightKg, bool? done}) =>
+      SessionSet(reps: reps ?? this.reps, weightKg: weightKg ?? this.weightKg, done: done ?? this.done);
+
+  Map<String, dynamic> toJson() => {'reps': reps, 'weightKg': weightKg, 'done': done};
+
+  factory SessionSet.fromJson(Map<String, dynamic> j) => SessionSet(
+        reps: (j['reps'] as num).toInt(),
+        weightKg: (j['weightKg'] as num).toDouble(),
+        done: j['done'] as bool? ?? false,
+      );
+}
+
+/// What to aim for today, from the last workout and the plan's rep range
+/// (double progression: reach the top of the range in every set, then add weight).
+enum HintKind { addWeight, addReps, repeat }
+
+class ProgressionHint {
+  const ProgressionHint({required this.kind, required this.lastSets, required this.sets});
+
+  final HintKind kind;
+
+  /// Last workout of this exercise (kg).
+  final List<WorkoutSet> lastSets;
+
+  /// Suggested sets for today (kg), one per planned set.
+  final List<SessionSet> sets;
+}
+
+/// Double progression. Every planned set uses the working (heaviest) weight of
+/// last time; when all of last time's sets reached [repsMax], the weight goes up by
+/// one plate step of the user's unit and reps restart at [repsMin]. Bodyweight
+/// exercises progress in reps. Null without history.
+ProgressionHint? suggestNext({
+  required List<WorkoutSet>? last,
+  required int targetSets,
+  required int repsMin,
+  required int repsMax,
+  required WeightFormat weights,
+}) {
+  if (last == null || last.isEmpty) return null;
+  final working = last.map((s) => s.weight).reduce((a, b) => a > b ? a : b);
+  final atWorking = last.where((s) => s.weight == working).toList();
+  final allAtTop = atWorking.every((s) => s.reps >= repsMax);
+
+  if (working == 0) {
+    final reps = atWorking.map((s) => s.reps).reduce((a, b) => a < b ? a : b) + (allAtTop ? 1 : 0);
+    return ProgressionHint(
+      kind: allAtTop ? HintKind.addReps : HintKind.repeat,
+      lastSets: last,
+      sets: List.filled(targetSets, SessionSet(reps: reps, weightKg: 0)),
+    );
+  }
+  if (allAtTop) {
+    final heavier = weights.toKg(weights.fromKg(working) + weights.step);
+    return ProgressionHint(
+      kind: HintKind.addWeight,
+      lastSets: last,
+      sets: List.filled(targetSets, SessionSet(reps: repsMin, weightKg: heavier)),
+    );
+  }
+  // Same weight; each set starts from what was done last time (at least repsMin).
+  return ProgressionHint(
+    kind: HintKind.repeat,
+    lastSets: last,
+    sets: [
+      for (var i = 0; i < targetSets; i++)
+        SessionSet(
+          reps: (i < atWorking.length ? atWorking[i].reps : atWorking.last.reps).clamp(repsMin, repsMax),
+          weightKg: working,
+        ),
+    ],
+  );
+}
+
+/// One exercise of the session.
+class SessionExercise {
+  const SessionExercise({
+    required this.exerciseId,
+    required this.name,
+    required this.category,
+    required this.repsMin,
+    required this.repsMax,
+    required this.sets,
+    this.lastSets,
+    this.hint,
+    this.savedEntryId,
+  });
+
+  final String exerciseId;
+  final String name;
+  final ExerciseCategory category;
+  final int repsMin;
+  final int repsMax;
+  final List<SessionSet> sets;
+
+  /// Last workout (kg), for the "Last time" line; null = never trained.
+  final List<WorkoutSet>? lastSets;
+  final HintKind? hint;
+
+  /// Set once its done sets were saved as a log entry (then they are read-only).
+  final String? savedEntryId;
+
+  bool get saved => savedEntryId != null;
+  List<SessionSet> get doneSets => sets.where((s) => s.done).toList();
+  bool get allDone => sets.isNotEmpty && sets.every((s) => s.done);
+  String get target => repsMin == repsMax ? '${sets.length} × $repsMin' : '${sets.length} × $repsMin–$repsMax';
+
+  SessionExercise copyWith({List<SessionSet>? sets, String? savedEntryId}) => SessionExercise(
+        exerciseId: exerciseId,
+        name: name,
+        category: category,
+        repsMin: repsMin,
+        repsMax: repsMax,
+        sets: sets ?? this.sets,
+        lastSets: lastSets,
+        hint: hint,
+        savedEntryId: savedEntryId ?? this.savedEntryId,
+      );
+
+  /// From a plan item; prefilled with the progression hint, or empty sets without history.
+  factory SessionExercise.fromPlan(PlanItem item, List<WorkoutSet>? last, WeightFormat weights) {
+    final hint = suggestNext(
+      last: last,
+      targetSets: item.sets,
+      repsMin: item.repsMin,
+      repsMax: item.repsMax,
+      weights: weights,
+    );
+    return SessionExercise(
+      exerciseId: item.exerciseId,
+      name: item.exerciseName,
+      category: item.category,
+      repsMin: item.repsMin,
+      repsMax: item.repsMax,
+      sets: hint?.sets ?? List.filled(item.sets, SessionSet(reps: item.repsMin, weightKg: 0)),
+      lastSets: last,
+      hint: hint?.kind,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'exerciseId': exerciseId,
+        'name': name,
+        'category': category.apiName,
+        'repsMin': repsMin,
+        'repsMax': repsMax,
+        'sets': sets.map((s) => s.toJson()).toList(),
+        if (lastSets != null) 'lastSets': lastSets!.map((s) => s.toJson()).toList(),
+        if (hint != null) 'hint': hint!.name,
+        if (savedEntryId != null) 'savedEntryId': savedEntryId,
+      };
+
+  factory SessionExercise.fromJson(Map<String, dynamic> j) => SessionExercise(
+        exerciseId: j['exerciseId'] as String,
+        name: j['name'] as String,
+        category: ExerciseCategoryX.fromJson(j['category']),
+        repsMin: (j['repsMin'] as num).toInt(),
+        repsMax: (j['repsMax'] as num).toInt(),
+        sets: (j['sets'] as List).cast<Map<String, dynamic>>().map(SessionSet.fromJson).toList(),
+        lastSets: (j['lastSets'] as List?)?.cast<Map<String, dynamic>>().map(WorkoutSet.fromJson).toList(),
+        hint: HintKind.values.where((h) => h.name == j['hint']).firstOrNull,
+        savedEntryId: j['savedEntryId'] as String?,
+      );
+}
+
+/// A workout in progress, started from a plan.
+class WorkoutSession {
+  const WorkoutSession({
+    required this.planId,
+    required this.planName,
+    required this.startedAt,
+    required this.exercises,
+    this.current = 0,
+  });
+
+  final String? planId;
+  final String planName;
+  final DateTime startedAt;
+  final List<SessionExercise> exercises;
+  final int current;
+
+  SessionExercise get currentExercise => exercises[current];
+
+  WorkoutSession copyWith({List<SessionExercise>? exercises, int? current}) => WorkoutSession(
+        planId: planId,
+        planName: planName,
+        startedAt: startedAt,
+        exercises: exercises ?? this.exercises,
+        current: current ?? this.current,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'planId': planId,
+        'planName': planName,
+        'startedAt': startedAt.toIso8601String(),
+        'current': current,
+        'exercises': exercises.map((e) => e.toJson()).toList(),
+      };
+
+  factory WorkoutSession.fromJson(Map<String, dynamic> j) => WorkoutSession(
+        planId: j['planId'] as String?,
+        planName: j['planName'] as String,
+        startedAt: DateTime.parse(j['startedAt'] as String),
+        current: (j['current'] as num).toInt(),
+        exercises: (j['exercises'] as List).cast<Map<String, dynamic>>().map(SessionExercise.fromJson).toList(),
+      );
+}
+
+/// Shown when the session ends.
+class SessionSummary {
+  const SessionSummary({
+    required this.planName,
+    required this.duration,
+    required this.exercises,
+    required this.sets,
+    required this.volumeKg,
+    required this.records,
+  });
+
+  final String planName;
+  final Duration duration;
+  final int exercises;
+  final int sets;
+  final double volumeKg;
+
+  /// Names of the exercises that set a new record.
+  final List<String> records;
+}

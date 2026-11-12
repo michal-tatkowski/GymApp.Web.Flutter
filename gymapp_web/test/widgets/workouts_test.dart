@@ -196,7 +196,7 @@ void main() {
       expect(find.text('Bench press'), findsOneWidget);
       expect(find.textContaining('2 training days'), findsOneWidget);
       expect(find.text('1000 kg'), findsOneWidget);
-      expect(find.text('best 1200'), findsOneWidget);
+      expect(find.text('best 1200 kg'), findsOneWidget);
     });
 
     testWidgets('empty state points to the exercises', (tester) async {

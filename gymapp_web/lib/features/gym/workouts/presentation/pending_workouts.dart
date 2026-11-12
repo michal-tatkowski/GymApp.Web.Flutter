@@ -113,7 +113,11 @@ class PendingWorkoutsNotifier extends Notifier<List<PendingWorkout>> {
         ..invalidate(workoutLogProvider(workout.exerciseId))
         ..invalidate(workoutProgressProvider(workout.exerciseId));
     }
-    if (sent > 0 && ref.mounted) ref.invalidate(workoutSummariesProvider);
+    if (sent > 0 && ref.mounted) {
+      ref
+        ..invalidate(workoutSummariesProvider)
+        ..invalidate(workoutStatsProvider);
+    }
     if (ref.mounted) _scheduleRetry();
     return sent;
   }

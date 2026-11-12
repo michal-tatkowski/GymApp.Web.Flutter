@@ -734,12 +734,6 @@ abstract class AppLocalizations {
   /// **'Reps'**
   String get reps;
 
-  /// No description provided for @weightKgShort.
-  ///
-  /// In en, this message translates to:
-  /// **'kg'**
-  String get weightKgShort;
-
   /// No description provided for @addSet.
   ///
   /// In en, this message translates to:
@@ -842,12 +836,6 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 training day} other{{count} training days}}'**
   String trainingDays(int count);
 
-  /// No description provided for @volumeValue.
-  ///
-  /// In en, this message translates to:
-  /// **'{value} kg'**
-  String volumeValue(String value);
-
   /// No description provided for @bestValue.
   ///
   /// In en, this message translates to:
@@ -901,6 +889,390 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Account created. You can log in now.'**
   String get accountCreated;
+
+  /// No description provided for @weightUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'Weight unit'**
+  String get weightUnit;
+
+  /// No description provided for @reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout reminders'**
+  String get reminders;
+
+  /// No description provided for @remindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification on the days you train'**
+  String get remindersHint;
+
+  /// No description provided for @reminderTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get reminderTime;
+
+  /// No description provided for @reminderTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to train 💪'**
+  String get reminderTitle;
+
+  /// No description provided for @reminderBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan is ready — tap to start.'**
+  String get reminderBody;
+
+  /// No description provided for @reminderChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout reminders'**
+  String get reminderChannel;
+
+  /// No description provided for @reminderPermissionDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow notifications for GymApp in the system settings to get reminders.'**
+  String get reminderPermissionDenied;
+
+  /// No description provided for @bodyWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Body weight'**
+  String get bodyWeight;
+
+  /// No description provided for @bodyWeightLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Log'**
+  String get bodyWeightLog;
+
+  /// No description provided for @bodyWeightToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s weight'**
+  String get bodyWeightToday;
+
+  /// No description provided for @bodyWeightEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Log your weight now and then to see the trend.'**
+  String get bodyWeightEmpty;
+
+  /// No description provided for @bodyWeightChange.
+  ///
+  /// In en, this message translates to:
+  /// **'{change} in 30 days'**
+  String bodyWeightChange(String change);
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
+
+  /// No description provided for @weekNothingYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No workout yet this week'**
+  String get weekNothingYet;
+
+  /// No description provided for @weekWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 workout} other{{count} workouts}}'**
+  String weekWorkouts(int count);
+
+  /// No description provided for @weekSets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 set} other{{count} sets}}'**
+  String weekSets(int count);
+
+  /// No description provided for @weekStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}-week streak'**
+  String weekStreak(int count);
+
+  /// No description provided for @weekRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Records: {names}'**
+  String weekRecords(String names);
+
+  /// No description provided for @sessionInProgressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout in progress'**
+  String get sessionInProgressTitle;
+
+  /// No description provided for @sessionInProgressBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{plan}\" is not finished yet. Resume it or start the new one (sets not saved yet in the old one are dropped)?'**
+  String sessionInProgressBody(String plan);
+
+  /// No description provided for @sessionResume.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get sessionResume;
+
+  /// No description provided for @sessionStartNew.
+  ///
+  /// In en, this message translates to:
+  /// **'Start new'**
+  String get sessionStartNew;
+
+  /// No description provided for @sessionDiscard.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard workout'**
+  String get sessionDiscard;
+
+  /// No description provided for @sessionDiscardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard this workout?'**
+  String get sessionDiscardTitle;
+
+  /// No description provided for @sessionDiscardBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets not saved yet are dropped. Exercises already saved stay in your history.'**
+  String get sessionDiscardBody;
+
+  /// No description provided for @sessionNone.
+  ///
+  /// In en, this message translates to:
+  /// **'No workout in progress.'**
+  String get sessionNone;
+
+  /// No description provided for @sessionFinish.
+  ///
+  /// In en, this message translates to:
+  /// **'Finish'**
+  String get sessionFinish;
+
+  /// No description provided for @sessionNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get sessionNext;
+
+  /// No description provided for @sessionPrevious.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get sessionPrevious;
+
+  /// No description provided for @sessionSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to your history'**
+  String get sessionSaved;
+
+  /// No description provided for @sessionTarget.
+  ///
+  /// In en, this message translates to:
+  /// **'Target: {target} reps'**
+  String sessionTarget(String target);
+
+  /// No description provided for @sessionLastTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Last time: {sets}'**
+  String sessionLastTime(String sets);
+
+  /// No description provided for @hintAddWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'You hit the top of the range — today {weight} × {reps}'**
+  String hintAddWeight(String weight, int reps);
+
+  /// No description provided for @hintAddReps.
+  ///
+  /// In en, this message translates to:
+  /// **'You hit the top of the range — one more rep per set today'**
+  String get hintAddReps;
+
+  /// No description provided for @hintRepeat.
+  ///
+  /// In en, this message translates to:
+  /// **'Same weight — aim for {reps} reps in every set'**
+  String hintRepeat(int reps);
+
+  /// No description provided for @hintFirstTime.
+  ///
+  /// In en, this message translates to:
+  /// **'First time — pick a weight you can do with good form'**
+  String get hintFirstTime;
+
+  /// No description provided for @repsShort.
+  ///
+  /// In en, this message translates to:
+  /// **'reps'**
+  String get repsShort;
+
+  /// No description provided for @sessionDoneSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set done'**
+  String get sessionDoneSet;
+
+  /// No description provided for @sessionUndoSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Not done'**
+  String get sessionUndoSet;
+
+  /// No description provided for @sessionSummaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout done!'**
+  String get sessionSummaryTitle;
+
+  /// No description provided for @sessionSummaryStats.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min · {exercises} exercises · {sets} sets'**
+  String sessionSummaryStats(int minutes, int exercises, int sets);
+
+  /// No description provided for @sessionSummaryVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Volume: {volume}'**
+  String sessionSummaryVolume(String volume);
+
+  /// No description provided for @sessionSummaryRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'New records: {names}'**
+  String sessionSummaryRecords(String names);
+
+  /// No description provided for @sessionActive.
+  ///
+  /// In en, this message translates to:
+  /// **'{plan} in progress · {done}/{total}'**
+  String sessionActive(String plan, int done, int total);
+
+  /// No description provided for @done.
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get done;
+
+  /// No description provided for @plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Plans'**
+  String get plans;
+
+  /// No description provided for @newPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'New plan'**
+  String get newPlan;
+
+  /// No description provided for @editPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit plan'**
+  String get editPlan;
+
+  /// No description provided for @planName.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan name'**
+  String get planName;
+
+  /// No description provided for @planNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Push, FBW A'**
+  String get planNameHint;
+
+  /// No description provided for @planNameRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a plan name'**
+  String get planNameRequired;
+
+  /// No description provided for @planNeedsExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least one exercise'**
+  String get planNeedsExercise;
+
+  /// No description provided for @planEmptyHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add the exercises in the order you do them. Set the target for each: sets × reps.'**
+  String get planEmptyHint;
+
+  /// No description provided for @deletePlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete plan?'**
+  String get deletePlanTitle;
+
+  /// No description provided for @deletePlanBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" will be deleted. Your workout history stays.'**
+  String deletePlanBody(String name);
+
+  /// No description provided for @noPlansYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a plan (e.g. Push / Pull / Legs) to start a guided workout with one tap.'**
+  String get noPlansYet;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @sets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets'**
+  String get sets;
+
+  /// No description provided for @repsFrom.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get repsFrom;
+
+  /// No description provided for @repsTo.
+  ///
+  /// In en, this message translates to:
+  /// **'to'**
+  String get repsTo;
+
+  /// No description provided for @startWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Start'**
+  String get startWorkout;
+
+  /// No description provided for @planExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 exercise} other{{count} exercises}}'**
+  String planExercises(int count);
+
+  /// No description provided for @weightUnitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'History and charts are converted too.'**
+  String get weightUnitHint;
 
   /// No description provided for @theme.
   ///

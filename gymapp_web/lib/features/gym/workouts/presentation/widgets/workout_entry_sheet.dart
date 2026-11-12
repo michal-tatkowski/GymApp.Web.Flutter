@@ -7,21 +7,29 @@ import 'package:intl/intl.dart';
 import '../../../../../core/errors/failure_messages.dart';
 import '../../../../../core/validation/validators.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../core/units/weight_unit.dart';
 import '../../data/workout_models.dart';
 
 /// Must match the API (WorkoutRules).
 const kMaxSets = 30;
 const kMinReps = 1, kMaxReps = 1000;
-const kMinSetWeight = 0, kMaxSetWeight = 1000;
+const kMinSetWeight = 0;
 
-/// −/+ step for weight (most plates come in 1.25 kg pairs).
-const kWeightStep = 2.5;
 
 /// Bottom sheet for a new or edited entry: date + sets (reps × kg) + notes.
 /// [onSave] sends the request and may return a message to show instead of
 /// "Workout saved" (e.g. "New record!"); on a Failure the sheet stays open and shows it.
 class WorkoutEntrySheet extends StatefulWidget {
-  const WorkoutEntrySheet({super.key, this.initial, this.prefillSets, required this.onSave});
+  const WorkoutEntrySheet({
+    super.key,
+    this.initial,
+    this.prefillSets,
+    required this.onSave,
+    this.weights = WeightFormat.kg,
+  });
+
+  /// Unit the user types in; sets are converted to kg for the API.
+  final WeightFormat weights;
 
   /// Entry being edited; null = new entry (today, prefilled from [prefillSets]).
   final WorkoutEntry? initial;
@@ -37,9 +45,15 @@ class WorkoutEntrySheet extends StatefulWidget {
 }
 
 class _SetRow {
-  _SetRow(WorkoutSet? s)
+  /// [s] in kg (from the API); the field shows it in the unit of [w].
+  _SetRow(WorkoutSet? s, WeightFormat w)
     : reps = TextEditingController(text: s == null ? '' : '${s.reps}'),
-      weight = TextEditingController(text: s == null ? '' : _fmt(s.weight));
+      weight = TextEditingController(text: s == null ? '' : _fmt(w.fromKg(s.weight)));
+
+  /// Same values as [other] (already in the display unit).
+  _SetRow.copy(_SetRow other)
+    : reps = TextEditingController(text: other.reps.text),
+      weight = TextEditingController(text: other.weight.text);
 
   final TextEditingController reps;
   final TextEditingController weight;
@@ -56,7 +70,7 @@ class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
   final _formKey = GlobalKey<FormState>();
   late DateTime _date = widget.initial?.date ?? DateUtils.dateOnly(DateTime.now());
   late final List<_SetRow> _rows = [
-    for (final s in widget.initial?.sets ?? widget.prefillSets ?? const [WorkoutSet(reps: 10, weight: 0)]) _SetRow(s),
+    for (final s in widget.initial?.sets ?? widget.prefillSets ?? const [WorkoutSet(reps: 10, weight: 0)]) _SetRow(s, widget.weights),
   ];
   late final _notes = TextEditingController(text: widget.initial?.notes ?? '');
   bool _saving = false;
@@ -73,13 +87,7 @@ class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
   void _addSet() => setState(() {
     // A new set copies the last one — the usual case is "same again".
     final last = _rows.isEmpty ? null : _rows.last;
-    _rows.add(
-      _SetRow(
-        last == null
-            ? null
-            : WorkoutSet(reps: int.tryParse(last.reps.text) ?? 0, weight: parseDecimal(last.weight.text) ?? 0),
-      ),
-    );
+    _rows.add(last == null ? _SetRow(null, widget.weights) : _SetRow.copy(last));
   });
 
   void _removeSet(int i) => setState(() => _rows.removeAt(i).dispose());
@@ -104,7 +112,7 @@ class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
       date: _date,
       sets: [
         for (final r in _rows)
-          WorkoutSet(reps: int.parse(r.reps.text.trim()), weight: parseDecimal(r.weight.text) ?? 0),
+          WorkoutSet(reps: int.parse(r.reps.text.trim()), weight: widget.weights.toKg(parseDecimal(r.weight.text) ?? 0)),
       ],
       notes: _notes.text,
     );
@@ -184,11 +192,11 @@ class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
                           fieldKey: Key('workout.set$i.weight'),
                           controller: _rows[i].weight,
                           enabled: !_saving,
-                          label: t.weightKgShort,
-                          step: kWeightStep,
+                          label: widget.weights.label,
+                          step: widget.weights.step,
                           min: kMinSetWeight.toDouble(),
-                          max: kMaxSetWeight.toDouble(),
-                          validator: (v) => validateOptionalNumber(t, v, min: kMinSetWeight, max: kMaxSetWeight),
+                          max: widget.weights.maxSetWeight,
+                          validator: (v) => validateOptionalNumber(t, v, min: kMinSetWeight, max: widget.weights.maxSetWeight.floor()),
                         ),
                       ),
                       IconButton(

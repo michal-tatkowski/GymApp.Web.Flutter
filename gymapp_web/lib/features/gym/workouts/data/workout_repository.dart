@@ -38,6 +38,29 @@ class WorkoutRepository {
   Future<void> deleteEntry(String exerciseId, String entryId) =>
       _guard(() => _dio.delete<dynamic>('Workouts/$exerciseId/entries/$entryId'));
 
+  /// Training days and records since [since] (API default: 12 weeks).
+  Future<WorkoutStats> getStats({DateTime? since}) => _guard(() async {
+        final res = await _dio.get<dynamic>('Workouts/stats', queryParameters: {
+          if (since != null) 'since': toApiDate(since),
+        });
+        return WorkoutStats.fromJson(res.data as Map<String, dynamic>);
+      });
+
+  /// Body weight measurements, oldest first.
+  Future<List<BodyWeight>> getBodyWeights({DateTime? since}) => _guard(() async {
+        final res = await _dio.get<dynamic>('BodyWeight', queryParameters: {
+          if (since != null) 'since': toApiDate(since),
+        });
+        return (res.data as List).cast<Map<String, dynamic>>().map(BodyWeight.fromJson).toList();
+      });
+
+  /// One per day: a second measurement the same day replaces the first.
+  Future<void> setBodyWeight(DateTime date, double kg) =>
+      _guard(() => _dio.put<dynamic>('BodyWeight/${toApiDate(date)}', data: {'weightKg': kg}));
+
+  Future<void> deleteBodyWeight(DateTime date) =>
+      _guard(() => _dio.delete<dynamic>('BodyWeight/${toApiDate(date)}'));
+
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {
       return await call();

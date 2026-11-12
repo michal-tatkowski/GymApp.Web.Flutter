@@ -74,6 +74,7 @@ void main() {
     await tester.tap(find.text('Bench press'));
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(find.text('Flat bench'), 200, scrollable: find.byType(Scrollable).last); // below the illustration
     expect(find.text('Flat bench'), findsOneWidget);
   });
 
