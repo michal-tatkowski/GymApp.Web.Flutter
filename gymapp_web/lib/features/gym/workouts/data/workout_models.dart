@@ -11,24 +11,45 @@ DateTime fromApiDate(String s) {
 
 double _num(dynamic v) => (v as num?)?.toDouble() ?? 0;
 
-/// One set: reps × weight in kg (0 = bodyweight).
+/// One set: reps × weight in kg (0 = bodyweight). Timed / cardio exercises
+/// ([Tracking.time], [Tracking.distance]) also have [durationSeconds] and
+/// [distanceMeters]; their reps may be 0.
 class WorkoutSet {
-  const WorkoutSet({required this.reps, required this.weight});
+  const WorkoutSet({required this.reps, required this.weight, this.durationSeconds, this.distanceMeters});
 
   final int reps;
   final double weight;
+  final int? durationSeconds;
+  final double? distanceMeters;
 
-  factory WorkoutSet.fromJson(Map<String, dynamic> json) =>
-      WorkoutSet(reps: (json['reps'] as num).toInt(), weight: _num(json['weight']));
+  factory WorkoutSet.fromJson(Map<String, dynamic> json) => WorkoutSet(
+        reps: (json['reps'] as num).toInt(),
+        weight: _num(json['weight']),
+        durationSeconds: (json['durationSeconds'] as num?)?.toInt(),
+        distanceMeters: (json['distanceMeters'] as num?)?.toDouble(),
+      );
 
-  Map<String, dynamic> toJson() => {'reps': reps, 'weight': weight};
+  Map<String, dynamic> toJson() => {
+        'reps': reps,
+        'weight': weight,
+        if (durationSeconds != null) 'durationSeconds': durationSeconds,
+        if (distanceMeters != null) 'distanceMeters': distanceMeters,
+      };
 
   @override
-  bool operator ==(Object other) => other is WorkoutSet && other.reps == reps && other.weight == weight;
+  bool operator ==(Object other) =>
+      other is WorkoutSet &&
+      other.reps == reps &&
+      other.weight == weight &&
+      other.durationSeconds == durationSeconds &&
+      other.distanceMeters == distanceMeters;
 
   @override
-  int get hashCode => Object.hash(reps, weight);
+  int get hashCode => Object.hash(reps, weight, durationSeconds, distanceMeters);
 }
+
+int totalDuration(Iterable<WorkoutSet> sets) => sets.fold(0, (sum, s) => sum + (s.durationSeconds ?? 0));
+double totalDistance(Iterable<WorkoutSet> sets) => sets.fold(0.0, (sum, s) => sum + (s.distanceMeters ?? 0));
 
 /// One training entry: day + sets (+ notes). Volume = Σ reps × weight.
 class WorkoutEntry {
@@ -119,6 +140,7 @@ class WorkoutLog {
     required this.exerciseName,
     required this.category,
     required this.entries,
+    this.tracking = Tracking.weight,
   });
 
   final String exerciseId;
@@ -127,12 +149,14 @@ class WorkoutLog {
 
   /// Newest first.
   final List<WorkoutEntry> entries;
+  final Tracking tracking;
 
   factory WorkoutLog.fromJson(Map<String, dynamic> json) => WorkoutLog(
         exerciseId: json['exerciseId'].toString(),
         exerciseName: json['exerciseName'] as String,
         category: ExerciseCategoryX.fromJson(json['category']),
         entries: (json['entries'] as List).cast<Map<String, dynamic>>().map(WorkoutEntry.fromJson).toList(),
+        tracking: TrackingX.fromJson(json['tracking']),
       );
 }
 
@@ -147,6 +171,9 @@ class WorkoutSummary {
     required this.lastVolume,
     required this.bestVolume,
     required this.lastTotalReps,
+    this.tracking = Tracking.weight,
+    this.lastDurationSeconds = 0,
+    this.lastDistanceMeters = 0,
   });
 
   final String exerciseId;
@@ -157,6 +184,9 @@ class WorkoutSummary {
   final double lastVolume;
   final double bestVolume;
   final int lastTotalReps;
+  final Tracking tracking;
+  final int lastDurationSeconds;
+  final double lastDistanceMeters;
 
   factory WorkoutSummary.fromJson(Map<String, dynamic> json) => WorkoutSummary(
         exerciseId: json['exerciseId'].toString(),
@@ -167,6 +197,9 @@ class WorkoutSummary {
         lastVolume: _num(json['lastVolume']),
         bestVolume: _num(json['bestVolume']),
         lastTotalReps: (json['lastTotalReps'] as num?)?.toInt() ?? 0,
+        tracking: TrackingX.fromJson(json['tracking']),
+        lastDurationSeconds: (json['lastDurationSeconds'] as num?)?.toInt() ?? 0,
+        lastDistanceMeters: _num(json['lastDistanceMeters']),
       );
 }
 
@@ -179,6 +212,9 @@ class ProgressPoint {
     required this.maxWeight,
     required this.sets,
     this.estimatedOneRepMax = 0,
+    this.totalDurationSeconds = 0,
+    this.totalDistanceMeters = 0,
+    this.bestDurationSeconds = 0,
   });
 
   final DateTime date;
@@ -186,6 +222,11 @@ class ProgressPoint {
   final int totalReps;
   final double maxWeight;
   final int sets;
+  final int totalDurationSeconds;
+  final double totalDistanceMeters;
+
+  /// Longest single set of the day (plank).
+  final int bestDurationSeconds;
 
   /// Best estimated one-rep max of the day (Epley).
   final double estimatedOneRepMax;
@@ -197,6 +238,9 @@ class ProgressPoint {
         maxWeight: _num(json['maxWeight']),
         sets: (json['sets'] as num).toInt(),
         estimatedOneRepMax: _num(json['estimatedOneRepMax']),
+        totalDurationSeconds: (json['totalDurationSeconds'] as num?)?.toInt() ?? 0,
+        totalDistanceMeters: _num(json['totalDistanceMeters']),
+        bestDurationSeconds: (json['bestDurationSeconds'] as num?)?.toInt() ?? 0,
       );
 }
 

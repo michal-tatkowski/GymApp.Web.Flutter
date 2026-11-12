@@ -29,7 +29,7 @@ final plansProvider = FutureProvider.autoDispose<List<WorkoutPlan>>(
                   'name': p.name,
                   'exercises': [
                     for (final i in p.items)
-                      {...i.toJson(), 'exerciseName': i.exerciseName, 'category': i.category.apiName},
+                      {...i.toJson(), 'exerciseName': i.exerciseName, 'category': i.category.apiName, 'tracking': i.tracking.apiName},
                   ],
                 },
             ]),

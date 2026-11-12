@@ -211,6 +211,83 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricReps => 'Reps';
 
   @override
+  String get metricTotalTime => 'Time';
+
+  @override
+  String get metricLongestSet => 'Longest';
+
+  @override
+  String get metricDistance => 'Distance';
+
+  @override
+  String get durationLabel => 'Time (m:ss)';
+
+  @override
+  String get invalidDuration => 'Enter the time as m:ss, e.g. 1:30';
+
+  @override
+  String get distanceKm => 'km';
+
+  @override
+  String get trackingLabel => 'Measured by';
+
+  @override
+  String get trackingWeight => 'Reps × weight';
+
+  @override
+  String get trackingTime => 'Time';
+
+  @override
+  String get trackingDistance => 'Distance + time';
+
+  @override
+  String get plateCalculator => 'Plates';
+
+  @override
+  String get platesPerSide => 'On each side';
+
+  @override
+  String platesBar(String weight) {
+    return 'Bar $weight';
+  }
+
+  @override
+  String platesRemainder(String weight) {
+    return '$weight short — not possible exactly with standard plates';
+  }
+
+  @override
+  String get platesJustBar => 'Just the empty bar';
+
+  @override
+  String get platesBelowBar =>
+      'Lighter than the bar — use dumbbells or a lighter bar';
+
+  @override
+  String get barWeight => 'Barbell';
+
+  @override
+  String get barWeightHint =>
+      'For the plate calculator in a workout (tap the weight)';
+
+  @override
+  String get plateCalculatorHint => 'Tap the weight to see the plates';
+
+  @override
+  String get hintBeatLastTime => 'Try to beat last time';
+
+  @override
+  String sessionTargetSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Target: $count sets',
+      one: 'Target: 1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get range1M => '1M';
 
   @override

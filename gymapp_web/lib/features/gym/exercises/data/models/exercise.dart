@@ -17,6 +17,17 @@ extension ExerciseCategoryX on ExerciseCategory {
   }
 }
 
+/// What a set of the exercise measures (API `tracking`): reps × weight, time, or distance + time.
+enum Tracking { weight, time, distance }
+
+extension TrackingX on Tracking {
+  String get apiName => name[0].toUpperCase() + name.substring(1);
+
+  /// Unknown or missing (older API, cached data) = [Tracking.weight].
+  static Tracking fromJson(dynamic v) =>
+      Tracking.values.firstWhere((t) => t.name == v?.toString().toLowerCase(), orElse: () => Tracking.weight);
+}
+
 /// System = built-in, community = created by a user (possibly the current one).
 enum ExerciseSource { system, community }
 
@@ -34,6 +45,7 @@ class Exercise {
     this.createdByUserId,
     this.isCustom = false,
     this.isFavorite = false,
+    this.tracking = Tracking.weight,
   });
 
   final String id;
@@ -51,6 +63,8 @@ class Exercise {
   /// Starred by the current user (favorites come first in the list).
   final bool isFavorite;
 
+  final Tracking tracking;
+
   Exercise copyWith({bool? isFavorite}) => Exercise(
         id: id,
         name: name,
@@ -62,6 +76,7 @@ class Exercise {
         createdByUserId: createdByUserId,
         isCustom: isCustom,
         isFavorite: isFavorite ?? this.isFavorite,
+        tracking: tracking,
       );
 
   factory Exercise.fromJson(Map<String, dynamic> json) {
@@ -79,6 +94,7 @@ class Exercise {
       createdByUserId: json['createdByUserId']?.toString(),
       isCustom: (json['isCustom'] as bool?) ?? false,
       isFavorite: (json['isFavorite'] as bool?) ?? false,
+      tracking: TrackingX.fromJson(json['tracking']),
     );
   }
 
@@ -94,5 +110,6 @@ class Exercise {
         'createdByUserId': createdByUserId,
         'isCustom': isCustom,
         'isFavorite': isFavorite,
+        'tracking': tracking.apiName,
       };
 }

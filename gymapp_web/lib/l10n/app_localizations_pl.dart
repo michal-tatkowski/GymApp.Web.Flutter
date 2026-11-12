@@ -211,6 +211,84 @@ class AppLocalizationsPl extends AppLocalizations {
   String get metricReps => 'Powt.';
 
   @override
+  String get metricTotalTime => 'Czas';
+
+  @override
+  String get metricLongestSet => 'Najdłuższa';
+
+  @override
+  String get metricDistance => 'Dystans';
+
+  @override
+  String get durationLabel => 'Czas (m:ss)';
+
+  @override
+  String get invalidDuration => 'Wpisz czas jako m:ss, np. 1:30';
+
+  @override
+  String get distanceKm => 'km';
+
+  @override
+  String get trackingLabel => 'Pomiar';
+
+  @override
+  String get trackingWeight => 'Powtórzenia × ciężar';
+
+  @override
+  String get trackingTime => 'Czas';
+
+  @override
+  String get trackingDistance => 'Dystans + czas';
+
+  @override
+  String get plateCalculator => 'Talerze';
+
+  @override
+  String get platesPerSide => 'Na każdą stronę';
+
+  @override
+  String platesBar(String weight) {
+    return 'Gryf $weight';
+  }
+
+  @override
+  String platesRemainder(String weight) {
+    return 'Brakuje $weight — nie da się dokładnie standardowymi talerzami';
+  }
+
+  @override
+  String get platesJustBar => 'Sam pusty gryf';
+
+  @override
+  String get platesBelowBar =>
+      'Lżej niż gryf — użyj hantli albo lżejszego gryfu';
+
+  @override
+  String get barWeight => 'Gryf';
+
+  @override
+  String get barWeightHint =>
+      'Do kalkulatora talerzy w treningu (dotknij ciężaru)';
+
+  @override
+  String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
+
+  @override
+  String get hintBeatLastTime => 'Spróbuj pobić poprzedni wynik';
+
+  @override
+  String sessionTargetSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Cel: $count serii',
+      few: 'Cel: $count serie',
+      one: 'Cel: 1 seria',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get range1M => '1M';
 
   @override

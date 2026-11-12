@@ -6,6 +6,7 @@ import 'package:intl/intl.dart' show DateFormat;
 import '../../../../../app/theme/app_theme.dart';
 import '../../../../../l10n/app_localizations.dart';
 import '../../../../../core/units/weight_unit.dart';
+import '../../../exercises/data/models/exercise.dart';
 import '../../data/workout_models.dart';
 
 /// What the line shows.
@@ -13,7 +14,8 @@ import '../../data/workout_models.dart';
 /// - oneRepMax: best estimated 1RM — shows strength gains when volume drops (10×100 → 8×110),
 /// - maxWeight: heaviest set,
 /// - reps: total reps — the only metric for bodyweight exercises (all volumes 0).
-enum ProgressMetric { volume, oneRepMax, maxWeight, reps }
+/// - duration / bestDuration / distance: timed and cardio exercises ([Tracking.time], [Tracking.distance]).
+enum ProgressMetric { volume, oneRepMax, maxWeight, reps, duration, bestDuration, distance }
 
 bool isBodyweight(List<ProgressPoint> points) => points.isNotEmpty && points.every((p) => p.volume == 0);
 
@@ -25,6 +27,9 @@ double valueOf(ProgressPoint p, ProgressMetric m) => switch (m) {
       ProgressMetric.oneRepMax => p.estimatedOneRepMax,
       ProgressMetric.maxWeight => p.maxWeight,
       ProgressMetric.reps => p.totalReps.toDouble(),
+      ProgressMetric.duration => p.totalDurationSeconds.toDouble(),
+      ProgressMetric.bestDuration => p.bestDurationSeconds.toDouble(),
+      ProgressMetric.distance => p.totalDistanceMeters,
     };
 
 String formatValue(double v) => WeightFormat.formatNumber(v);
@@ -82,7 +87,10 @@ NewRecord? newRecordFor(List<ProgressPoint> before, WorkoutEntry saved) {
 /// Tap or drag over the chart to read a day (tap it again to go back to the latest);
 /// records are marked with a ring.
 class ProgressChart extends StatefulWidget {
-  const ProgressChart({super.key, required this.points, this.height = 200, this.today, this.weights = WeightFormat.kg});
+  const ProgressChart({super.key, required this.points, this.height = 200, this.today, this.weights = WeightFormat.kg, this.tracking = Tracking.weight});
+
+  /// Timed / cardio exercises get time and distance metrics instead of weights.
+  final Tracking tracking;
 
   final List<ProgressPoint> points;
 
@@ -107,6 +115,9 @@ class _ProgressChartState extends State<ProgressChart> {
         ProgressMetric.oneRepMax => t.metricOneRepMax,
         ProgressMetric.maxWeight => t.metricMaxWeight,
         ProgressMetric.reps => t.metricReps,
+        ProgressMetric.duration => t.metricTotalTime,
+        ProgressMetric.bestDuration => t.metricLongestSet,
+        ProgressMetric.distance => t.metricDistance,
       };
 
   String _rangeLabel(AppLocalizations t, ProgressRange r) => switch (r) {
@@ -116,7 +127,21 @@ class _ProgressChartState extends State<ProgressChart> {
         ProgressRange.all => t.rangeAll,
       };
 
-  String _unit(ProgressMetric m) => m == ProgressMetric.reps ? '' : ' ${widget.weights.label}';
+  String _unit(ProgressMetric m) => switch (m) {
+        ProgressMetric.reps => '',
+        ProgressMetric.duration => ' min',
+        ProgressMetric.bestDuration => ' s',
+        ProgressMetric.distance => ' km',
+        _ => ' ${widget.weights.label}',
+      };
+
+  /// What the line and labels show: weights in the user's unit, total time in minutes, distance in km.
+  double _display(ProgressPoint p, ProgressMetric m) => switch (m) {
+        ProgressMetric.reps || ProgressMetric.bestDuration => valueOf(p, m),
+        ProgressMetric.duration => valueOf(p, m) / 60,
+        ProgressMetric.distance => valueOf(p, m) / 1000,
+        _ => widget.weights.fromKg(valueOf(p, m)),
+      };
 
   @override
   Widget build(BuildContext context) {
@@ -124,14 +149,17 @@ class _ProgressChartState extends State<ProgressChart> {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     final bodyweight = isBodyweight(widget.points);
-    final metrics = bodyweight
-        ? [ProgressMetric.reps]
-        : [ProgressMetric.volume, ProgressMetric.oneRepMax, ProgressMetric.maxWeight];
+    final metrics = switch (widget.tracking) {
+      Tracking.time => [ProgressMetric.bestDuration, ProgressMetric.duration],
+      Tracking.distance => [ProgressMetric.distance, ProgressMetric.duration],
+      Tracking.weight when bodyweight => [ProgressMetric.reps],
+      Tracking.weight => [ProgressMetric.volume, ProgressMetric.oneRepMax, ProgressMetric.maxWeight],
+    };
     final metric = metrics.contains(_metric) ? _metric! : metrics.first;
     final points = inRange(widget.points, _range, widget.today ?? DateTime.now());
     final values = [
       for (final p in points)
-        metric == ProgressMetric.reps ? valueOf(p, metric) : widget.weights.fromKg(valueOf(p, metric)),
+        _display(p, metric),
     ];
     final selected = _selected != null && _selected! < points.length ? _selected : null;
 
@@ -141,7 +169,7 @@ class _ProgressChartState extends State<ProgressChart> {
           key: const Key('progress.metric'),
           showSelectedIcon: false,
           style: const ButtonStyle(visualDensity: VisualDensity.compact),
-          segments: [for (final m in metrics) ButtonSegment(value: m, label: Text(_metricLabel(t, m)))],
+          segments: [for (final m in metrics) ButtonSegment(value: m, label: _OneLine(_metricLabel(t, m)))],
           selected: {metric},
           onSelectionChanged: (v) => setState(() {
             _metric = v.single;
@@ -153,7 +181,7 @@ class _ProgressChartState extends State<ProgressChart> {
         key: const Key('progress.range'),
         showSelectedIcon: false,
         style: const ButtonStyle(visualDensity: VisualDensity.compact),
-        segments: [for (final r in ProgressRange.values) ButtonSegment(value: r, label: Text(_rangeLabel(t, r)))],
+        segments: [for (final r in ProgressRange.values) ButtonSegment(value: r, label: _OneLine(_rangeLabel(t, r)))],
         selected: {_range},
         onSelectionChanged: (v) => setState(() {
           _range = v.single;
@@ -413,4 +441,15 @@ class _ProgressPainter extends CustomPainter {
   @override
   bool shouldRepaint(_ProgressPainter old) =>
       old.values != values || old.dates != dates || old.selected != selected || old.lineColor != lineColor;
+}
+
+/// Segment label that shrinks instead of wrapping ("Wszystko" broke into two lines at 375 dp).
+class _OneLine extends StatelessWidget {
+  const _OneLine(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) =>
+      FittedBox(fit: BoxFit.scaleDown, child: Text(text, maxLines: 1, softWrap: false));
 }
