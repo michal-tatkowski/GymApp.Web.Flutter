@@ -211,6 +211,364 @@ class AppLocalizationsEn extends AppLocalizations {
   String get metricReps => 'Reps';
 
   @override
+  String get metricTotalTime => 'Time';
+
+  @override
+  String get metricLongestSet => 'Longest';
+
+  @override
+  String get metricDistance => 'Distance';
+
+  @override
+  String get durationLabel => 'Time (m:ss)';
+
+  @override
+  String get invalidDuration => 'Enter the time as m:ss, e.g. 1:30';
+
+  @override
+  String get distanceKm => 'km';
+
+  @override
+  String get trackingLabel => 'Measured by';
+
+  @override
+  String get trackingWeight => 'Reps × weight';
+
+  @override
+  String get trackingTime => 'Time';
+
+  @override
+  String get trackingDistance => 'Distance + time';
+
+  @override
+  String get plateCalculator => 'Plates';
+
+  @override
+  String get platesPerSide => 'On each side';
+
+  @override
+  String platesBar(String weight) {
+    return 'Bar $weight';
+  }
+
+  @override
+  String platesRemainder(String weight) {
+    return '$weight short — not possible exactly with standard plates';
+  }
+
+  @override
+  String get platesJustBar => 'Just the empty bar';
+
+  @override
+  String get platesBelowBar =>
+      'Lighter than the bar — use dumbbells or a lighter bar';
+
+  @override
+  String get barWeight => 'Barbell';
+
+  @override
+  String get barWeightHint =>
+      'For the plate calculator in a workout (tap the weight)';
+
+  @override
+  String get plateCalculatorHint => 'Tap the weight to see the plates';
+
+  @override
+  String get exportData => 'Export my data';
+
+  @override
+  String get exportDataHint =>
+      'Everything as JSON, workouts as CSV (Excel, Sheets)';
+
+  @override
+  String get sessionChannel => 'Workout in progress';
+
+  @override
+  String sessionNotificationSet(int set, int total) {
+    return 'Set $set of $total';
+  }
+
+  @override
+  String get sessionNotificationDone =>
+      'All sets done — on to the next exercise';
+
+  @override
+  String get measurements => 'Measurements';
+
+  @override
+  String get addMeasurement => 'Today\'s measurements';
+
+  @override
+  String get measurementsEmpty =>
+      'Waist, chest, hips, arm, thigh, neck — track what you like.';
+
+  @override
+  String get measurementsHint => 'Fill in only what you measured (cm).';
+
+  @override
+  String get measurementsNeedOne => 'Enter at least one measurement.';
+
+  @override
+  String get partWaist => 'Waist';
+
+  @override
+  String get partChest => 'Chest';
+
+  @override
+  String get partHips => 'Hips';
+
+  @override
+  String get partArm => 'Arm';
+
+  @override
+  String get partThigh => 'Thigh';
+
+  @override
+  String get partNeck => 'Neck';
+
+  @override
+  String get progressPhotos => 'Progress photos';
+
+  @override
+  String get progressPhotosPrivate =>
+      'Stay only on this phone — never uploaded. Deleted when you log out.';
+
+  @override
+  String get addPhoto => 'Add a photo';
+
+  @override
+  String get photoCamera => 'Take a photo';
+
+  @override
+  String get photoGallery => 'Choose from gallery';
+
+  @override
+  String photoOf(String date) {
+    return 'Photo of $date';
+  }
+
+  @override
+  String get comparePhotos => 'Compare with the first';
+
+  @override
+  String get deletePhoto => 'Delete this photo?';
+
+  @override
+  String get records => 'Records';
+
+  @override
+  String get recordOneRepMax => 'Best 1RM (estimated)';
+
+  @override
+  String get recordHeaviest => 'Heaviest set';
+
+  @override
+  String get recordDayVolume => 'Best day (volume)';
+
+  @override
+  String get recordMostReps => 'Most reps in a set';
+
+  @override
+  String get recordLongest => 'Longest set';
+
+  @override
+  String get recordDistance => 'Longest distance';
+
+  @override
+  String get summaryTitle => 'Summary';
+
+  @override
+  String get summaryMonth => 'Month';
+
+  @override
+  String get summaryYear => 'Year';
+
+  @override
+  String get summaryEmpty => 'No workouts in this period.';
+
+  @override
+  String get summaryWorkouts => 'workouts';
+
+  @override
+  String get summarySets => 'sets';
+
+  @override
+  String get summaryVolume => 'lifted';
+
+  @override
+  String get summaryTime => 'training time';
+
+  @override
+  String get summaryRecords => 'records';
+
+  @override
+  String get summarySetsPerWorkout => 'sets / workout';
+
+  @override
+  String get summaryTopExercises => 'Most trained';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get previous => 'Previous';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get more => 'More';
+
+  @override
+  String get goals => 'Goals';
+
+  @override
+  String get addGoal => 'New goal';
+
+  @override
+  String get noGoalsYet =>
+      'Set a goal: a weight to lift, workouts per week or a body weight.';
+
+  @override
+  String get goalKindExercise => 'Lift';
+
+  @override
+  String get goalKindWeekly => 'Per week';
+
+  @override
+  String get goalKindBodyWeight => 'Body weight';
+
+  @override
+  String get goalPickExercise => 'Choose the exercise';
+
+  @override
+  String get goalTargetWeight => 'Target weight';
+
+  @override
+  String get goalTargetWorkouts => 'Workouts per week';
+
+  @override
+  String get goalNoDeadline => 'No deadline (optional)';
+
+  @override
+  String goalBy(String date) {
+    return 'by $date';
+  }
+
+  @override
+  String goalExerciseTitle(String exercise, String weight) {
+    return '$exercise: $weight';
+  }
+
+  @override
+  String goalWeeklyTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count workouts a week',
+      one: '1 workout a week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String goalBodyWeightTitle(String weight) {
+    return 'Body weight $weight';
+  }
+
+  @override
+  String goalNow(String value) {
+    return 'now $value';
+  }
+
+  @override
+  String goalThisWeek(int count) {
+    return '$count this week';
+  }
+
+  @override
+  String get goalNoData => 'no data yet';
+
+  @override
+  String goalReached(String goal) {
+    return 'Goal reached: $goal 🎉';
+  }
+
+  @override
+  String get history => 'History';
+
+  @override
+  String get historyEmpty => 'No workouts yet.';
+
+  @override
+  String get historyEnd => 'That\'s everything.';
+
+  @override
+  String get historyLoadMore => 'Older workouts';
+
+  @override
+  String get repeatWorkout => 'Repeat';
+
+  @override
+  String get repeatLastWorkout => 'Repeat last workout';
+
+  @override
+  String workoutOfDay(String date) {
+    return 'Workout of $date';
+  }
+
+  @override
+  String durationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String setsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sets',
+      one: '1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get planTemplates => 'Ready-made plans';
+
+  @override
+  String get fromTemplate => 'From a ready-made plan';
+
+  @override
+  String get fromTemplateHint =>
+      'FBW, 5×5, Push/Pull/Legs, Upper/Lower, home circuit';
+
+  @override
+  String get emptyPlan => 'Empty plan';
+
+  @override
+  String get useTemplate => 'Use';
+
+  @override
+  String daysPerWeek(int count) {
+    return '$count× a week';
+  }
+
+  @override
+  String get hintBeatLastTime => 'Try to beat last time';
+
+  @override
+  String sessionTargetSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Target: $count sets',
+      one: 'Target: 1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get range1M => '1M';
 
   @override

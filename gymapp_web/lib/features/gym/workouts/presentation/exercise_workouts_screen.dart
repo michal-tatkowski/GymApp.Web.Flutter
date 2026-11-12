@@ -6,6 +6,7 @@ import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/gradient_background.dart';
+import '../../../../core/units/measures.dart';
 import '../../../../core/units/weight_unit.dart';
 import '../../../../core/widgets/scroll_aware_fab.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -44,6 +45,7 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
     String exerciseId, {
     WorkoutEntry? entry,
     List<WorkoutSet>? prefill,
+    Tracking tracking = Tracking.weight,
   }) {
     final t = AppLocalizations.of(context)!;
     final actions = WorkoutActions.of(context);
@@ -57,6 +59,7 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
         weights: ref.read(weightFormatProvider),
         initial: entry,
         prefillSets: prefill,
+        tracking: tracking,
         onSave: (req) async {
           if (entry != null) {
             await actions.edit(exerciseId, entry.id, req);
@@ -103,6 +106,7 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
 
   /// "3 × 10 × 100 kg" when all sets are equal, otherwise "10×100, 10×100, 8×105 kg" (in [w]'s unit).
   static String describeSets(List<WorkoutSet> sets, [WeightFormat w = WeightFormat.kg]) {
+    if (sets.any((s) => s.durationSeconds != null || s.distanceMeters != null)) return describeTimedSets(sets, w);
     String one(WorkoutSet s) => s.weight == 0 ? '${s.reps}' : '${s.reps}×${w.number(s.weight)}';
     if (sets.length > 1 && sets.every((s) => s == sets.first)) {
       final s = sets.first;
@@ -154,6 +158,8 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
     ];
     final entries = [...queued, ...?logAsync.value?.entries];
     final lastSets = entries.firstOrNull?.sets;
+    // The catalog exercise (when opened from it) knows its type; otherwise the log (from Progress) does.
+    final tracking = exercise?.tracking ?? logAsync.value?.tracking ?? Tracking.weight;
 
     return Scaffold(
       appBar: AppBar(
@@ -164,7 +170,7 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
         key: const Key('workout.log'),
         extended: _fabExtended,
         onPressed: logAsync.hasValue || offline
-            ? () => ExerciseWorkoutsScreen.openEntrySheet(context, ref, exerciseId, prefill: lastSets)
+            ? () => ExerciseWorkoutsScreen.openEntrySheet(context, ref, exerciseId, prefill: lastSets, tracking: tracking)
             : null,
         icon: const Icon(Icons.add),
         label: t.logWorkout,
@@ -202,7 +208,7 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
                               loading: () =>
                                   const SizedBox(height: 200, child: Center(child: CircularProgressIndicator())),
                               error: (e, _) => SizedBox(height: 80, child: Center(child: Text(describeError(t, e)))),
-                              data: (points) => ProgressChart(points: points, weights: ref.watch(weightFormatProvider)),
+                              data: (points) => ProgressChart(points: points, weights: ref.watch(weightFormatProvider), tracking: tracking),
                             ),
                           ],
                         ),
@@ -225,7 +231,7 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
                         padding: const EdgeInsets.symmetric(vertical: 24),
                         child: Center(child: Text(t.noEntriesForExercise)),
                       ),
-                    for (final entry in entries) _EntryTile(exerciseId: exerciseId, entry: entry),
+                    for (final entry in entries) _EntryTile(exerciseId: exerciseId, entry: entry, tracking: tracking),
                     if (exercise != null) ...[
                       const SizedBox(height: 8),
                       // Folded once the user has trained it: by then they know the movement.
@@ -358,10 +364,11 @@ class _FavoriteActionState extends ConsumerState<_FavoriteAction> {
 }
 
 class _EntryTile extends ConsumerWidget {
-  const _EntryTile({required this.exerciseId, required this.entry});
+  const _EntryTile({required this.exerciseId, required this.entry, required this.tracking});
 
   final String exerciseId;
   final WorkoutEntry entry;
+  final Tracking tracking;
 
 
   /// Deletes right away and offers "Undo" (re-creates the entry) — no confirmation
@@ -418,7 +425,11 @@ class _EntryTile extends ConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              bodyweight ? t.repsValue(entry.totalReps) : weights.withUnit(entry.volume),
+              switch (tracking) {
+                Tracking.time => formatDuration(totalDuration(entry.sets)),
+                Tracking.distance => formatDistance(totalDistance(entry.sets), decimalSeparator: locale.startsWith('pl') ? ',' : '.'),
+                Tracking.weight => bodyweight ? t.repsValue(entry.totalReps) : weights.withUnit(entry.volume),
+              },
               style: Theme.of(context).textTheme.labelLarge,
             ),
             IconButton(
@@ -429,7 +440,7 @@ class _EntryTile extends ConsumerWidget {
           ],
         ),
         // Editing needs the server; a queued workout can only be deleted until it is sent.
-        onTap: entry.pending ? null : () => ExerciseWorkoutsScreen.openEntrySheet(context, ref, exerciseId, entry: entry),
+        onTap: entry.pending ? null : () => ExerciseWorkoutsScreen.openEntrySheet(context, ref, exerciseId, entry: entry, tracking: tracking),
       ),
     );
   }
@@ -441,3 +452,23 @@ String? recordMessage(AppLocalizations t, NewRecord? record) => switch (record) 
   NewRecord.volume => t.newRecordVolume,
   null => null,
 };
+
+/// "3 × 1:00", "1:00 × 20 kg, 0:45" (time) or "5 km · 25:00, 3 km · 15:30" (distance).
+String describeTimedSets(List<WorkoutSet> sets, [WeightFormat w = WeightFormat.kg]) {
+  String one(WorkoutSet s) {
+    final time = s.durationSeconds == null ? null : formatDuration(s.durationSeconds!);
+    if (s.distanceMeters != null) return [formatDistance(s.distanceMeters!), ?time].join(' · ');
+    return s.weight > 0 ? '${time ?? s.reps} × ${w.withUnit(s.weight)}' : time ?? '${s.reps}';
+  }
+
+  if (sets.length > 1 && sets.every((s) => s == sets.first)) return '${sets.length} × ${one(sets.first)}';
+  return sets.map(one).join(', ');
+}
+
+/// One set for a notification line: "8 × 100 kg", "1:30", "5 km · 25:00".
+String describeTimedOrPlain(WorkoutSet s, WeightFormat w) =>
+    s.durationSeconds != null || s.distanceMeters != null
+        ? describeTimedSets([s], w)
+        : s.weight > 0
+            ? '${s.reps} × ${w.withUnit(s.weight)}'
+            : '${s.reps}';

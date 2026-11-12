@@ -29,7 +29,7 @@ final plansProvider = FutureProvider.autoDispose<List<WorkoutPlan>>(
                   'name': p.name,
                   'exercises': [
                     for (final i in p.items)
-                      {...i.toJson(), 'exerciseName': i.exerciseName, 'category': i.category.apiName},
+                      {...i.toJson(), 'exerciseName': i.exerciseName, 'category': i.category.apiName, 'tracking': i.tracking.apiName},
                   ],
                 },
             ]),
@@ -65,3 +65,9 @@ class PlanActions {
 }
 
 final planActionsProvider = Provider<PlanActions>(PlanActions.new);
+
+/// Ready-made plans (FBW, 5×5, Push/Pull/Legs…) in the app language.
+final planTemplatesProvider = FutureProvider.autoDispose<List<PlanTemplate>>(
+  (ref) => ref.watch(planRepositoryProvider).getTemplates(),
+  retry: noRetry,
+);

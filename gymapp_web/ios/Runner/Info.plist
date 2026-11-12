@@ -18,6 +18,10 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Zdjęcia sylwetki do porównywania postępów — zostają tylko na telefonie.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Wybór zdjęć sylwetki do porównywania postępów — zostają tylko na telefonie.</string>
 	<key>CFBundleName</key>
 	<string>GymApp</string>
 	<key>CFBundlePackageType</key>

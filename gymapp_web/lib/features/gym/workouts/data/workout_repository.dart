@@ -46,6 +46,38 @@ class WorkoutRepository {
         return WorkoutStats.fromJson(res.data as Map<String, dynamic>);
       });
 
+  Future<List<ExerciseRecords>> getRecords() => _guard(() async {
+        final res = await _dio.get<dynamic>('Workouts/records');
+        return (res.data as List).cast<Map<String, dynamic>>().map(ExerciseRecords.fromJson).toList();
+      });
+
+  /// History day by day, newest first: days [from]–[to] (API default: the last 30 days, at most 400).
+  Future<List<TrainingDayDetails>> getDays({DateTime? from, DateTime? to}) => _guard(() async {
+        final res = await _dio.get<dynamic>('Workouts/days', queryParameters: {
+          if (from != null) 'from': toApiDate(from),
+          if (to != null) 'to': toApiDate(to),
+        });
+        return (res.data as List).cast<Map<String, dynamic>>().map(TrainingDayDetails.fromJson).toList();
+      });
+
+  /// A finished session (its duration goes to the history). Idempotent by [id].
+  Future<void> saveSession({
+    required String id,
+    required String name,
+    required DateTime date,
+    required DateTime startedAt,
+    required DateTime finishedAt,
+    String? planId,
+  }) =>
+      _guard(() => _dio.post<dynamic>('Workouts/sessions', data: {
+            'id': id,
+            if (planId != null) 'planId': planId,
+            'name': name,
+            'date': toApiDate(date),
+            'startedAt': startedAt.toUtc().toIso8601String(),
+            'finishedAt': finishedAt.toUtc().toIso8601String(),
+          }));
+
   /// Body weight measurements, oldest first.
   Future<List<BodyWeight>> getBodyWeights({DateTime? since}) => _guard(() async {
         final res = await _dio.get<dynamic>('BodyWeight', queryParameters: {

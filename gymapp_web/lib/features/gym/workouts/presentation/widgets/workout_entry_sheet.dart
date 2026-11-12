@@ -7,14 +7,17 @@ import 'package:intl/intl.dart';
 import '../../../../../core/errors/failure_messages.dart';
 import '../../../../../core/validation/validators.dart';
 import '../../../../../l10n/app_localizations.dart';
+import '../../../../../core/units/measures.dart';
 import '../../../../../core/units/weight_unit.dart';
+import '../../../exercises/data/models/exercise.dart';
 import '../../data/workout_models.dart';
 
 /// Must match the API (WorkoutRules).
 const kMaxSets = 30;
 const kMinReps = 1, kMaxReps = 1000;
 const kMinSetWeight = 0;
-
+const kMaxDurationSeconds = 24 * 3600;
+const kMaxDistanceKm = 1000.0;
 
 /// Bottom sheet for a new or edited entry: date + sets (reps × kg) + notes.
 /// [onSave] sends the request and may return a message to show instead of
@@ -26,7 +29,11 @@ class WorkoutEntrySheet extends StatefulWidget {
     this.prefillSets,
     required this.onSave,
     this.weights = WeightFormat.kg,
+    this.tracking = Tracking.weight,
   });
+
+  /// Which fields a set has: reps × weight, time (+ optional weight), or distance + time.
+  final Tracking tracking;
 
   /// Unit the user types in; sets are converted to kg for the API.
   final WeightFormat weights;
@@ -48,29 +55,51 @@ class _SetRow {
   /// [s] in kg (from the API); the field shows it in the unit of [w].
   _SetRow(WorkoutSet? s, WeightFormat w)
     : reps = TextEditingController(text: s == null ? '' : '${s.reps}'),
-      weight = TextEditingController(text: s == null ? '' : _fmt(w.fromKg(s.weight)));
+      weight = TextEditingController(text: s == null ? '' : _fmt(w.fromKg(s.weight))),
+      time = TextEditingController(
+        text: s?.durationSeconds == null ? '' : formatDuration(s!.durationSeconds!).replaceAll(' s', ''),
+      ),
+      distance = TextEditingController(text: s?.distanceMeters == null ? '' : _fmt(s!.distanceMeters! / 1000));
 
   /// Same values as [other] (already in the display unit).
   _SetRow.copy(_SetRow other)
     : reps = TextEditingController(text: other.reps.text),
-      weight = TextEditingController(text: other.weight.text);
+      weight = TextEditingController(text: other.weight.text),
+      time = TextEditingController(text: other.time.text),
+      distance = TextEditingController(text: other.distance.text);
 
   final TextEditingController reps;
   final TextEditingController weight;
 
-  static String _fmt(double v) => v == v.roundToDouble() ? '${v.toInt()}' : '$v';
+  /// "m:ss" (or plain seconds) — timed and distance exercises.
+  final TextEditingController time;
+
+  /// Kilometres — distance exercises.
+  final TextEditingController distance;
+
+  static String _fmt(double v) => v == v.roundToDouble() ? '${v.toInt()}' : '${double.parse(v.toStringAsFixed(2))}';
 
   void dispose() {
     reps.dispose();
     weight.dispose();
+    time.dispose();
+    distance.dispose();
   }
 }
+
+/// A set of this tracking type when there is nothing to prefill from.
+WorkoutSet defaultSet(Tracking tracking) => switch (tracking) {
+  Tracking.weight => const WorkoutSet(reps: 10, weight: 0),
+  Tracking.time => const WorkoutSet(reps: 0, weight: 0, durationSeconds: 60),
+  Tracking.distance => const WorkoutSet(reps: 0, weight: 0, durationSeconds: 1800, distanceMeters: 5000),
+};
 
 class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
   final _formKey = GlobalKey<FormState>();
   late DateTime _date = widget.initial?.date ?? DateUtils.dateOnly(DateTime.now());
   late final List<_SetRow> _rows = [
-    for (final s in widget.initial?.sets ?? widget.prefillSets ?? const [WorkoutSet(reps: 10, weight: 0)]) _SetRow(s, widget.weights),
+    for (final s in widget.initial?.sets ?? widget.prefillSets ?? [defaultSet(widget.tracking)])
+      _SetRow(s, widget.weights),
   ];
   late final _notes = TextEditingController(text: widget.initial?.notes ?? '');
   bool _saving = false;
@@ -112,7 +141,23 @@ class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
       date: _date,
       sets: [
         for (final r in _rows)
-          WorkoutSet(reps: int.parse(r.reps.text.trim()), weight: widget.weights.toKg(parseDecimal(r.weight.text) ?? 0)),
+          switch (widget.tracking) {
+            Tracking.weight => WorkoutSet(
+              reps: int.parse(r.reps.text.trim()),
+              weight: widget.weights.toKg(parseDecimal(r.weight.text) ?? 0),
+            ),
+            Tracking.time => WorkoutSet(
+              reps: 0,
+              weight: widget.weights.toKg(parseDecimal(r.weight.text) ?? 0),
+              durationSeconds: parseDuration(r.time.text),
+            ),
+            Tracking.distance => WorkoutSet(
+              reps: 0,
+              weight: 0,
+              durationSeconds: parseDuration(r.time.text),
+              distanceMeters: ((parseDecimal(r.distance.text) ?? 0) * 1000).roundToDouble(),
+            ),
+          },
       ],
       notes: _notes.text,
     );
@@ -131,6 +176,20 @@ class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
         ..showSnackBar(SnackBar(content: Text(describeError(t, e))));
     }
   }
+
+  /// "m:ss" — typed (with ":" on the keyboard), checked against the API limit.
+  Widget _timeField(AppLocalizations t, int i) => TextFormField(
+    key: Key('workout.set$i.time'),
+    controller: _rows[i].time,
+    enabled: !_saving,
+    keyboardType: TextInputType.datetime,
+    decoration: InputDecoration(labelText: t.durationLabel, hintText: '1:30'),
+    validator: (v) {
+      final s = parseDuration(v ?? '');
+      if (s == null || s < 1 || s > kMaxDurationSeconds) return t.invalidDuration;
+      return null;
+    },
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -168,37 +227,66 @@ class _WorkoutEntrySheetState extends State<WorkoutEntrySheet> {
                         padding: const EdgeInsets.only(top: 14, right: 8),
                         child: CircleAvatar(radius: 13, child: Text('${i + 1}', style: theme.textTheme.labelMedium)),
                       ),
-                      Expanded(
-                        child: _StepperField(
-                          fieldKey: Key('workout.set$i.reps'),
-                          controller: _rows[i].reps,
-                          enabled: !_saving,
-                          label: t.reps,
-                          step: 1,
-                          integer: true,
-                          min: kMinReps.toDouble(),
-                          max: kMaxReps.toDouble(),
-                          validator: (v) {
-                            final n = int.tryParse((v ?? '').trim());
-                            if (n == null) return t.invalidNumber;
-                            if (n < kMinReps || n > kMaxReps) return t.numberOutOfRange(kMinReps, kMaxReps);
-                            return null;
-                          },
+                      if (widget.tracking == Tracking.distance) ...[
+                        Expanded(
+                          child: _StepperField(
+                            fieldKey: Key('workout.set$i.distance'),
+                            controller: _rows[i].distance,
+                            enabled: !_saving,
+                            label: t.distanceKm,
+                            step: 0.5,
+                            min: 0,
+                            max: kMaxDistanceKm,
+                            validator: (v) {
+                              final km = parseDecimal(v ?? '');
+                              final ok = km != null && km > 0 && km <= kMaxDistanceKm;
+                              return ok ? null : t.numberOutOfRange(0, kMaxDistanceKm.toInt());
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _StepperField(
-                          fieldKey: Key('workout.set$i.weight'),
-                          controller: _rows[i].weight,
-                          enabled: !_saving,
-                          label: widget.weights.label,
-                          step: widget.weights.step,
-                          min: kMinSetWeight.toDouble(),
-                          max: widget.weights.maxSetWeight,
-                          validator: (v) => validateOptionalNumber(t, v, min: kMinSetWeight, max: widget.weights.maxSetWeight.floor()),
+                        const SizedBox(width: 8),
+                      ],
+                      if (widget.tracking != Tracking.weight)
+                        Expanded(child: _timeField(t, i))
+                      else
+                        Expanded(
+                          child: _StepperField(
+                            fieldKey: Key('workout.set$i.reps'),
+                            controller: _rows[i].reps,
+                            enabled: !_saving,
+                            label: t.reps,
+                            step: 1,
+                            integer: true,
+                            min: kMinReps.toDouble(),
+                            max: kMaxReps.toDouble(),
+                            validator: (v) {
+                              final n = int.tryParse((v ?? '').trim());
+                              if (n == null) return t.invalidNumber;
+                              if (n < kMinReps || n > kMaxReps) return t.numberOutOfRange(kMinReps, kMaxReps);
+                              return null;
+                            },
+                          ),
                         ),
-                      ),
+                      if (widget.tracking != Tracking.distance) ...[
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: _StepperField(
+                            fieldKey: Key('workout.set$i.weight'),
+                            controller: _rows[i].weight,
+                            enabled: !_saving,
+                            label: widget.weights.label,
+                            step: widget.weights.step,
+                            min: kMinSetWeight.toDouble(),
+                            max: widget.weights.maxSetWeight,
+                            validator: (v) => validateOptionalNumber(
+                              t,
+                              v,
+                              min: kMinSetWeight,
+                              max: widget.weights.maxSetWeight.floor(),
+                            ),
+                          ),
+                        ),
+                      ],
                       IconButton(
                         tooltip: t.removeSet,
                         onPressed: _saving || _rows.length == 1 ? null : () => _removeSet(i),
@@ -342,19 +430,19 @@ class _RepeatingButtonState extends State<_RepeatingButton> {
 
   @override
   Widget build(BuildContext context) => Semantics(
-        label: widget.label,
-        button: true,
-        excludeSemantics: true,
-        child: GestureDetector(
-          onLongPressStart: (_) => _start(),
-          onLongPressEnd: (_) => _stop(),
-          onLongPressCancel: _stop,
-          child: IconButton(
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            visualDensity: VisualDensity.compact,
-            onPressed: widget.onStep,
-            icon: Icon(widget.icon),
-          ),
-        ),
-      );
+    label: widget.label,
+    button: true,
+    excludeSemantics: true,
+    child: GestureDetector(
+      onLongPressStart: (_) => _start(),
+      onLongPressEnd: (_) => _stop(),
+      onLongPressCancel: _stop,
+      child: IconButton(
+        constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+        visualDensity: VisualDensity.compact,
+        onPressed: widget.onStep,
+        icon: Icon(widget.icon),
+      ),
+    ),
+  );
 }

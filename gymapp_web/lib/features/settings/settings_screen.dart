@@ -3,12 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../core/errors/failure_messages.dart';
+import '../../core/home_widget_sync.dart';
+import '../../core/logging/app_logger.dart';
 import '../../core/network/offline_cache.dart';
 import '../../core/units/weight_unit.dart';
 import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
 import '../gym/progress/badges.dart';
 import '../gym/session/session_providers.dart';
+import '../profile/presentation/widgets/progress_photos.dart';
+import 'data_export.dart';
 import 'privacy_policy_screen.dart';
 import '../gym/workouts/presentation/pending_workouts.dart';
 import '../gym/workouts/presentation/rest_alarm.dart';
@@ -93,6 +97,7 @@ class SettingsScreen extends ConsumerWidget {
             const Divider(),
             const _RemindersSection(),
             const Divider(),
+            const _ExportTile(),
             ListTile(
               key: const Key('settings.privacy'),
               leading: const Icon(Icons.privacy_tip_outlined),
@@ -148,13 +153,30 @@ class SettingsScreen extends ConsumerWidget {
   }
 
   /// What this device keeps for the signed-in account: the offline queue,
-  /// an unfinished session, earned badges and data saved for offline use.
+  /// an unfinished session, earned badges, data saved for offline use and progress photos.
   /// Device settings (theme, unit, reminders) stay.
+  ///
+  /// Each step on its own: one failing (e.g. the file system) must not stop the
+  /// others, nor the logout itself.
   static Future<void> _forgetLocalData(WidgetRef ref) async {
-    await ref.read(pendingWorkoutsProvider.notifier).clear();
-    if (ref.read(activeSessionProvider) != null) ref.read(activeSessionProvider.notifier).discard();
-    await ref.read(earnedBadgesProvider.notifier).clear();
-    await ref.read(responseCacheProvider).clear();
+    final steps = <Future<void> Function()>[
+      () => ref.read(pendingWorkoutsProvider.notifier).clear(),
+      () async {
+        if (ref.read(activeSessionProvider) != null) ref.read(activeSessionProvider.notifier).discard();
+      },
+      () => ref.read(earnedBadgesProvider.notifier).clear(),
+      () => ref.read(responseCacheProvider).clear(),
+      // Photos are personal — the next account must not see them.
+      () async => ref.read(progressPhotoStoreProvider)?.clearAll(),
+      () => ref.read(homeWidgetSyncProvider).clear(),
+    ];
+    for (final step in steps) {
+      try {
+        await step();
+      } catch (e) {
+        log.w('Clearing local data failed: $e');
+      }
+    }
   }
 }
 
@@ -353,6 +375,44 @@ class _RemindersSection extends ConsumerWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// "Export my data": the full JSON and the workouts as CSV, through the share sheet.
+class _ExportTile extends ConsumerStatefulWidget {
+  const _ExportTile();
+
+  @override
+  ConsumerState<_ExportTile> createState() => _ExportTileState();
+}
+
+class _ExportTileState extends ConsumerState<_ExportTile> {
+  bool _busy = false;
+
+  Future<void> _export() async {
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _busy = true);
+    try {
+      await ref.read(dataExportProvider).shareFiles();
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(describeError(t, e))));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    return ListTile(
+      key: const Key('settings.export'),
+      leading: const Icon(Icons.download_outlined),
+      title: Text(t.exportData),
+      subtitle: Text(t.exportDataHint),
+      trailing: _busy ? const SizedBox.square(dimension: 20, child: CircularProgressIndicator(strokeWidth: 2)) : null,
+      onTap: _busy ? null : _export,
     );
   }
 }

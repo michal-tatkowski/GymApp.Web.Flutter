@@ -13,6 +13,9 @@ class StorageKeys {
   static const locale = 'settings.locale';
   static const restTimerSeconds = 'settings.rest_timer_seconds';
   static const weightUnit = 'settings.weight_unit';
+
+  /// Barbell for the plate calculator, in the user's unit (e.g. "20" kg or "45" lb).
+  static const barWeight = 'settings.bar_weight';
   static const reminders = 'settings.reminders';
 
   /// Workouts logged without a connection (JSON list), see PendingWorkouts.

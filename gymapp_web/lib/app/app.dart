@@ -1,3 +1,4 @@
+import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -31,6 +32,16 @@ class GymApp extends ConsumerWidget {
         AppLocalizations.delegate,
       ],
       routerConfig: router,
+      scrollBehavior: const _AppScrollBehavior(),
     );
   }
+}
+
+/// Lists (and pull-to-refresh) also follow a mouse drag — on a phone nothing
+/// changes; in the browser and on desktop "pull down to refresh" works too.
+class _AppScrollBehavior extends MaterialScrollBehavior {
+  const _AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {...super.dragDevices, PointerDeviceKind.mouse};
 }

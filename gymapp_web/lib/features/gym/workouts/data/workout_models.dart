@@ -11,24 +11,45 @@ DateTime fromApiDate(String s) {
 
 double _num(dynamic v) => (v as num?)?.toDouble() ?? 0;
 
-/// One set: reps × weight in kg (0 = bodyweight).
+/// One set: reps × weight in kg (0 = bodyweight). Timed / cardio exercises
+/// ([Tracking.time], [Tracking.distance]) also have [durationSeconds] and
+/// [distanceMeters]; their reps may be 0.
 class WorkoutSet {
-  const WorkoutSet({required this.reps, required this.weight});
+  const WorkoutSet({required this.reps, required this.weight, this.durationSeconds, this.distanceMeters});
 
   final int reps;
   final double weight;
+  final int? durationSeconds;
+  final double? distanceMeters;
 
-  factory WorkoutSet.fromJson(Map<String, dynamic> json) =>
-      WorkoutSet(reps: (json['reps'] as num).toInt(), weight: _num(json['weight']));
+  factory WorkoutSet.fromJson(Map<String, dynamic> json) => WorkoutSet(
+        reps: (json['reps'] as num).toInt(),
+        weight: _num(json['weight']),
+        durationSeconds: (json['durationSeconds'] as num?)?.toInt(),
+        distanceMeters: (json['distanceMeters'] as num?)?.toDouble(),
+      );
 
-  Map<String, dynamic> toJson() => {'reps': reps, 'weight': weight};
+  Map<String, dynamic> toJson() => {
+        'reps': reps,
+        'weight': weight,
+        if (durationSeconds != null) 'durationSeconds': durationSeconds,
+        if (distanceMeters != null) 'distanceMeters': distanceMeters,
+      };
 
   @override
-  bool operator ==(Object other) => other is WorkoutSet && other.reps == reps && other.weight == weight;
+  bool operator ==(Object other) =>
+      other is WorkoutSet &&
+      other.reps == reps &&
+      other.weight == weight &&
+      other.durationSeconds == durationSeconds &&
+      other.distanceMeters == distanceMeters;
 
   @override
-  int get hashCode => Object.hash(reps, weight);
+  int get hashCode => Object.hash(reps, weight, durationSeconds, distanceMeters);
 }
+
+int totalDuration(Iterable<WorkoutSet> sets) => sets.fold(0, (sum, s) => sum + (s.durationSeconds ?? 0));
+double totalDistance(Iterable<WorkoutSet> sets) => sets.fold(0.0, (sum, s) => sum + (s.distanceMeters ?? 0));
 
 /// One training entry: day + sets (+ notes). Volume = Σ reps × weight.
 class WorkoutEntry {
@@ -119,6 +140,7 @@ class WorkoutLog {
     required this.exerciseName,
     required this.category,
     required this.entries,
+    this.tracking = Tracking.weight,
   });
 
   final String exerciseId;
@@ -127,12 +149,14 @@ class WorkoutLog {
 
   /// Newest first.
   final List<WorkoutEntry> entries;
+  final Tracking tracking;
 
   factory WorkoutLog.fromJson(Map<String, dynamic> json) => WorkoutLog(
         exerciseId: json['exerciseId'].toString(),
         exerciseName: json['exerciseName'] as String,
         category: ExerciseCategoryX.fromJson(json['category']),
         entries: (json['entries'] as List).cast<Map<String, dynamic>>().map(WorkoutEntry.fromJson).toList(),
+        tracking: TrackingX.fromJson(json['tracking']),
       );
 }
 
@@ -147,6 +171,9 @@ class WorkoutSummary {
     required this.lastVolume,
     required this.bestVolume,
     required this.lastTotalReps,
+    this.tracking = Tracking.weight,
+    this.lastDurationSeconds = 0,
+    this.lastDistanceMeters = 0,
   });
 
   final String exerciseId;
@@ -157,6 +184,9 @@ class WorkoutSummary {
   final double lastVolume;
   final double bestVolume;
   final int lastTotalReps;
+  final Tracking tracking;
+  final int lastDurationSeconds;
+  final double lastDistanceMeters;
 
   factory WorkoutSummary.fromJson(Map<String, dynamic> json) => WorkoutSummary(
         exerciseId: json['exerciseId'].toString(),
@@ -167,6 +197,9 @@ class WorkoutSummary {
         lastVolume: _num(json['lastVolume']),
         bestVolume: _num(json['bestVolume']),
         lastTotalReps: (json['lastTotalReps'] as num?)?.toInt() ?? 0,
+        tracking: TrackingX.fromJson(json['tracking']),
+        lastDurationSeconds: (json['lastDurationSeconds'] as num?)?.toInt() ?? 0,
+        lastDistanceMeters: _num(json['lastDistanceMeters']),
       );
 }
 
@@ -179,6 +212,9 @@ class ProgressPoint {
     required this.maxWeight,
     required this.sets,
     this.estimatedOneRepMax = 0,
+    this.totalDurationSeconds = 0,
+    this.totalDistanceMeters = 0,
+    this.bestDurationSeconds = 0,
   });
 
   final DateTime date;
@@ -186,6 +222,11 @@ class ProgressPoint {
   final int totalReps;
   final double maxWeight;
   final int sets;
+  final int totalDurationSeconds;
+  final double totalDistanceMeters;
+
+  /// Longest single set of the day (plank).
+  final int bestDurationSeconds;
 
   /// Best estimated one-rep max of the day (Epley).
   final double estimatedOneRepMax;
@@ -197,6 +238,9 @@ class ProgressPoint {
         maxWeight: _num(json['maxWeight']),
         sets: (json['sets'] as num).toInt(),
         estimatedOneRepMax: _num(json['estimatedOneRepMax']),
+        totalDurationSeconds: (json['totalDurationSeconds'] as num?)?.toInt() ?? 0,
+        totalDistanceMeters: _num(json['totalDistanceMeters']),
+        bestDurationSeconds: (json['bestDurationSeconds'] as num?)?.toInt() ?? 0,
       );
 }
 
@@ -257,4 +301,135 @@ class BodyWeight {
 
   factory BodyWeight.fromJson(Map<String, dynamic> json) =>
       BodyWeight(date: fromApiDate(json['date'] as String), kg: _num(json['weightKg']));
+}
+
+/// A finished session (from a plan or "repeat"): when and how long.
+class WorkoutSessionInfo {
+  const WorkoutSessionInfo({required this.id, required this.name, required this.startedAt, required this.finishedAt, this.planId});
+
+  final String id;
+  final String? planId;
+  final String name;
+  final DateTime startedAt;
+  final DateTime finishedAt;
+
+  Duration get duration => finishedAt.difference(startedAt);
+
+  factory WorkoutSessionInfo.fromJson(Map<String, dynamic> json) => WorkoutSessionInfo(
+        id: json['id'].toString(),
+        planId: json['planId']?.toString(),
+        name: json['name'] as String,
+        startedAt: DateTime.parse(json['startedAt'] as String).toLocal(),
+        finishedAt: DateTime.parse(json['finishedAt'] as String).toLocal(),
+      );
+}
+
+/// One exercise of a day in the history, with all its entries of that day.
+class DayExercise {
+  const DayExercise({
+    required this.exerciseId,
+    required this.exerciseName,
+    required this.category,
+    required this.tracking,
+    required this.entries,
+  });
+
+  final String exerciseId;
+  final String exerciseName;
+  final ExerciseCategory category;
+  final Tracking tracking;
+  final List<WorkoutEntry> entries;
+
+  List<WorkoutSet> get sets => [for (final e in entries) ...e.sets];
+
+  factory DayExercise.fromJson(Map<String, dynamic> json) => DayExercise(
+        exerciseId: json['exerciseId'].toString(),
+        exerciseName: json['exerciseName'] as String,
+        category: ExerciseCategoryX.fromJson(json['category']),
+        tracking: TrackingX.fromJson(json['tracking']),
+        entries: (json['entries'] as List).cast<Map<String, dynamic>>().map(WorkoutEntry.fromJson).toList(),
+      );
+}
+
+/// A day in the history: exercises in training order and the sessions of that day.
+class TrainingDayDetails {
+  const TrainingDayDetails({required this.date, required this.exercises, this.sessions = const []});
+
+  final DateTime date;
+  final List<DayExercise> exercises;
+  final List<WorkoutSessionInfo> sessions;
+
+  int get sets => exercises.fold(0, (n, e) => n + e.sets.length);
+  double get volumeKg => exercises.fold(0.0, (v, e) => v + e.sets.fold(0.0, (w, s) => w + s.reps * s.weight));
+
+  factory TrainingDayDetails.fromJson(Map<String, dynamic> json) => TrainingDayDetails(
+        date: fromApiDate(json['date'] as String),
+        exercises: (json['exercises'] as List).cast<Map<String, dynamic>>().map(DayExercise.fromJson).toList(),
+        sessions: (json['sessions'] as List? ?? const []).cast<Map<String, dynamic>>().map(WorkoutSessionInfo.fromJson).toList(),
+      );
+}
+
+/// A best result: value, the day it was first reached and (for a set) reps × weight.
+class RecordValue {
+  const RecordValue({required this.value, required this.date, this.reps, this.weight});
+
+  final double value;
+  final DateTime date;
+  final int? reps;
+  final double? weight;
+
+  static RecordValue? fromJson(dynamic json) => json is Map<String, dynamic>
+      ? RecordValue(
+          value: _num(json['value']),
+          date: fromApiDate(json['date'] as String),
+          reps: (json['reps'] as num?)?.toInt(),
+          weight: (json['weight'] as num?)?.toDouble(),
+        )
+      : null;
+}
+
+/// All-time bests of one exercise (api/Workouts/records).
+class ExerciseRecords {
+  const ExerciseRecords({
+    required this.exerciseId,
+    required this.exerciseName,
+    required this.category,
+    required this.tracking,
+    required this.trainingDays,
+    required this.lastDate,
+    this.bestOneRepMax,
+    this.heaviestWeight,
+    this.bestDayVolume,
+    this.mostReps,
+    this.longestDuration,
+    this.longestDistance,
+  });
+
+  final String exerciseId;
+  final String exerciseName;
+  final ExerciseCategory category;
+  final Tracking tracking;
+  final int trainingDays;
+  final DateTime lastDate;
+  final RecordValue? bestOneRepMax;
+  final RecordValue? heaviestWeight;
+  final RecordValue? bestDayVolume;
+  final RecordValue? mostReps;
+  final RecordValue? longestDuration;
+  final RecordValue? longestDistance;
+
+  factory ExerciseRecords.fromJson(Map<String, dynamic> json) => ExerciseRecords(
+        exerciseId: json['exerciseId'].toString(),
+        exerciseName: json['exerciseName'] as String,
+        category: ExerciseCategoryX.fromJson(json['category']),
+        tracking: TrackingX.fromJson(json['tracking']),
+        trainingDays: (json['trainingDays'] as num?)?.toInt() ?? 0,
+        lastDate: fromApiDate(json['lastDate'] as String),
+        bestOneRepMax: RecordValue.fromJson(json['bestOneRepMax']),
+        heaviestWeight: RecordValue.fromJson(json['heaviestWeight']),
+        bestDayVolume: RecordValue.fromJson(json['bestDayVolume']),
+        mostReps: RecordValue.fromJson(json['mostReps']),
+        longestDuration: RecordValue.fromJson(json['longestDuration']),
+        longestDistance: RecordValue.fromJson(json['longestDistance']),
+      );
 }

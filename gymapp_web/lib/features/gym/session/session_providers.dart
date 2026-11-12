@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -8,9 +10,14 @@ import '../../../core/errors/failure.dart';
 import '../../../core/logging/app_logger.dart';
 import '../../../core/storage/secure_storage_keys.dart';
 import '../../../core/units/weight_unit.dart';
+import '../../../core/utils/uuid.dart';
 import '../exercises/data/models/exercise.dart';
 import '../plans/data/plan_models.dart';
 import '../workouts/data/workout_models.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../settings/presentation/settings_providers.dart';
+import '../workouts/presentation/exercise_workouts_screen.dart' show describeTimedOrPlain;
+import '../workouts/presentation/rest_alarm.dart';
 import '../workouts/presentation/rest_timer.dart';
 import '../workouts/presentation/workout_providers.dart';
 import 'session_models.dart';
@@ -30,8 +37,41 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
   @override
   WorkoutSession? build() {
     _restore();
+    // In the background a notification shows what is next, with "Set done".
+    final lifecycle = AppLifecycleListener(onHide: _showNotification, onShow: _clearNotification);
+    final actions = ref.read(restAlarmProvider).actions.listen((action) {
+      if (action == kSessionDoneAction) tickNext();
+    });
+    ref.onDispose(() {
+      lifecycle.dispose();
+      actions.cancel();
+    });
     return null;
   }
+
+  /// "Set done" from the notification: the first open set of the current exercise.
+  void tickNext() {
+    final s = state;
+    if (s == null) return;
+    final set = s.currentExercise.saved ? -1 : s.currentExercise.sets.indexWhere((x) => !x.done);
+    if (set >= 0) toggleDone(s.current, set);
+  }
+
+  /// "Push A · Bench press" / "Set 2 of 3 · 8 × 100 kg".
+  void _showNotification() {
+    final s = state;
+    if (s == null) return;
+    final t = lookupAppLocalizations(ref.read(localeProvider));
+    final e = s.currentExercise;
+    final next = e.saved ? -1 : e.sets.indexWhere((x) => !x.done);
+    final weights = ref.read(weightFormatProvider);
+    final body = next < 0
+        ? t.sessionNotificationDone
+        : '${t.sessionNotificationSet(next + 1, e.sets.length)} · ${describeTimedOrPlain(e.sets[next].toWorkoutSet(), weights)}';
+    ref.read(restAlarmProvider).showSession(title: '${s.planName} · ${e.name}', body: body, t: t);
+  }
+
+  void _clearNotification() => ref.read(restAlarmProvider).clearSession();
 
   Future<void> _restore() async {
     final raw = (await SharedPreferences.getInstance()).getString(StorageKeys.activeSession);
@@ -54,6 +94,9 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
   /// Starts [plan]: loads the last workout of each exercise (for the hints); offline
   /// the exercises simply start without hints.
   Future<void> start(WorkoutPlan plan) async {
+    // In context: the workout notification (and the rest alerts) need it, and leaving
+    // the app before the first rest — the timer's own ask — would show nothing.
+    unawaited(ref.read(restAlarmProvider).requestPermission());
     final repo = ref.read(workoutRepositoryProvider);
     final weights = ref.read(weightFormatProvider);
     final last = await Future.wait(plan.items.map((item) async {
@@ -66,7 +109,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
     }));
     _records.clear();
     _set(WorkoutSession(
-      planId: plan.id,
+      planId: plan.id.isEmpty ? null : plan.id, // "" = a repeated workout, not a saved plan
       planName: plan.name,
       startedAt: DateTime.now(),
       exercises: [for (var i = 0; i < plan.items.length; i++) SessionExercise.fromPlan(plan.items[i], last[i], weights)],
@@ -137,7 +180,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
   Future<void> addExercise(Exercise exercise, WorkoutActions actions) async {
     final s = state;
     if (s == null) return;
-    final item = PlanItem(exerciseId: exercise.id, exerciseName: exercise.name, category: exercise.category);
+    final item = PlanItem(exerciseId: exercise.id, exerciseName: exercise.name, category: exercise.category, tracking: exercise.tracking);
     List<WorkoutSet>? last;
     try {
       last = (await ref.read(workoutRepositoryProvider).getLog(exercise.id)).entries.firstOrNull?.sets;
@@ -177,7 +220,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       exercise.exerciseId,
       WorkoutEntryRequest(
         date: DateTime(now.year, now.month, now.day),
-        sets: [for (final s in exercise.doneSets) WorkoutSet(reps: s.reps, weight: s.weightKg)],
+        sets: [for (final s in exercise.doneSets) s.toWorkoutSet()],
       ),
     );
     if (record != null) _records.add(exercise.name);
@@ -200,14 +243,36 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       volumeKg: done.fold(0.0, (v, e) => v + e.doneSets.fold(0.0, (w, s) => w + s.reps * s.weightKg)),
       records: _records.toList(),
     );
+    if (done.isNotEmpty) unawaited(_recordSession(s));
+    _clearNotification();
     _set(null);
     ref.read(restTimerProvider.notifier).stop();
     return summary;
   }
 
+  /// Duration and name for the history. Best effort: without a connection the history
+  /// simply shows the day without its duration (the sets themselves are queued).
+  Future<void> _recordSession(WorkoutSession s) async {
+    final now = DateTime.now();
+    try {
+      await ref.read(workoutRepositoryProvider).saveSession(
+            id: newUuid(),
+            planId: s.planId == null || s.planId!.isEmpty ? null : s.planId,
+            name: s.planName,
+            date: DateTime(s.startedAt.year, s.startedAt.month, s.startedAt.day),
+            startedAt: s.startedAt,
+            finishedAt: now,
+          );
+      if (ref.mounted) ref.invalidate(trainingDaysProvider);
+    } catch (e) {
+      log.w('Session not recorded: $e');
+    }
+  }
+
   /// Ends without saving the remaining sets (exercises already saved stay in the history).
   void discard() {
     _set(null);
+    _clearNotification();
     ref.read(restTimerProvider.notifier).stop();
   }
 }

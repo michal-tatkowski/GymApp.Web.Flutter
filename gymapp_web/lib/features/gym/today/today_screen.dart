@@ -20,6 +20,8 @@ import '../workouts/data/workout_models.dart';
 import 'week_summary.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/pending_workouts.dart';
+import '../goals/goals_card.dart';
+import '../history/history_screen.dart';
 import '../workouts/presentation/workout_providers.dart';
 
 /// Start tab: quick log from favorites + what was done today.
@@ -46,7 +48,7 @@ class TodayScreen extends ConsumerWidget {
         if (!isOfflineFailure(e)) rethrow;
       }
       if (!context.mounted) return;
-      await ExerciseWorkoutsScreen.openEntrySheet(context, ref, exercise.id, prefill: prefill);
+      await ExerciseWorkoutsScreen.openEntrySheet(context, ref, exercise.id, prefill: prefill, tracking: exercise.tracking);
     } catch (e) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(describeError(t, e))));
@@ -139,9 +141,11 @@ class TodayScreen extends ConsumerWidget {
 
             // ── This week ──────────────────────────────────────────────
             const WeekSummaryCard(),
+            const GoalsCard(),
 
             // ── Plans ──────────────────────────────────────────────────
             PlansSection(onStart: (plan) => startSession(context, ref, plan)),
+            if (session == null) const RepeatLastCard(),
             const SizedBox(height: 8),
 
             // ── Done today ─────────────────────────────────────────────

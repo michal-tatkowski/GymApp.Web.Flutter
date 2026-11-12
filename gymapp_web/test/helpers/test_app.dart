@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -235,6 +237,17 @@ class FakeRestAlarm implements RestAlarm {
   Future<bool> canAlertOnTime() async => onTime;
   @override
   Future<void> openExactAlarmSettings() async => calls.add('exactSettings');
+
+  final sessionNotes = <String>[];
+  final actionController = StreamController<String>.broadcast();
+
+  @override
+  Future<void> showSession({required String title, required String body, required AppLocalizations t}) async =>
+      sessionNotes.add('$title | $body');
+  @override
+  Future<void> clearSession() async => calls.add('clearSession');
+  @override
+  Stream<String> get actions => actionController.stream;
 }
 
 /// In-memory api/Plans.
@@ -245,6 +258,11 @@ class FakePlanRepository extends PlanRepository {
   Object? error;
   final saved = <PlanRequest>[];
   int _id = 0;
+
+  List<PlanTemplate> templates = const [];
+
+  @override
+  Future<List<PlanTemplate>> getTemplates() async => templates;
 
   @override
   Future<List<WorkoutPlan>> getPlans() async {

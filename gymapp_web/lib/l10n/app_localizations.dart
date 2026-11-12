@@ -500,6 +500,606 @@ abstract class AppLocalizations {
   /// **'Reps'**
   String get metricReps;
 
+  /// No description provided for @metricTotalTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get metricTotalTime;
+
+  /// No description provided for @metricLongestSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest'**
+  String get metricLongestSet;
+
+  /// No description provided for @metricDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get metricDistance;
+
+  /// No description provided for @durationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Time (m:ss)'**
+  String get durationLabel;
+
+  /// No description provided for @invalidDuration.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the time as m:ss, e.g. 1:30'**
+  String get invalidDuration;
+
+  /// No description provided for @distanceKm.
+  ///
+  /// In en, this message translates to:
+  /// **'km'**
+  String get distanceKm;
+
+  /// No description provided for @trackingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Measured by'**
+  String get trackingLabel;
+
+  /// No description provided for @trackingWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps × weight'**
+  String get trackingWeight;
+
+  /// No description provided for @trackingTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get trackingTime;
+
+  /// No description provided for @trackingDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance + time'**
+  String get trackingDistance;
+
+  /// No description provided for @plateCalculator.
+  ///
+  /// In en, this message translates to:
+  /// **'Plates'**
+  String get plateCalculator;
+
+  /// No description provided for @platesPerSide.
+  ///
+  /// In en, this message translates to:
+  /// **'On each side'**
+  String get platesPerSide;
+
+  /// No description provided for @platesBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar {weight}'**
+  String platesBar(String weight);
+
+  /// No description provided for @platesRemainder.
+  ///
+  /// In en, this message translates to:
+  /// **'{weight} short — not possible exactly with standard plates'**
+  String platesRemainder(String weight);
+
+  /// No description provided for @platesJustBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Just the empty bar'**
+  String get platesJustBar;
+
+  /// No description provided for @platesBelowBar.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighter than the bar — use dumbbells or a lighter bar'**
+  String get platesBelowBar;
+
+  /// No description provided for @barWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Barbell'**
+  String get barWeight;
+
+  /// No description provided for @barWeightHint.
+  ///
+  /// In en, this message translates to:
+  /// **'For the plate calculator in a workout (tap the weight)'**
+  String get barWeightHint;
+
+  /// No description provided for @plateCalculatorHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the weight to see the plates'**
+  String get plateCalculatorHint;
+
+  /// No description provided for @exportData.
+  ///
+  /// In en, this message translates to:
+  /// **'Export my data'**
+  String get exportData;
+
+  /// No description provided for @exportDataHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Everything as JSON, workouts as CSV (Excel, Sheets)'**
+  String get exportDataHint;
+
+  /// No description provided for @sessionChannel.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout in progress'**
+  String get sessionChannel;
+
+  /// No description provided for @sessionNotificationSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {set} of {total}'**
+  String sessionNotificationSet(int set, int total);
+
+  /// No description provided for @sessionNotificationDone.
+  ///
+  /// In en, this message translates to:
+  /// **'All sets done — on to the next exercise'**
+  String get sessionNotificationDone;
+
+  /// No description provided for @measurements.
+  ///
+  /// In en, this message translates to:
+  /// **'Measurements'**
+  String get measurements;
+
+  /// No description provided for @addMeasurement.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s measurements'**
+  String get addMeasurement;
+
+  /// No description provided for @measurementsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Waist, chest, hips, arm, thigh, neck — track what you like.'**
+  String get measurementsEmpty;
+
+  /// No description provided for @measurementsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Fill in only what you measured (cm).'**
+  String get measurementsHint;
+
+  /// No description provided for @measurementsNeedOne.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter at least one measurement.'**
+  String get measurementsNeedOne;
+
+  /// No description provided for @partWaist.
+  ///
+  /// In en, this message translates to:
+  /// **'Waist'**
+  String get partWaist;
+
+  /// No description provided for @partChest.
+  ///
+  /// In en, this message translates to:
+  /// **'Chest'**
+  String get partChest;
+
+  /// No description provided for @partHips.
+  ///
+  /// In en, this message translates to:
+  /// **'Hips'**
+  String get partHips;
+
+  /// No description provided for @partArm.
+  ///
+  /// In en, this message translates to:
+  /// **'Arm'**
+  String get partArm;
+
+  /// No description provided for @partThigh.
+  ///
+  /// In en, this message translates to:
+  /// **'Thigh'**
+  String get partThigh;
+
+  /// No description provided for @partNeck.
+  ///
+  /// In en, this message translates to:
+  /// **'Neck'**
+  String get partNeck;
+
+  /// No description provided for @progressPhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress photos'**
+  String get progressPhotos;
+
+  /// No description provided for @progressPhotosPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Stay only on this phone — never uploaded. Deleted when you log out.'**
+  String get progressPhotosPrivate;
+
+  /// No description provided for @addPhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a photo'**
+  String get addPhoto;
+
+  /// No description provided for @photoCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Take a photo'**
+  String get photoCamera;
+
+  /// No description provided for @photoGallery.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from gallery'**
+  String get photoGallery;
+
+  /// No description provided for @photoOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo of {date}'**
+  String photoOf(String date);
+
+  /// No description provided for @comparePhotos.
+  ///
+  /// In en, this message translates to:
+  /// **'Compare with the first'**
+  String get comparePhotos;
+
+  /// No description provided for @deletePhoto.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this photo?'**
+  String get deletePhoto;
+
+  /// No description provided for @records.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get records;
+
+  /// No description provided for @recordOneRepMax.
+  ///
+  /// In en, this message translates to:
+  /// **'Best 1RM (estimated)'**
+  String get recordOneRepMax;
+
+  /// No description provided for @recordHeaviest.
+  ///
+  /// In en, this message translates to:
+  /// **'Heaviest set'**
+  String get recordHeaviest;
+
+  /// No description provided for @recordDayVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Best day (volume)'**
+  String get recordDayVolume;
+
+  /// No description provided for @recordMostReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Most reps in a set'**
+  String get recordMostReps;
+
+  /// No description provided for @recordLongest.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest set'**
+  String get recordLongest;
+
+  /// No description provided for @recordDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Longest distance'**
+  String get recordDistance;
+
+  /// No description provided for @summaryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get summaryTitle;
+
+  /// No description provided for @summaryMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get summaryMonth;
+
+  /// No description provided for @summaryYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get summaryYear;
+
+  /// No description provided for @summaryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts in this period.'**
+  String get summaryEmpty;
+
+  /// No description provided for @summaryWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'workouts'**
+  String get summaryWorkouts;
+
+  /// No description provided for @summarySets.
+  ///
+  /// In en, this message translates to:
+  /// **'sets'**
+  String get summarySets;
+
+  /// No description provided for @summaryVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'lifted'**
+  String get summaryVolume;
+
+  /// No description provided for @summaryTime.
+  ///
+  /// In en, this message translates to:
+  /// **'training time'**
+  String get summaryTime;
+
+  /// No description provided for @summaryRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'records'**
+  String get summaryRecords;
+
+  /// No description provided for @summarySetsPerWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'sets / workout'**
+  String get summarySetsPerWorkout;
+
+  /// No description provided for @summaryTopExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Most trained'**
+  String get summaryTopExercises;
+
+  /// No description provided for @share.
+  ///
+  /// In en, this message translates to:
+  /// **'Share'**
+  String get share;
+
+  /// No description provided for @previous.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previous;
+
+  /// No description provided for @next.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get next;
+
+  /// No description provided for @more.
+  ///
+  /// In en, this message translates to:
+  /// **'More'**
+  String get more;
+
+  /// No description provided for @goals.
+  ///
+  /// In en, this message translates to:
+  /// **'Goals'**
+  String get goals;
+
+  /// No description provided for @addGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'New goal'**
+  String get addGoal;
+
+  /// No description provided for @noGoalsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a goal: a weight to lift, workouts per week or a body weight.'**
+  String get noGoalsYet;
+
+  /// No description provided for @goalKindExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Lift'**
+  String get goalKindExercise;
+
+  /// No description provided for @goalKindWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Per week'**
+  String get goalKindWeekly;
+
+  /// No description provided for @goalKindBodyWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Body weight'**
+  String get goalKindBodyWeight;
+
+  /// No description provided for @goalPickExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the exercise'**
+  String get goalPickExercise;
+
+  /// No description provided for @goalTargetWeight.
+  ///
+  /// In en, this message translates to:
+  /// **'Target weight'**
+  String get goalTargetWeight;
+
+  /// No description provided for @goalTargetWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts per week'**
+  String get goalTargetWorkouts;
+
+  /// No description provided for @goalNoDeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'No deadline (optional)'**
+  String get goalNoDeadline;
+
+  /// No description provided for @goalBy.
+  ///
+  /// In en, this message translates to:
+  /// **'by {date}'**
+  String goalBy(String date);
+
+  /// No description provided for @goalExerciseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{exercise}: {weight}'**
+  String goalExerciseTitle(String exercise, String weight);
+
+  /// No description provided for @goalWeeklyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 workout a week} other{{count} workouts a week}}'**
+  String goalWeeklyTitle(int count);
+
+  /// No description provided for @goalBodyWeightTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Body weight {weight}'**
+  String goalBodyWeightTitle(String weight);
+
+  /// No description provided for @goalNow.
+  ///
+  /// In en, this message translates to:
+  /// **'now {value}'**
+  String goalNow(String value);
+
+  /// No description provided for @goalThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} this week'**
+  String goalThisWeek(int count);
+
+  /// No description provided for @goalNoData.
+  ///
+  /// In en, this message translates to:
+  /// **'no data yet'**
+  String get goalNoData;
+
+  /// No description provided for @goalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached: {goal} 🎉'**
+  String goalReached(String goal);
+
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts yet.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s everything.'**
+  String get historyEnd;
+
+  /// No description provided for @historyLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Older workouts'**
+  String get historyLoadMore;
+
+  /// No description provided for @repeatWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeatWorkout;
+
+  /// No description provided for @repeatLastWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat last workout'**
+  String get repeatLastWorkout;
+
+  /// No description provided for @workoutOfDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout of {date}'**
+  String workoutOfDay(String date);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String durationMinutes(int minutes);
+
+  /// No description provided for @setsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 set} other{{count} sets}}'**
+  String setsCount(int count);
+
+  /// No description provided for @planTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready-made plans'**
+  String get planTemplates;
+
+  /// No description provided for @fromTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'From a ready-made plan'**
+  String get fromTemplate;
+
+  /// No description provided for @fromTemplateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'FBW, 5×5, Push/Pull/Legs, Upper/Lower, home circuit'**
+  String get fromTemplateHint;
+
+  /// No description provided for @emptyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty plan'**
+  String get emptyPlan;
+
+  /// No description provided for @useTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get useTemplate;
+
+  /// No description provided for @daysPerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}× a week'**
+  String daysPerWeek(int count);
+
+  /// No description provided for @hintBeatLastTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Try to beat last time'**
+  String get hintBeatLastTime;
+
+  /// No description provided for @sessionTargetSets.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Target: 1 set} other{Target: {count} sets}}'**
+  String sessionTargetSets(int count);
+
   /// No description provided for @range1M.
   ///
   /// In en, this message translates to:

@@ -4,13 +4,18 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/errors/failure_messages.dart';
+import '../../../../core/units/measures.dart';
 import '../../../../core/units/weight_unit.dart';
 import '../../../../core/widgets/error_view.dart';
 import '../../../../core/widgets/gradient_background.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
+import '../../exercises/data/models/exercise.dart';
 import '../../exercises/presentation/category_ui.dart';
+import '../../history/history_screen.dart';
 import '../../progress/progress_cards.dart';
+import '../../progress/records_screen.dart';
+import '../../progress/summary_screen.dart';
 import '../data/workout_models.dart';
 import 'exercise_workouts_screen.dart';
 import 'workout_providers.dart';
@@ -25,7 +30,29 @@ class MyWorkoutsScreen extends ConsumerWidget {
     final summaries = ref.watch(workoutSummariesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.progress)),
+      appBar: AppBar(
+        title: Text(t.progress),
+        actions: [
+          IconButton(
+            key: const Key('progress.records'),
+            tooltip: t.records,
+            icon: const Icon(Icons.emoji_events_outlined),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const RecordsScreen())),
+          ),
+          IconButton(
+            key: const Key('progress.summary'),
+            tooltip: t.summaryTitle,
+            icon: const Icon(Icons.insights),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SummaryScreen())),
+          ),
+          IconButton(
+            key: const Key('progress.history'),
+            tooltip: t.history,
+            icon: const Icon(Icons.history),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HistoryScreen())),
+          ),
+        ],
+      ),
       body: GradientBackground(
         child: SafeArea(
           child: summaries.when(
@@ -95,6 +122,7 @@ class _SummaryTile extends StatelessWidget {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     final bodyweight = summary.bestVolume == 0;
+    final timed = summary.tracking != Tracking.weight;
 
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
@@ -112,10 +140,14 @@ class _SummaryTile extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              bodyweight ? t.repsValue(summary.lastTotalReps) : weights.withUnit(summary.lastVolume),
+              switch (summary.tracking) {
+                Tracking.time => formatDuration(summary.lastDurationSeconds),
+                Tracking.distance => formatDistance(summary.lastDistanceMeters, decimalSeparator: locale.startsWith('pl') ? ',' : '.'),
+                Tracking.weight => bodyweight ? t.repsValue(summary.lastTotalReps) : weights.withUnit(summary.lastVolume),
+              },
               style: theme.textTheme.labelLarge,
             ),
-            if (!bodyweight)
+            if (!bodyweight && !timed)
               Text(t.bestValue(weights.withUnit(summary.bestVolume)), style: theme.textTheme.labelSmall),
           ],
         ),
