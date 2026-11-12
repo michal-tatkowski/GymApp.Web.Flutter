@@ -82,6 +82,7 @@ void main() {
 
   testWidgets('reminders: turning on asks for permission and schedules the chosen days', (tester) async {
     final scheduler = FakeReminderScheduler();
+    tallView(tester);
     await pumpScreen(tester, const SettingsScreen(), reminders: scheduler);
     await tester.ensureVisible(find.byKey(const Key('settings.reminders')));
     await tester.pumpAndSettle();
@@ -100,6 +101,7 @@ void main() {
 
   testWidgets('reminders: permission refused → stays off and says why', (tester) async {
     final scheduler = FakeReminderScheduler()..allow = false;
+    tallView(tester);
     await pumpScreen(tester, const SettingsScreen(), reminders: scheduler);
     await tester.ensureVisible(find.byKey(const Key('settings.reminders')));
     await tester.pumpAndSettle();

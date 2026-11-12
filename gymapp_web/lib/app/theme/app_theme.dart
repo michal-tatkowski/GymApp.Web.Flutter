@@ -8,14 +8,26 @@ class AppTheme {
 
   static ThemeData light() => _build(Brightness.light);
 
-  static ThemeData dark() => _build(Brightness.dark);
+  /// [pureBlack]: background and surfaces black (OLED pixels off), cards a step lighter.
+  static ThemeData dark({bool pureBlack = false}) => _build(Brightness.dark, pureBlack: pureBlack);
 
-  static ThemeData _build(Brightness brightness) {
-    final scheme = ColorScheme.fromSeed(seedColor: seed, brightness: brightness);
+  static ThemeData _build(Brightness brightness, {bool pureBlack = false}) {
+    var scheme = ColorScheme.fromSeed(seedColor: seed, brightness: brightness);
+    if (pureBlack) {
+      scheme = scheme.copyWith(
+        surface: Colors.black,
+        surfaceContainerLowest: Colors.black,
+        surfaceContainerLow: const Color(0xFF0C0C0C),
+        surfaceContainer: const Color(0xFF121212),
+        surfaceContainerHigh: const Color(0xFF1A1A1A),
+        surfaceContainerHighest: const Color(0xFF242424),
+      );
+    }
     final dark = brightness == Brightness.dark;
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
+      scaffoldBackgroundColor: pureBlack ? Colors.black : null,
       extensions: [dark ? AppColors.dark : AppColors.light],
       // Cards sit on the gradient background: a tonal surface instead of the
       // default shadow, which is nearly invisible on dark backgrounds.

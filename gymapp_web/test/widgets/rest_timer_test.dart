@@ -40,6 +40,7 @@ void main() {
   });
 
   testWidgets('"Off" in Settings disables the timer and is remembered', (tester) async {
+    tallView(tester);
     await pumpScreen(tester, const SettingsScreen());
     final c = ProviderScope.containerOf(tester.element(find.byType(SettingsScreen)));
 
@@ -116,11 +117,13 @@ void main() {
   });
 
   testWidgets('Settings offers "exact alarms" only when Android does not allow them', (tester) async {
+    tallView(tester);
     await pumpScreen(tester, const SettingsScreen()); // fake default: alarms allowed
     expect(find.text('Alert exactly on time'), findsNothing);
     await tester.pumpWidget(const SizedBox()); // fresh tree for the second case
 
     final alarm = FakeRestAlarm()..onTime = false;
+    tallView(tester);
     await pumpScreen(tester, const SettingsScreen(), restAlarm: alarm);
     await tester.tap(find.text('Alert exactly on time'));
     expect(alarm.calls, ['exactSettings']);

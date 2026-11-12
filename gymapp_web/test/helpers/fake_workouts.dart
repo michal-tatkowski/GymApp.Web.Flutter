@@ -46,6 +46,36 @@ class FakeWorkoutRepository extends WorkoutRepository {
   }) async {
     _online();
     sessions.add((name: name, date: date));
+    sessionIds.add(id);
+  }
+
+  final sessionIds = <String>[];
+
+  /// Mood / note sent per session id.
+  final feedback = <String, ({int? mood, String? note})>{};
+
+  @override
+  Future<void> setSessionFeedback(String id, {int? mood, String? note}) async {
+    _online();
+    feedback[id] = (mood: mood, note: note);
+  }
+
+  /// From [entries], like the API; null = the endpoint is missing (older API).
+  LifetimeStats? lifetime;
+
+  @override
+  Future<LifetimeStats> getLifetime() async {
+    _online();
+    final all = [for (final list in entries.values) ...list];
+    return lifetime ??
+        LifetimeStats(
+          trainingDates: ({for (final e in all) e.date}.toList()..sort()),
+          sessions: sessions.length,
+          sets: all.fold(0, (n, e) => n + e.sets.length),
+          reps: all.fold(0, (n, e) => n + e.sets.fold(0, (r, s) => r + s.reps)),
+          volumeKg: all.fold(0.0, (v, e) => v + e.volume),
+          exercises: entries.values.where((l) => l.isNotEmpty).length,
+        );
   }
 
   /// Days from [entries] (exercise name = the id, like the other fakes), newest first.

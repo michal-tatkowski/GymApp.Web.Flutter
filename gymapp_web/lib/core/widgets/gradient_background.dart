@@ -8,7 +8,10 @@ class GradientBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
+    final colors = theme.colorScheme;
+    // Pure black (OLED): no tint, the pixels stay off.
+    if (theme.scaffoldBackgroundColor == Colors.black) return SizedBox.expand(child: child);
     return DecoratedBox(
       decoration: BoxDecoration(
         gradient: LinearGradient(

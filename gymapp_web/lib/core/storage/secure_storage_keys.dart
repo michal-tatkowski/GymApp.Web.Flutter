@@ -10,6 +10,8 @@ class StorageKeys {
 
   // Shared preferences (shared_preferences)
   static const themeMode = 'settings.theme_mode';
+  static const pureBlack = 'settings.pure_black';
+  static const largeSessionControls = 'settings.large_session_controls';
   static const locale = 'settings.locale';
   static const restTimerSeconds = 'settings.rest_timer_seconds';
   static const weightUnit = 'settings.weight_unit';

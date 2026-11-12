@@ -21,7 +21,7 @@ class GymApp extends ConsumerWidget {
       title: 'GymApp',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      darkTheme: AppTheme.dark(),
+      darkTheme: AppTheme.dark(pureBlack: ref.watch(pureBlackProvider)),
       themeMode: themeMode,
       locale: locale,
       supportedLocales: const [Locale('en'), Locale('pl')],

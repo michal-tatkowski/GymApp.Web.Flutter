@@ -40,6 +40,31 @@ final yearStatsProvider = FutureProvider.autoDispose<WorkoutStats>(
   retry: noRetry,
 );
 
+/// Totals over the whole account (no 400-day limit): the "All time" card and lifetime badges.
+/// Null while offline / unavailable — the badges then fall back to [yearStatsProvider].
+final lifetimeStatsProvider = FutureProvider.autoDispose<LifetimeStats?>(
+  (ref) async {
+    try {
+      return await ref.watch(workoutRepositoryProvider).getLifetime();
+    } catch (_) {
+      return null; // an older API without the endpoint, or offline
+    }
+  },
+  retry: noRetry,
+);
+
+/// Days with exercises and sets of the last [kMuscleWeeks] weeks (this one included): sets per muscle group.
+final muscleDaysProvider = FutureProvider.autoDispose<List<TrainingDayDetails>>(
+  (ref) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    return ref.watch(workoutRepositoryProvider).getDays(from: DateTime(now.year, now.month, now.day - 7 * kMuscleWeeks), to: today);
+  },
+  retry: noRetry,
+);
+
+const kMuscleWeeks = 5;
+
 /// Must match the API (GetWorkoutStatsQuery.MaxDays).
 const kStatsMaxDays = 400;
 
@@ -119,6 +144,8 @@ class WorkoutActions {
     _container.invalidate(workoutSummariesProvider);
     _container.invalidate(workoutStatsProvider);
     _container.invalidate(yearStatsProvider);
+    _container.invalidate(lifetimeStatsProvider);
+    _container.invalidate(muscleDaysProvider);
     _container.invalidate(trainingDaysProvider);
     _container.invalidate(recordsProvider);
   }

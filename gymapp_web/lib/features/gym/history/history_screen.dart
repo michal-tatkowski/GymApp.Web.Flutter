@@ -9,6 +9,7 @@ import '../../../l10n/app_localizations.dart';
 import '../exercises/data/models/exercise.dart';
 import '../exercises/presentation/category_ui.dart';
 import '../plans/data/plan_models.dart';
+import '../session/session_feedback.dart';
 import '../session/session_screen.dart';
 import '../workouts/data/workout_models.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
@@ -164,6 +165,7 @@ class HistoryDayCard extends ConsumerWidget {
                 ),
               ],
             ),
+            for (final s in day.sessions) _SessionFeedbackRow(session: s),
             const Divider(),
             for (final e in day.exercises)
               InkWell(
@@ -233,6 +235,58 @@ class RepeatLastCard extends ConsumerWidget {
         ),
         trailing: const Icon(Icons.play_arrow),
         onTap: () => repeatWorkout(context, ref, last),
+      ),
+    );
+  }
+}
+
+/// Under the day's header: the session's mood face and note, tap to change them.
+/// Without either, a small "Mood and note" button to add them later.
+class _SessionFeedbackRow extends ConsumerWidget {
+  const _SessionFeedbackRow({required this.session});
+
+  final WorkoutSessionInfo session;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final mood = session.mood;
+    final note = session.note;
+    if (mood == null && note == null) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: TextButton.icon(
+          key: Key('history.feedback.${session.id}'),
+          onPressed: () => editSessionFeedback(context, ref, session),
+          icon: const Icon(Icons.add_reaction_outlined, size: 18),
+          label: Text(t.sessionFeedback),
+        ),
+      );
+    }
+    return InkWell(
+      key: Key('history.feedback.${session.id}'),
+      onTap: () => editSessionFeedback(context, ref, session),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (mood != null)
+              Tooltip(
+                message: moodLabel(t, mood),
+                child: Icon(moodIcon(mood), color: theme.colorScheme.primary, semanticLabel: moodLabel(t, mood)),
+              ),
+            if (mood != null) const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                note == null ? moodLabel(t, mood!) : '„$note”',
+                style: theme.textTheme.bodyMedium?.copyWith(fontStyle: note == null ? null : FontStyle.italic),
+              ),
+            ),
+            Icon(Icons.edit_outlined, size: 18, color: theme.colorScheme.onSurfaceVariant),
+          ],
+        ),
       ),
     );
   }

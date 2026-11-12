@@ -235,7 +235,10 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       await _save(i, actions);
     }
     final done = state!.exercises.where((e) => e.doneSets.isNotEmpty).toList();
+    final sessionId = done.isEmpty ? null : newUuid();
     final summary = SessionSummary(
+      sessionId: sessionId,
+      recorded: sessionId == null ? null : _recordSession(s, sessionId),
       planName: s.planName,
       duration: DateTime.now().difference(s.startedAt),
       exercises: done.length,
@@ -243,7 +246,6 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       volumeKg: done.fold(0.0, (v, e) => v + e.doneSets.fold(0.0, (w, s) => w + s.reps * s.weightKg)),
       records: _records.toList(),
     );
-    if (done.isNotEmpty) unawaited(_recordSession(s));
     _clearNotification();
     _set(null);
     ref.read(restTimerProvider.notifier).stop();
@@ -252,11 +254,11 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
 
   /// Duration and name for the history. Best effort: without a connection the history
   /// simply shows the day without its duration (the sets themselves are queued).
-  Future<void> _recordSession(WorkoutSession s) async {
+  Future<bool> _recordSession(WorkoutSession s, String id) async {
     final now = DateTime.now();
     try {
       await ref.read(workoutRepositoryProvider).saveSession(
-            id: newUuid(),
+            id: id,
             planId: s.planId == null || s.planId!.isEmpty ? null : s.planId,
             name: s.planName,
             date: DateTime(s.startedAt.year, s.startedAt.month, s.startedAt.day),
@@ -264,8 +266,10 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
             finishedAt: now,
           );
       if (ref.mounted) ref.invalidate(trainingDaysProvider);
+      return true;
     } catch (e) {
       log.w('Session not recorded: $e');
+      return false;
     }
   }
 

@@ -9,6 +9,7 @@ import '../../../core/errors/failure_messages.dart';
 import '../../../core/units/measures.dart';
 import '../../../core/units/weight_unit.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../settings/presentation/settings_providers.dart';
 import '../exercises/data/models/exercise.dart';
 import '../exercises/presentation/category_ui.dart';
 import '../exercises/presentation/illustration/motion.dart';
@@ -18,6 +19,7 @@ import '../plans/presentation/exercise_picker_sheet.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/workout_providers.dart';
 import 'plate_calculator.dart';
+import 'session_feedback.dart';
 import 'session_models.dart';
 import 'session_providers.dart';
 
@@ -425,7 +427,7 @@ class _WarmUpCard extends StatelessWidget {
 
 /// "1   [− 10 +] reps   [− 100 +] kg   ✓" — or time (+ kg) for timed exercises,
 /// distance + time for cardio.
-class _SetRow extends StatelessWidget {
+class _SetRow extends ConsumerWidget {
   const _SetRow({
     super.key,
     required this.number,
@@ -454,8 +456,9 @@ class _SetRow extends StatelessWidget {
   static const _timeStep = 15, _cardioTimeStep = 60, _distanceStep = 500.0;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final t = AppLocalizations.of(context)!;
+    final large = ref.watch(largeSessionControlsProvider);
     final colors = Theme.of(context).colorScheme;
     final editable = !readOnly;
     final display = weights.fromKg(set.weightKg);
@@ -513,6 +516,45 @@ class _SetRow extends StatelessWidget {
         ],
     };
 
+    final badge = GestureDetector(
+      onLongPress: editable ? onRemove : null,
+      child: CircleAvatar(radius: 14, child: Text('$number', style: Theme.of(context).textTheme.labelMedium)),
+    );
+
+    if (large) {
+      // One-handed mode: big steppers, and "done" across the whole card under them.
+      return Card(
+        color: set.done ? colors.primaryContainer.withValues(alpha: 0.6) : null,
+        margin: const EdgeInsets.only(bottom: 8),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
+          child: Column(
+            children: [
+              Row(children: [badge, for (final f in fields) Expanded(child: f)]),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                height: 56,
+                child: set.done
+                    ? FilledButton.icon(
+                        key: const Key('done'),
+                        onPressed: editable ? onToggle : null,
+                        icon: const Icon(Icons.check, size: 28),
+                        label: Text(t.sessionUndoSet),
+                      )
+                    : FilledButton.tonalIcon(
+                        key: const Key('done'),
+                        onPressed: editable ? onToggle : null,
+                        icon: const Icon(Icons.check, size: 28),
+                        label: Text(t.sessionDoneSet),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Card(
       color: set.done ? colors.primaryContainer.withValues(alpha: 0.6) : null,
       margin: const EdgeInsets.only(bottom: 8),
@@ -520,10 +562,7 @@ class _SetRow extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         child: Row(
           children: [
-            GestureDetector(
-              onLongPress: editable ? onRemove : null,
-              child: CircleAvatar(radius: 14, child: Text('$number', style: Theme.of(context).textTheme.labelMedium)),
-            ),
+            badge,
             for (final f in fields) Expanded(child: f),
             IconButton.filled(
               key: const Key('done'),
@@ -540,7 +579,7 @@ class _SetRow extends StatelessWidget {
   }
 }
 
-class _Stepper extends StatelessWidget {
+class _Stepper extends ConsumerWidget {
   const _Stepper({
     super.key,
     required this.text,
@@ -568,8 +607,13 @@ class _Stepper extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    // Large mode: 56 dp buttons, bigger icons and number.
+    final large = ref.watch(largeSessionControlsProvider);
+    final buttonStyle = large
+        ? IconButton.styleFrom(minimumSize: const Size(56, 56), iconSize: 30, backgroundColor: theme.colorScheme.surfaceContainerHighest)
+        : null;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -577,6 +621,7 @@ class _Stepper extends StatelessWidget {
           key: const Key('minus'),
           tooltip: AppLocalizations.of(context)!.decreaseBy(step),
           // 48 dp: tapped mid-set, often with sweaty hands.
+          style: buttonStyle,
           onPressed: onMinus == null ? null : () => _tap(onMinus!),
           icon: const Icon(Icons.remove),
         ),
@@ -591,7 +636,7 @@ class _Stepper extends StatelessWidget {
                   fit: BoxFit.scaleDown,
                   child: Text(
                     text,
-                    style: theme.textTheme.titleMedium?.copyWith(
+                    style: (large ? theme.textTheme.headlineSmall : theme.textTheme.titleMedium)?.copyWith(
                       fontFeatures: const [FontFeature.tabularFigures()],
                       decoration: onTextTap == null ? null : TextDecoration.underline,
                       decorationStyle: TextDecorationStyle.dotted,
@@ -607,6 +652,7 @@ class _Stepper extends StatelessWidget {
           key: const Key('plus'),
           tooltip: AppLocalizations.of(context)!.increaseBy(step),
           // 48 dp tap target.
+          style: buttonStyle,
           onPressed: onPlus == null ? null : () => _tap(onPlus!),
           icon: const Icon(Icons.add),
         ),
@@ -615,35 +661,82 @@ class _Stepper extends StatelessWidget {
   }
 }
 
-class _SummaryDialog extends ConsumerWidget {
+class _SummaryDialog extends ConsumerStatefulWidget {
   const _SummaryDialog({required this.summary});
 
   final SessionSummary summary;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_SummaryDialog> createState() => _SummaryDialogState();
+}
+
+class _SummaryDialogState extends ConsumerState<_SummaryDialog> {
+  int? _mood;
+  final _note = TextEditingController();
+
+  @override
+  void dispose() {
+    _note.dispose();
+    super.dispose();
+  }
+
+  /// Mood and note go with the session once it reached the API. Best effort, in the
+  /// background: offline the workout itself is safe in the queue, only these are lost.
+  void _done() {
+    final summary = widget.summary;
+    final note = _note.text.trim();
+    final id = summary.sessionId;
+    if (id != null && (_mood != null || note.isNotEmpty)) {
+      final repo = ref.read(workoutRepositoryProvider);
+      final container = ProviderScope.containerOf(context, listen: false);
+      final mood = _mood;
+      unawaited(() async {
+        if (await summary.recorded != true) return;
+        try {
+          await repo.setSessionFeedback(id, mood: mood, note: note.isEmpty ? null : note);
+          container.invalidate(trainingDaysProvider);
+        } catch (_) {
+          // Shown nowhere else; the history lets you add it later.
+        }
+      }());
+    }
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
+    final summary = widget.summary;
     final weights = ref.watch(weightFormatProvider);
     final minutes = summary.duration.inMinutes;
     return AlertDialog(
       key: const Key('session.summary'),
       icon: const Icon(Icons.emoji_events_outlined, size: 40),
       title: Text(t.sessionSummaryTitle),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(summary.planName, style: Theme.of(context).textTheme.titleMedium),
-          const SizedBox(height: 8),
-          Text(t.sessionSummaryStats(minutes, summary.exercises, summary.sets)),
-          if (summary.volumeKg > 0) Text(t.sessionSummaryVolume(weights.withUnit(summary.volumeKg))),
-          if (summary.records.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text('🏆 ${t.sessionSummaryRecords(summary.records.join(', '))}'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(summary.planName, style: Theme.of(context).textTheme.titleMedium),
+            const SizedBox(height: 8),
+            Text(t.sessionSummaryStats(minutes, summary.exercises, summary.sets)),
+            if (summary.volumeKg > 0) Text(t.sessionSummaryVolume(weights.withUnit(summary.volumeKg))),
+            if (summary.records.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Text('🏆 ${t.sessionSummaryRecords(summary.records.join(', '))}'),
+            ],
+            if (summary.sessionId != null) ...[
+              const Divider(height: 24),
+              Text(t.moodQuestion, style: Theme.of(context).textTheme.titleSmall),
+              Center(child: MoodPicker(mood: _mood, onChanged: (m) => setState(() => _mood = m))),
+              const SizedBox(height: 8),
+              WorkoutNoteField(controller: _note),
+            ],
           ],
-        ],
+        ),
       ),
-      actions: [FilledButton(onPressed: () => Navigator.pop(context), child: Text(t.done))],
+      actions: [FilledButton(key: const Key('session.summary.done'), onPressed: _done, child: Text(t.done))],
     );
   }
 }

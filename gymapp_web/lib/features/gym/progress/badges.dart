@@ -25,14 +25,21 @@ const badgeDefs = <BadgeDef>[
   BadgeDef('workouts10', BadgeKind.workouts, 10, Icons.directions_run),
   BadgeDef('workouts50', BadgeKind.workouts, 50, Icons.military_tech_outlined),
   BadgeDef('workouts100', BadgeKind.workouts, 100, Icons.workspace_premium_outlined),
+  BadgeDef('workouts250', BadgeKind.workouts, 250, Icons.star_outline),
+  BadgeDef('workouts500', BadgeKind.workouts, 500, Icons.diamond_outlined),
   BadgeDef('streak4', BadgeKind.weekStreak, 4, Icons.local_fire_department_outlined),
   BadgeDef('streak12', BadgeKind.weekStreak, 12, Icons.whatshot),
+  BadgeDef('streak26', BadgeKind.weekStreak, 26, Icons.calendar_month_outlined),
+  BadgeDef('streak52', BadgeKind.weekStreak, 52, Icons.auto_awesome),
   BadgeDef('busyWeek3', BadgeKind.busyWeek, 3, Icons.event_available),
   BadgeDef('record1', BadgeKind.records, 1, Icons.emoji_events_outlined),
   BadgeDef('record10', BadgeKind.records, 10, Icons.emoji_events),
+  BadgeDef('record50', BadgeKind.records, 50, Icons.rocket_launch_outlined),
   BadgeDef('volume10t', BadgeKind.volume, 10000, Icons.fitness_center),
   BadgeDef('volume100t', BadgeKind.volume, 100000, Icons.landscape_outlined),
+  BadgeDef('volume1000t', BadgeKind.volume, 1000000, Icons.terrain),
   BadgeDef('variety10', BadgeKind.variety, 10, Icons.explore_outlined),
+  BadgeDef('variety25', BadgeKind.variety, 25, Icons.collections_bookmark_outlined),
 ];
 
 class BadgeProgress {
@@ -49,19 +56,30 @@ class BadgeProgress {
   bool get earned => value >= def.goal || earnedAt != null;
 }
 
-/// Badges from the training days/records the API returns (at most ~13 months)
-/// and the number of different exercises ever trained. [firstDayOfWeek]:
+/// Badges from the training days/records the API returns (at most ~13 months) and the
+/// number of different exercises ever trained. With [lifetime] (the whole account) the
+/// counts, streaks and totals cover everything ever logged. [firstDayOfWeek]:
 /// 0 = Sunday … 6 = Saturday, as in [MaterialLocalizations.firstDayOfWeekIndex].
-List<BadgeProgress> computeBadges(WorkoutStats stats, int distinctExercises, int firstDayOfWeek) {
+List<BadgeProgress> computeBadges(WorkoutStats stats, int distinctExercises, int firstDayOfWeek, {LifetimeStats? lifetime}) {
   final days = [...stats.days]..sort((a, b) => a.date.compareTo(b.date));
   final records = [...stats.records]..sort((a, b) => a.date.compareTo(b.date));
+  final dates = lifetime == null
+      ? [for (final d in days) DateUtils.dateOnly(d.date)]
+      : [for (final d in lifetime.trainingDates) DateUtils.dateOnly(d)];
   DateTime weekOf(DateTime d) => DateUtils.addDaysToDate(DateUtils.dateOnly(d), -((d.weekday % 7 - firstDayOfWeek + 7) % 7));
 
-  // Running totals: when each threshold was crossed.
-  DateTime? nth(List<DateTime> dates, double n) => n >= 1 && dates.length >= n ? dates[n.toInt() - 1] : null;
+  // Running totals: when each threshold was crossed. [before] = how many happened before
+  // the period the per-day data covers (known from the lifetime totals).
+  DateTime? nth(List<DateTime> list, double n, {int before = 0}) {
+    final i = n.toInt() - before;
+    return i >= 1 && list.length >= i ? list[i - 1] : null;
+  }
 
+  final yearVolume = days.fold(0.0, (v, d) => v + d.volume);
+  final totalVolume = lifetime != null && lifetime.volumeKg > yearVolume ? lifetime.volumeKg : yearVolume;
   DateTime? volumeReached(double goal) {
-    var sum = 0.0;
+    var sum = totalVolume - yearVolume;
+    if (sum >= goal) return null; // reached before the days we can see — earned by value
     for (final d in days) {
       sum += d.volume;
       if (sum >= goal) return d.date;
@@ -69,10 +87,12 @@ List<BadgeProgress> computeBadges(WorkoutStats stats, int distinctExercises, int
     return null;
   }
 
+  final recordCount = lifetime != null && lifetime.records > records.length ? lifetime.records : records.length;
+
   // Longest run of consecutive weeks with a workout, and the busiest week.
   final perWeek = <DateTime, List<DateTime>>{};
-  for (final d in days) {
-    (perWeek[weekOf(d.date)] ??= []).add(d.date);
+  for (final d in dates) {
+    (perWeek[weekOf(d)] ??= []).add(d);
   }
   final weeks = perWeek.keys.toList()..sort();
   var bestStreak = 0, run = 0;
@@ -92,19 +112,21 @@ List<BadgeProgress> computeBadges(WorkoutStats stats, int distinctExercises, int
     return null;
   }
 
-  final totalVolume = days.fold(0.0, (v, d) => v + d.volume);
+  final variety = lifetime != null && lifetime.exercises > distinctExercises ? lifetime.exercises : distinctExercises;
   return [
     for (final def in badgeDefs)
       switch (def.kind) {
-        BadgeKind.workouts =>
-          BadgeProgress(def: def, value: days.length.toDouble(), earnedAt: nth([for (final d in days) d.date], def.goal)),
+        BadgeKind.workouts => BadgeProgress(def: def, value: dates.length.toDouble(), earnedAt: nth(dates, def.goal)),
         BadgeKind.weekStreak =>
           BadgeProgress(def: def, value: bestStreak.toDouble(), earnedAt: streakReached[def.goal.toInt()]),
         BadgeKind.busyWeek => BadgeProgress(def: def, value: busiest.toDouble(), earnedAt: busyReached(def.goal)),
-        BadgeKind.records =>
-          BadgeProgress(def: def, value: records.length.toDouble(), earnedAt: nth([for (final r in records) r.date], def.goal)),
+        BadgeKind.records => BadgeProgress(
+            def: def,
+            value: recordCount.toDouble(),
+            earnedAt: nth([for (final r in records) r.date], def.goal, before: recordCount - records.length),
+          ),
         BadgeKind.volume => BadgeProgress(def: def, value: totalVolume, earnedAt: volumeReached(def.goal)),
-        BadgeKind.variety => BadgeProgress(def: def, value: distinctExercises.toDouble()),
+        BadgeKind.variety => BadgeProgress(def: def, value: variety.toDouble()),
       },
   ];
 }

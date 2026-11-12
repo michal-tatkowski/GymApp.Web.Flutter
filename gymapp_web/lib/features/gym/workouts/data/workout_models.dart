@@ -317,13 +317,25 @@ class BodyWeight {
 
 /// A finished session (from a plan or "repeat"): when and how long.
 class WorkoutSessionInfo {
-  const WorkoutSessionInfo({required this.id, required this.name, required this.startedAt, required this.finishedAt, this.planId});
+  const WorkoutSessionInfo({
+    required this.id,
+    required this.name,
+    required this.startedAt,
+    required this.finishedAt,
+    this.planId,
+    this.mood,
+    this.note,
+  });
 
   final String id;
   final String? planId;
   final String name;
   final DateTime startedAt;
   final DateTime finishedAt;
+
+  /// How it went, 1 (very bad) … 5 (great); null = not given.
+  final int? mood;
+  final String? note;
 
   Duration get duration => finishedAt.difference(startedAt);
 
@@ -333,6 +345,8 @@ class WorkoutSessionInfo {
         name: json['name'] as String,
         startedAt: DateTime.parse(json['startedAt'] as String).toLocal(),
         finishedAt: DateTime.parse(json['finishedAt'] as String).toLocal(),
+        mood: (json['mood'] as num?)?.toInt(),
+        note: json['note'] as String?,
       );
 }
 
@@ -443,5 +457,43 @@ class ExerciseRecords {
         mostReps: RecordValue.fromJson(json['mostReps']),
         longestDuration: RecordValue.fromJson(json['longestDuration']),
         longestDistance: RecordValue.fromJson(json['longestDistance']),
+      );
+}
+
+/// Totals over the whole account (no 400-day limit) — for the "All time" card and lifetime badges.
+class LifetimeStats {
+  const LifetimeStats({
+    required this.trainingDates,
+    this.sessions = 0,
+    this.sets = 0,
+    this.reps = 0,
+    this.volumeKg = 0,
+    this.durationSeconds = 0,
+    this.distanceMeters = 0,
+    this.exercises = 0,
+    this.records = 0,
+  });
+
+  /// Every day with a workout, oldest first.
+  final List<DateTime> trainingDates;
+  final int sessions;
+  final int sets;
+  final int reps;
+  final double volumeKg;
+  final int durationSeconds;
+  final double distanceMeters;
+  final int exercises;
+  final int records;
+
+  factory LifetimeStats.fromJson(Map<String, dynamic> json) => LifetimeStats(
+        trainingDates: [for (final d in json['trainingDates'] as List? ?? const []) DateTime.parse(d as String)],
+        sessions: (json['sessions'] as num? ?? 0).toInt(),
+        sets: (json['sets'] as num? ?? 0).toInt(),
+        reps: (json['reps'] as num? ?? 0).toInt(),
+        volumeKg: (json['volumeKg'] as num? ?? 0).toDouble(),
+        durationSeconds: (json['durationSeconds'] as num? ?? 0).toInt(),
+        distanceMeters: (json['distanceMeters'] as num? ?? 0).toDouble(),
+        exercises: (json['exercises'] as num? ?? 0).toInt(),
+        records: (json['records'] as num? ?? 0).toInt(),
       );
 }

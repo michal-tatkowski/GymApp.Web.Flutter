@@ -315,3 +315,10 @@ class FakeReminderScheduler implements ReminderScheduler {
   @override
   Future<void> apply(ReminderSettings settings, AppLocalizations t) async => applied.add(settings);
 }
+
+/// A phone-shaped, tall view: long screens (Settings) build all their rows.
+void tallView(WidgetTester tester) {
+  tester.view.physicalSize = const Size(800, 2400);
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+}

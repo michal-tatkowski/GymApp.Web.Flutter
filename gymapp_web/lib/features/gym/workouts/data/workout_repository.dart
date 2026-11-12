@@ -78,6 +78,16 @@ class WorkoutRepository {
             'finishedAt': finishedAt.toUtc().toIso8601String(),
           }));
 
+  /// Mood (1–5) and note of a saved session; null clears.
+  Future<void> setSessionFeedback(String id, {int? mood, String? note}) =>
+      _guard(() => _dio.put<dynamic>('Workouts/sessions/$id/feedback', data: {'mood': mood, 'note': note}));
+
+  /// Totals over the whole account, for the "All time" card and lifetime badges.
+  Future<LifetimeStats> getLifetime() => _guard(() async {
+        final res = await _dio.get<dynamic>('Workouts/lifetime');
+        return LifetimeStats.fromJson(res.data as Map<String, dynamic>);
+      });
+
   /// Body weight measurements, oldest first.
   Future<List<BodyWeight>> getBodyWeights({DateTime? since}) => _guard(() async {
         final res = await _dio.get<dynamic>('BodyWeight', queryParameters: {

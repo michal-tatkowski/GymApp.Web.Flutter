@@ -614,6 +614,234 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @pureBlack.
+  ///
+  /// In en, this message translates to:
+  /// **'Pure black (OLED)'**
+  String get pureBlack;
+
+  /// No description provided for @pureBlackHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark theme on a black background: saves battery on OLED screens'**
+  String get pureBlackHint;
+
+  /// No description provided for @largeSessionControls.
+  ///
+  /// In en, this message translates to:
+  /// **'Large buttons during a workout'**
+  String get largeSessionControls;
+
+  /// No description provided for @largeSessionControlsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Easier to hit with one hand at the gym'**
+  String get largeSessionControlsHint;
+
+  /// No description provided for @moodQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'How did it go?'**
+  String get moodQuestion;
+
+  /// No description provided for @mood1.
+  ///
+  /// In en, this message translates to:
+  /// **'Very bad'**
+  String get mood1;
+
+  /// No description provided for @mood2.
+  ///
+  /// In en, this message translates to:
+  /// **'Bad'**
+  String get mood2;
+
+  /// No description provided for @mood3.
+  ///
+  /// In en, this message translates to:
+  /// **'Okay'**
+  String get mood3;
+
+  /// No description provided for @mood4.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get mood4;
+
+  /// No description provided for @mood5.
+  ///
+  /// In en, this message translates to:
+  /// **'Great'**
+  String get mood5;
+
+  /// No description provided for @workoutNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout note'**
+  String get workoutNote;
+
+  /// No description provided for @workoutNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'What went well, what to change next time'**
+  String get workoutNoteHint;
+
+  /// No description provided for @sessionFeedback.
+  ///
+  /// In en, this message translates to:
+  /// **'Mood and note'**
+  String get sessionFeedback;
+
+  /// No description provided for @lifetimeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get lifetimeTitle;
+
+  /// No description provided for @lifetimeSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Since {date}'**
+  String lifetimeSince(String date);
+
+  /// No description provided for @lifetimeDays.
+  ///
+  /// In en, this message translates to:
+  /// **'Training days'**
+  String get lifetimeDays;
+
+  /// No description provided for @lifetimeSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets'**
+  String get lifetimeSets;
+
+  /// No description provided for @lifetimeReps.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps'**
+  String get lifetimeReps;
+
+  /// No description provided for @lifetimeVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifted'**
+  String get lifetimeVolume;
+
+  /// No description provided for @lifetimeTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout time'**
+  String get lifetimeTime;
+
+  /// No description provided for @lifetimeDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get lifetimeDistance;
+
+  /// No description provided for @lifetimeRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'Records'**
+  String get lifetimeRecords;
+
+  /// No description provided for @lifetimeExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises'**
+  String get lifetimeExercises;
+
+  /// No description provided for @hoursShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours} h'**
+  String hoursShort(int hours);
+
+  /// No description provided for @badgeWorkouts250.
+  ///
+  /// In en, this message translates to:
+  /// **'Dedicated'**
+  String get badgeWorkouts250;
+
+  /// No description provided for @badgeWorkouts500.
+  ///
+  /// In en, this message translates to:
+  /// **'Lifer'**
+  String get badgeWorkouts500;
+
+  /// No description provided for @badgeStreak26.
+  ///
+  /// In en, this message translates to:
+  /// **'Half a year'**
+  String get badgeStreak26;
+
+  /// No description provided for @badgeStreak52.
+  ///
+  /// In en, this message translates to:
+  /// **'Whole year'**
+  String get badgeStreak52;
+
+  /// No description provided for @badgeRecord50.
+  ///
+  /// In en, this message translates to:
+  /// **'Record machine'**
+  String get badgeRecord50;
+
+  /// No description provided for @badgeVolume1000t.
+  ///
+  /// In en, this message translates to:
+  /// **'Thousand tonnes'**
+  String get badgeVolume1000t;
+
+  /// No description provided for @badgeVariety25.
+  ///
+  /// In en, this message translates to:
+  /// **'Collector'**
+  String get badgeVariety25;
+
+  /// No description provided for @musclesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sets per muscle group'**
+  String get musclesTitle;
+
+  /// No description provided for @musclesThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get musclesThisWeek;
+
+  /// No description provided for @musclesAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'4-week average'**
+  String get musclesAverage;
+
+  /// No description provided for @musclesEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No sets in this period yet.'**
+  String get musclesEmpty;
+
+  /// No description provided for @musclesMorePush.
+  ///
+  /// In en, this message translates to:
+  /// **'More pushing than pulling: add a row or a pull-up.'**
+  String get musclesMorePush;
+
+  /// No description provided for @musclesMorePull.
+  ///
+  /// In en, this message translates to:
+  /// **'More pulling than pushing: add a press.'**
+  String get musclesMorePull;
+
+  /// No description provided for @musclesNoLegs.
+  ///
+  /// In en, this message translates to:
+  /// **'No leg work in this period.'**
+  String get musclesNoLegs;
+
   /// No description provided for @onboardingTitle.
   ///
   /// In en, this message translates to:
