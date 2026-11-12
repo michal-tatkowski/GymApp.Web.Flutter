@@ -4,6 +4,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/core/providers/retry.dart';
 import 'package:gymapp_web/features/auth/data/auth_api.dart';
 import 'package:gymapp_web/features/auth/data/auth_local_storage.dart';
@@ -177,6 +178,16 @@ class FakeAuthRepository extends AuthRepository {
 
   @override
   Future<bool> restoreSession() async => false;
+
+  /// Accepts only [validPassword], like the API (400 `WrongPassword` otherwise).
+  static const validPassword = 'secret123';
+  int deletions = 0;
+
+  @override
+  Future<void> deleteAccount(String password) async {
+    if (password != validPassword) throw const ValidationFailure('Incorrect password.', 'WrongPassword');
+    deletions++;
+  }
 }
 
 /// Records what the rest timer asked the system notifications to do.

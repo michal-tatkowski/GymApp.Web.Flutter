@@ -115,6 +115,12 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = const AsyncData(AuthState.unauthenticated);
   }
 
+  /// Throws [Failure] and stays logged in when the server refuses (e.g. wrong password).
+  Future<void> deleteAccount(String password) async {
+    await ref.read(authRepositoryProvider).deleteAccount(password);
+    state = const AsyncData(AuthState.unauthenticated);
+  }
+
   /// Called by the auth interceptor when refresh fails.
   void forceLogout() {
     state = const AsyncData(AuthState.unauthenticated);

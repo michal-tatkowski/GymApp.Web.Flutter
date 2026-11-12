@@ -238,5 +238,14 @@
   "errNotFound": "Nie znaleziono.",
   "errConflict": "To już istnieje.",
   "errTooManyRequests": "Zbyt wiele prób. Odczekaj minutę i spróbuj ponownie.",
-  "errUnknown": "Wystąpił nieoczekiwany błąd."
+  "errUnknown": "Wystąpił nieoczekiwany błąd.",
+  "privacyPolicy": "Polityka prywatności",
+  "privacyUpdated": "Ostatnia aktualizacja: {date}",
+  "privacyAgree": "Zakładając konto, akceptujesz politykę prywatności.",
+  "deleteAccount": "Usuń konto",
+  "deleteAccountHint": "Trwale, razem ze wszystkimi danymi",
+  "deleteAccountTitle": "Usunąć konto?",
+  "deleteAccountBody": "Profil, treningi, plany, własne ćwiczenia i pomiary wagi zostaną usunięte z serwera. Tego nie da się cofnąć.",
+  "deleteAccountPassword": "Hasło dla potwierdzenia",
+  "deleteAccountConfirm": "Usuń na zawsze"
 }

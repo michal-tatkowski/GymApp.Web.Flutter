@@ -44,6 +44,18 @@ class AuthRepository {
     await storage.clear();
   }
 
+  /// Deletes the account on the server, then forgets the tokens (they are
+  /// already invalid). Throws [Failure] — e.g. [ValidationFailure] with code
+  /// `WrongPassword`; the tokens stay so the user can try again.
+  Future<void> deleteAccount(String password) async {
+    try {
+      await api.deleteAccount(password);
+    } on DioException catch (e) {
+      throw mapDioErrorToFailure(e);
+    }
+    await storage.clear();
+  }
+
   /// Restores tokens from secure storage (called on app startup).
   /// Returns true if a valid session was restored.
   Future<bool> restoreSession() async {

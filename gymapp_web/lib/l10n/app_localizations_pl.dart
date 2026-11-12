@@ -783,4 +783,35 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get errUnknown => 'Wystąpił nieoczekiwany błąd.';
+
+  @override
+  String get privacyPolicy => 'Polityka prywatności';
+
+  @override
+  String privacyUpdated(String date) {
+    return 'Ostatnia aktualizacja: $date';
+  }
+
+  @override
+  String get privacyAgree =>
+      'Zakładając konto, akceptujesz politykę prywatności.';
+
+  @override
+  String get deleteAccount => 'Usuń konto';
+
+  @override
+  String get deleteAccountHint => 'Trwale, razem ze wszystkimi danymi';
+
+  @override
+  String get deleteAccountTitle => 'Usunąć konto?';
+
+  @override
+  String get deleteAccountBody =>
+      'Profil, treningi, plany, własne ćwiczenia i pomiary wagi zostaną usunięte z serwera. Tego nie da się cofnąć.';
+
+  @override
+  String get deleteAccountPassword => 'Hasło dla potwierdzenia';
+
+  @override
+  String get deleteAccountConfirm => 'Usuń na zawsze';
 }
