@@ -447,9 +447,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get registering => 'Creating account…';
 
   @override
-  String get accountCreated => 'Account created. You can log in now.';
-
-  @override
   String get weightUnit => 'Weight unit';
 
   @override
@@ -803,4 +800,56 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteAccountConfirm => 'Delete forever';
+
+  @override
+  String get verifyEmailTitle => 'Confirm your email';
+
+  @override
+  String verifyEmailBody(String email) {
+    return 'We sent a 6-digit code to $email. Enter it to finish creating your account.';
+  }
+
+  @override
+  String get codeLabel => 'Code';
+
+  @override
+  String get confirmCode => 'Confirm';
+
+  @override
+  String get resendCode => 'Send a new code';
+
+  @override
+  String resendIn(int seconds) {
+    return 'New code in $seconds s';
+  }
+
+  @override
+  String get codeSent => 'New code sent. Check your inbox (and spam).';
+
+  @override
+  String get backToLogin => 'Back to login';
+
+  @override
+  String get forgotTitle => 'Reset password';
+
+  @override
+  String get forgotBody =>
+      'Enter your account email. We will send you a code to set a new password.';
+
+  @override
+  String get sendCode => 'Send code';
+
+  @override
+  String resetBody(String email) {
+    return 'If $email has an account, we sent it a code. Enter it with your new password.';
+  }
+
+  @override
+  String get newPassword => 'New password';
+
+  @override
+  String get setNewPassword => 'Set new password';
+
+  @override
+  String get passwordChanged => 'Password changed. Log in with the new one.';
 }

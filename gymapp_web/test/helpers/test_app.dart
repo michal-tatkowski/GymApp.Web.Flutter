@@ -179,6 +179,31 @@ class FakeAuthRepository extends AuthRepository {
   @override
   Future<bool> restoreSession() async => false;
 
+  /// The only code the fake accepts (API: 400 `InvalidCode` otherwise).
+  static const validCode = '123456';
+  final calls = <String>[];
+
+  @override
+  Future<void> register({required String email, required String password}) async => calls.add('register $email');
+
+  @override
+  Future<void> confirmEmail({required String email, required String code, required bool rememberMe}) async {
+    calls.add('confirm $email $code');
+    if (code != validCode) throw const ValidationFailure('The code is invalid or has expired.', 'InvalidCode');
+  }
+
+  @override
+  Future<void> resendConfirmation(String email) async => calls.add('resend $email');
+
+  @override
+  Future<void> forgotPassword(String email) async => calls.add('forgot $email');
+
+  @override
+  Future<void> resetPassword({required String email, required String code, required String newPassword}) async {
+    calls.add('reset $email $code $newPassword');
+    if (code != validCode) throw const ValidationFailure('The code is invalid or has expired.', 'InvalidCode');
+  }
+
   /// Accepts only [validPassword], like the API (400 `WrongPassword` otherwise).
   static const validPassword = 'secret123';
   int deletions = 0;

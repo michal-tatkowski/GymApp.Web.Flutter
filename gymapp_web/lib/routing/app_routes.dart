@@ -6,6 +6,11 @@ class AppRoutes {
   static const splash = '/splash';
   static const login = '/login';
   static const register = '/register';
+  static const verifyEmail = '/verify-email';
+  static const forgotPassword = '/forgot-password';
+
+  /// Reachable without signing in.
+  static const signedOut = {login, register, verifyEmail, forgotPassword};
 
   // Tabs of the bottom navigation (AppShell)
   static const today = '/today';

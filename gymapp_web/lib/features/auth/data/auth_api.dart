@@ -54,6 +54,32 @@ class AuthApi {
     }
   }
 
+  /// Code from the email sent at sign-up → the account is confirmed and signed in (same reply as login).
+  Future<AuthTokens> confirmEmail(String email, String code) async {
+    final res = await _dio.post<dynamic>(
+      'Auth/ConfirmEmail',
+      data: {'email': email, 'code': code},
+      options: AuthOptions.skipAuth(),
+    );
+    return AuthTokens.fromResponse(res.data);
+  }
+
+  /// Always 200 (the API does not reveal whether the account exists); at most one code per minute.
+  Future<void> resendConfirmation(String email) =>
+      _dio.post<dynamic>('Auth/ResendConfirmation', data: {'email': email}, options: AuthOptions.skipAuth());
+
+  /// Always 200; emails a code for [resetPassword] if the account exists.
+  Future<void> forgotPassword(String email) =>
+      _dio.post<dynamic>('Auth/ForgotPassword', data: {'email': email}, options: AuthOptions.skipAuth());
+
+  /// Sets a new password and signs out every session. Bad code → 400 `InvalidCode`.
+  Future<void> resetPassword({required String email, required String code, required String newPassword}) =>
+      _dio.post<dynamic>(
+        'Auth/ResetPassword',
+        data: {'email': email, 'code': code, 'newPassword': newPassword},
+        options: AuthOptions.skipAuth(),
+      );
+
   /// Permanently deletes the account and all its data: DELETE /Account { password }.
   /// Wrong password → 400 with code `WrongPassword`.
   Future<void> deleteAccount(String password) async {

@@ -31,7 +31,7 @@ class AppLocalizationsPl extends AppLocalizations {
   String get registerButton => 'Zarejestruj';
 
   @override
-  String get forgotPassword => 'Zapomniałeś hasła?';
+  String get forgotPassword => 'Nie pamiętasz hasła?';
 
   @override
   String get or => 'albo';
@@ -450,9 +450,6 @@ class AppLocalizationsPl extends AppLocalizations {
   String get registering => 'Rejestrowanie…';
 
   @override
-  String get accountCreated => 'Konto utworzone. Zaloguj się.';
-
-  @override
   String get weightUnit => 'Jednostka ciężaru';
 
   @override
@@ -814,4 +811,56 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get deleteAccountConfirm => 'Usuń na zawsze';
+
+  @override
+  String get verifyEmailTitle => 'Potwierdź e-mail';
+
+  @override
+  String verifyEmailBody(String email) {
+    return 'Wysłaliśmy 6-cyfrowy kod na $email. Wpisz go, aby dokończyć zakładanie konta.';
+  }
+
+  @override
+  String get codeLabel => 'Kod';
+
+  @override
+  String get confirmCode => 'Potwierdź';
+
+  @override
+  String get resendCode => 'Wyślij nowy kod';
+
+  @override
+  String resendIn(int seconds) {
+    return 'Nowy kod za $seconds s';
+  }
+
+  @override
+  String get codeSent => 'Wysłaliśmy nowy kod. Sprawdź skrzynkę (i spam).';
+
+  @override
+  String get backToLogin => 'Wróć do logowania';
+
+  @override
+  String get forgotTitle => 'Reset hasła';
+
+  @override
+  String get forgotBody =>
+      'Podaj e-mail konta. Wyślemy kod do ustawienia nowego hasła.';
+
+  @override
+  String get sendCode => 'Wyślij kod';
+
+  @override
+  String resetBody(String email) {
+    return 'Jeśli $email ma konto, wysłaliśmy na niego kod. Wpisz go razem z nowym hasłem.';
+  }
+
+  @override
+  String get newPassword => 'Nowe hasło';
+
+  @override
+  String get setNewPassword => 'Ustaw nowe hasło';
+
+  @override
+  String get passwordChanged => 'Hasło zmienione. Zaloguj się nowym.';
 }

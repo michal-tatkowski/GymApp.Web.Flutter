@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/errors/failure.dart';
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/widgets/app_logo.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
 import '../auth_providers.dart';
+import 'email_code_screens.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -50,6 +52,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen(authControllerProvider, (prev, next) {
       next.whenOrNull(
         error: (err, _) {
+          // Right password, email not confirmed yet → straight to the code screen.
+          if (err is Failure && err.code == 'EmailNotConfirmed') {
+            context.go(VerifyEmailScreen.location(_emailCtrl.text.trim(), rememberMe: _rememberMe, sendOnOpen: true));
+            return;
+          }
           final msg = describeError(t, err);
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
@@ -101,7 +108,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                       validator: (v) => validatePassword(t, v),
                     ),
-                    const SizedBox(height: 8),
+                    Align(
+                      alignment: AlignmentDirectional.centerEnd,
+                      child: TextButton(
+                        key: const Key('login.forgot'),
+                        onPressed: isLoading
+                            ? null
+                            : () => context.go(ForgotPasswordScreen.location(_emailCtrl.text.trim())),
+                        child: Text(t.forgotPassword),
+                      ),
+                    ),
                     // Whole row is the tap target, not just the 18 dp box.
                     CheckboxListTile(
                       value: _rememberMe,
