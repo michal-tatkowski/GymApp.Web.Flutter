@@ -93,12 +93,23 @@ class _RecordsCard extends StatelessWidget {
               for (final (label, value, format) in rows)
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 2),
+                  // Label on the left, value with its date under it on the right — wraps
+                  // instead of overflowing on narrow phones and with large text.
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: Text(label, style: theme.textTheme.bodyMedium)),
-                      Text(format(value!), style: theme.textTheme.labelLarge),
+                      Expanded(flex: 5, child: Text(label, style: theme.textTheme.bodyMedium)),
                       const SizedBox(width: 8),
-                      Text(DateFormat.yMMMd(locale).format(value.date), style: theme.textTheme.labelSmall),
+                      Expanded(
+                        flex: 6,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(format(value!), style: theme.textTheme.labelLarge, textAlign: TextAlign.end),
+                            Text(DateFormat.yMMMd(locale).format(value.date), style: theme.textTheme.labelSmall),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),

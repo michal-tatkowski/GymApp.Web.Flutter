@@ -37,6 +37,8 @@ Future<void> pumpScreen(
   RestAlarm? restAlarm,
   PlanRepository? plans,
   ReminderScheduler? reminders,
+  ThemeData? theme,
+  double textScale = 1,
 }) async {
   await tester.pumpWidget(ProviderScope(
     retry: noRetry,
@@ -48,6 +50,13 @@ Future<void> pumpScreen(
       ...overrides,
     ],
     child: MaterialApp(
+      theme: theme,
+      builder: textScale == 1
+          ? null
+          : (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)),
+                child: child!,
+              ),
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [

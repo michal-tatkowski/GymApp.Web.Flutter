@@ -259,7 +259,7 @@ class _ExerciseStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: 52,
+        height: 64, // chips with 48 dp tap targets
         child: ListView.separated(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -358,7 +358,11 @@ class _SupersetBanner extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: Row(
+      // Wrap: with large text the hint goes under the chip instead of overflowing.
+      child: Wrap(
+        spacing: 8,
+        runSpacing: 4,
+        crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           Chip(
             key: const Key('session.superset'),
@@ -370,8 +374,7 @@ class _SupersetBanner extends StatelessWidget {
               style: TextStyle(color: colors.onTertiaryContainer),
             ),
           ),
-          const SizedBox(width: 8),
-          Expanded(child: Text(t.supersetNoRest, style: Theme.of(context).textTheme.bodySmall)),
+          Text(t.supersetNoRest, style: Theme.of(context).textTheme.bodySmall),
         ],
       ),
     );
@@ -453,6 +456,7 @@ class _SetRow extends StatelessWidget {
           key: const Key('weight'),
           text: weights.number(set.weightKg),
           unit: weights.label,
+          step: '${WeightFormat.formatNumber(weights.step)} ${weights.label}',
           onTextTap: onWeightTap == null || set.weightKg <= 0 ? null : () => onWeightTap!(set.weightKg),
           onMinus: editable && display > 0
               ? () => onChanged(set.copyWith(weightKg: weights.toKg((display - weights.step).clamp(0, weights.maxSetWeight))))
@@ -466,6 +470,7 @@ class _SetRow extends StatelessWidget {
           key: const Key('time'),
           text: formatDuration(seconds),
           unit: t.metricTotalTime.toLowerCase(),
+          step: formatDuration(step),
           onMinus: editable && seconds > step ? () => onChanged(set.copyWith(durationSeconds: seconds - step)) : null,
           onPlus: editable ? () => onChanged(set.copyWith(durationSeconds: seconds + step)) : null,
         );
@@ -476,6 +481,7 @@ class _SetRow extends StatelessWidget {
             key: const Key('reps'),
             text: '${set.reps}',
             unit: t.repsShort,
+            step: '1',
             onMinus: editable && set.reps > 1 ? () => onChanged(set.copyWith(reps: set.reps - 1)) : null,
             onPlus: editable && set.reps < 1000 ? () => onChanged(set.copyWith(reps: set.reps + 1)) : null,
           ),
@@ -487,6 +493,7 @@ class _SetRow extends StatelessWidget {
             key: const Key('distance'),
             text: formatDistance(meters).replaceAll(' km', '').replaceAll(' m', ''),
             unit: meters < 1000 ? 'm' : 'km',
+            step: formatDistance(_distanceStep),
             onMinus: editable && meters > _distanceStep
                 ? () => onChanged(set.copyWith(distanceMeters: meters - _distanceStep))
                 : null,
@@ -524,7 +531,18 @@ class _SetRow extends StatelessWidget {
 }
 
 class _Stepper extends StatelessWidget {
-  const _Stepper({super.key, required this.text, required this.unit, required this.onMinus, required this.onPlus, this.onTextTap});
+  const _Stepper({
+    super.key,
+    required this.text,
+    required this.unit,
+    required this.step,
+    required this.onMinus,
+    required this.onPlus,
+    this.onTextTap,
+  });
+
+  /// One press, with its unit ("2.5 kg", "15 s") — the buttons' labels for screen readers.
+  final String step;
 
   /// Tap on the number (weight → plate calculator); shown underlined when set.
   final VoidCallback? onTextTap;
@@ -547,7 +565,8 @@ class _Stepper extends StatelessWidget {
       children: [
         IconButton(
           key: const Key('minus'),
-          visualDensity: VisualDensity.compact,
+          tooltip: AppLocalizations.of(context)!.decreaseBy(step),
+          // 48 dp: tapped mid-set, often with sweaty hands.
           onPressed: onMinus == null ? null : () => _tap(onMinus!),
           icon: const Icon(Icons.remove),
         ),
@@ -576,7 +595,8 @@ class _Stepper extends StatelessWidget {
         ),
         IconButton(
           key: const Key('plus'),
-          visualDensity: VisualDensity.compact,
+          tooltip: AppLocalizations.of(context)!.increaseBy(step),
+          // 48 dp tap target.
           onPressed: onPlus == null ? null : () => _tap(onPlus!),
           icon: const Icon(Icons.add),
         ),

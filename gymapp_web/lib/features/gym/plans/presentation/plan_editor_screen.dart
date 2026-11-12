@@ -280,7 +280,7 @@ class _MiniStepper extends StatelessWidget {
         Text(label, style: Theme.of(context).textTheme.labelLarge),
         IconButton(
           tooltip: t.decreaseBy('1'),
-          visualDensity: VisualDensity.compact,
+          // Standard density: 48 dp tap targets (compact was 40).
           onPressed: value > min ? () => _set(value - 1) : null,
           icon: const Icon(Icons.remove),
         ),
@@ -290,7 +290,7 @@ class _MiniStepper extends StatelessWidget {
         ),
         IconButton(
           tooltip: t.increaseBy('1'),
-          visualDensity: VisualDensity.compact,
+          // Standard density: 48 dp tap targets.
           onPressed: value < max ? () => _set(value + 1) : null,
           icon: const Icon(Icons.add),
         ),
