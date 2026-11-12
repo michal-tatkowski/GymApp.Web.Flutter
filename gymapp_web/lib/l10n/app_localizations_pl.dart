@@ -863,4 +863,29 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get passwordChanged => 'Hasło zmienione. Zaloguj się nowym.';
+
+  @override
+  String get supersetWithNext => 'Superseria z następnym';
+
+  @override
+  String get supersetHint =>
+      'Robione na zmianę z następnym ćwiczeniem, przerwa dopiero po rundzie. Połącz 3+ w obwód.';
+
+  @override
+  String get superset => 'Superseria';
+
+  @override
+  String get circuit => 'Obwód';
+
+  @override
+  String get supersetNoRest =>
+      'Po odhaczeniu serii przechodzisz do następnego ćwiczenia, przerwa po rundzie.';
+
+  @override
+  String get warmUp => 'Rozgrzewka';
+
+  @override
+  String warmUpHint(String weight) {
+    return 'Przed $weight — nie trafia do historii';
+  }
 }

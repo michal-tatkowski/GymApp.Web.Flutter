@@ -852,4 +852,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get passwordChanged => 'Password changed. Log in with the new one.';
+
+  @override
+  String get supersetWithNext => 'Superset with next';
+
+  @override
+  String get supersetHint =>
+      'Done in turns with the next exercise, rest only after the round. Link 3+ for a circuit.';
+
+  @override
+  String get superset => 'Superset';
+
+  @override
+  String get circuit => 'Circuit';
+
+  @override
+  String get supersetNoRest =>
+      'Ticking a set moves on to the next exercise, rest after the round.';
+
+  @override
+  String get warmUp => 'Warm-up';
+
+  @override
+  String warmUpHint(String weight) {
+    return 'Before $weight — not logged';
+  }
 }

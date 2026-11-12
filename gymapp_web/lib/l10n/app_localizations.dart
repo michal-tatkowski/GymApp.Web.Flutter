@@ -1549,6 +1549,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Password changed. Log in with the new one.'**
   String get passwordChanged;
+
+  /// No description provided for @supersetWithNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Superset with next'**
+  String get supersetWithNext;
+
+  /// No description provided for @supersetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Done in turns with the next exercise, rest only after the round. Link 3+ for a circuit.'**
+  String get supersetHint;
+
+  /// No description provided for @superset.
+  ///
+  /// In en, this message translates to:
+  /// **'Superset'**
+  String get superset;
+
+  /// No description provided for @circuit.
+  ///
+  /// In en, this message translates to:
+  /// **'Circuit'**
+  String get circuit;
+
+  /// No description provided for @supersetNoRest.
+  ///
+  /// In en, this message translates to:
+  /// **'Ticking a set moves on to the next exercise, rest after the round.'**
+  String get supersetNoRest;
+
+  /// No description provided for @warmUp.
+  ///
+  /// In en, this message translates to:
+  /// **'Warm-up'**
+  String get warmUp;
+
+  /// No description provided for @warmUpHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Before {weight} — not logged'**
+  String warmUpHint(String weight);
 }
 
 class _AppLocalizationsDelegate

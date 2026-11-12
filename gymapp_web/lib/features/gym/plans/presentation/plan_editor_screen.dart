@@ -133,6 +133,8 @@ class _PlanEditorScreenState extends ConsumerState<PlanEditorScreen> {
             key: ValueKey(_items[i].exerciseId),
             index: i,
             item: _items[i],
+            isLast: i == _items.length - 1,
+            linkedFromPrevious: i > 0 && _items[i - 1].supersetWithNext,
             onChanged: (item) => setState(() => _items[i] = item),
             onRemove: () => setState(() => _items.removeAt(i)),
           ),
@@ -147,12 +149,16 @@ class _PlanItemCard extends StatelessWidget {
     super.key,
     required this.index,
     required this.item,
+    required this.isLast,
+    required this.linkedFromPrevious,
     required this.onChanged,
     required this.onRemove,
   });
 
   final int index;
   final PlanItem item;
+  final bool isLast;
+  final bool linkedFromPrevious;
   final ValueChanged<PlanItem> onChanged;
   final VoidCallback onRemove;
 
@@ -160,8 +166,18 @@ class _PlanItemCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final linked = item.supersetWithNext && !isLast;
+    // Linked cards sit closer and share an accent edge, so a superset reads as one block.
+    final accent = BorderSide(color: theme.colorScheme.tertiary, width: 3);
     return Card(
-      margin: const EdgeInsets.only(bottom: 8),
+      margin: EdgeInsets.only(bottom: linked ? 2 : 8),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(linkedFromPrevious ? 4 : 12),
+          bottom: Radius.circular(linked ? 4 : 12),
+        ),
+        side: linked || linkedFromPrevious ? accent : BorderSide.none,
+      ),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(4, 4, 8, 8),
         child: Column(
@@ -210,6 +226,19 @@ class _PlanItemCard extends StatelessWidget {
                 ),
               ],
             ),
+            if (!isLast)
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: FilterChip(
+                  key: Key('plan.$index.superset'),
+                  avatar: Icon(linked ? Icons.link : Icons.link_off, size: 18),
+                  showCheckmark: false,
+                  label: Text(t.supersetWithNext),
+                  tooltip: t.supersetHint,
+                  selected: linked,
+                  onSelected: (v) => onChanged(item.copyWith(supersetWithNext: v)),
+                ),
+              ),
           ],
         ),
       ),

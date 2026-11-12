@@ -77,7 +77,7 @@ Wysyłane są tylko błąd i informacje o urządzeniu/aplikacji (`sendDefaultPii
 Treść jest w aplikacji (Ustawienia → Polityka prywatności, link też przy rejestracji) i w [`../docs/privacy-policy.md`](../docs/privacy-policy.md). Sklepy wymagają publicznego URL — np. włącz GitHub Pages z folderu `docs/`. Przed publikacją uzupełnij administratora i e-mail kontaktowy (`privacyController`, `privacyContact` w `privacy_policy_screen.dart` i w pliku `.md`).
 
 ## Do zrobienia przed publikacją
-- Ikona aplikacji i ekran startowy (teraz domyślne Fluttera) — np. `flutter_launcher_icons` + `flutter_native_splash`.
+- Ikona i ekran startowy są gotowe (`assets/icon`, konfiguracja `flutter_launcher_icons` / `flutter_native_splash`) — przy zmianie grafiki uruchom oba generatory.
 - Klucz wydania (wyżej) i konto w Google Play / App Store.
 - Administrator i kontakt w polityce prywatności + jej publiczny URL.
 - Produkcyjny adres API po `https` i DSN Sentry.

@@ -299,5 +299,13 @@
   "@resetBody": { "placeholders": { "email": { "type": "String" } } },
   "newPassword": "New password",
   "setNewPassword": "Set new password",
-  "passwordChanged": "Password changed. Log in with the new one."
+  "passwordChanged": "Password changed. Log in with the new one.",
+  "supersetWithNext": "Superset with next",
+  "supersetHint": "Done in turns with the next exercise, rest only after the round. Link 3+ for a circuit.",
+  "superset": "Superset",
+  "circuit": "Circuit",
+  "supersetNoRest": "Ticking a set moves on to the next exercise, rest after the round.",
+  "warmUp": "Warm-up",
+  "warmUpHint": "Before {weight} — not logged",
+  "@warmUpHint": { "placeholders": { "weight": { "type": "String" } } }
 }
