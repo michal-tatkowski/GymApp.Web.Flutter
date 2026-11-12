@@ -79,10 +79,24 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
     _set(s.copyWith(exercises: [for (var i = 0; i < s.exercises.length; i++) i == index ? update(s.exercises[i]) : s.exercises[i]]));
   }
 
-  void updateSet(int exercise, int set, SessionSet value) => _updateExercise(
-        exercise,
-        (e) => e.copyWith(sets: [for (var i = 0; i < e.sets.length; i++) i == set ? value : e.sets[i]]),
-      );
+  /// Changes one set. A new weight or rep count is carried over to the later sets
+  /// that are not done yet and still had the old value — set the weight once, not
+  /// three times; sets the user already changed on purpose are left alone.
+  void updateSet(int exercise, int set, SessionSet value) => _updateExercise(exercise, (e) {
+        final old = e.sets[set];
+        return e.copyWith(sets: [
+          for (var i = 0; i < e.sets.length; i++)
+            if (i == set)
+              value
+            else if (i > set && !e.sets[i].done)
+              e.sets[i].copyWith(
+                weightKg: e.sets[i].weightKg == old.weightKg ? value.weightKg : null,
+                reps: e.sets[i].reps == old.reps ? value.reps : null,
+              )
+            else
+              e.sets[i],
+        ]);
+      });
 
   /// Ticks a set off (starts the rest timer) or un-ticks it.
   void toggleDone(int exercise, int set) {

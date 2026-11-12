@@ -33,6 +33,7 @@ class _PlanEditorScreenState extends ConsumerState<PlanEditorScreen> {
   }
 
   Future<void> _addExercise() async {
+    FocusScope.of(context).unfocus(); // keyboard must not jump back to the name after picking
     final exercise = await pickExercise(context, alreadyAdded: {for (final i in _items) i.exerciseId});
     if (exercise == null || !mounted) return;
     setState(() => _items.add(

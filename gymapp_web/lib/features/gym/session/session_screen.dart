@@ -262,7 +262,8 @@ class _ExerciseStrip extends StatelessWidget {
               avatar: finished ? const Icon(Icons.check, size: 16) : null,
               showCheckmark: false,
               label: Text(e.name, overflow: TextOverflow.ellipsis),
-              onSelected: onTap == null || i == session.current ? null : (_) => onTap!(i),
+              // Current one stays enabled (not greyed out); tapping it does nothing.
+              onSelected: onTap == null ? null : (_) => i == session.current ? null : onTap!(i),
             );
           },
         ),

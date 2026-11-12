@@ -38,7 +38,10 @@ class _ExercisePickerState extends ConsumerState<_ExercisePicker> {
 
   void _onChanged(String q) {
     _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 300), () => setState(() => _results = _search(q)));
+    // Block body: an arrow would return the Future from setState, which Flutter rejects.
+    _debounce = Timer(const Duration(milliseconds: 300), () => setState(() {
+          _results = _search(q);
+        }));
   }
 
   @override

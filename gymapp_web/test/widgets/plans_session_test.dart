@@ -184,5 +184,23 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.textContaining('Target: 2 × 8–12'), findsOneWidget); // back on Dips
     });
+
+    testWidgets('a new weight carries over to the later sets not done yet', (tester) async {
+      await pumpToday(tester);
+      await tester.tap(find.byKey(const Key('plan.start.p1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('session.next'))); // to Dips: no history, 0 kg
+      await tester.pumpAndSettle();
+
+      Finder weightOf(int set) => find.descendant(
+          of: find.descendant(of: find.byKey(Key('session.set$set')), matching: find.byKey(const Key('weight'))),
+          matching: find.byType(Text));
+      await tester.tap(find.descendant(
+          of: find.descendant(of: find.byKey(const Key('session.set0')), matching: find.byKey(const Key('weight'))),
+          matching: find.byKey(const Key('plus'))));
+      await tester.pump();
+
+      expect(tester.widget<Text>(weightOf(1).first).data, '2.5');
+    });
   });
 }
