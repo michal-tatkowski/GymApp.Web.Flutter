@@ -877,4 +877,137 @@ class AppLocalizationsEn extends AppLocalizations {
   String warmUpHint(String weight) {
     return 'Before $weight — not logged';
   }
+
+  @override
+  String get activityTitle => 'Activity';
+
+  @override
+  String activitySummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count workouts in the last 12 months',
+      one: '1 workout in the last 12 months',
+      zero: 'No workouts in the last 12 months',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activityTapHint => 'Tap a day to see it';
+
+  @override
+  String activityRestDay(String date) {
+    return '$date: rest day';
+  }
+
+  @override
+  String activityDay(String date, int exercises, int sets) {
+    String _temp0 = intl.Intl.pluralLogic(
+      exercises,
+      locale: localeName,
+      other: '$exercises exercises',
+      one: '1 exercise',
+    );
+    return '$date: $_temp0 · $sets sets';
+  }
+
+  @override
+  String get badgesTitle => 'Badges';
+
+  @override
+  String badgesCount(int earned, int total) {
+    return '$earned of $total earned';
+  }
+
+  @override
+  String badgeUnlocked(String name) {
+    return 'New badge: $name 🏅';
+  }
+
+  @override
+  String get badgeEarned => 'Earned';
+
+  @override
+  String badgeEarnedOn(String date) {
+    return 'Earned $date';
+  }
+
+  @override
+  String get badgeWorkouts1 => 'First step';
+
+  @override
+  String get badgeWorkouts10 => 'Getting going';
+
+  @override
+  String get badgeWorkouts50 => 'Regular';
+
+  @override
+  String get badgeWorkouts100 => 'Centurion';
+
+  @override
+  String get badgeStreak4 => 'Month strong';
+
+  @override
+  String get badgeStreak12 => 'Unstoppable';
+
+  @override
+  String get badgeBusyWeek => 'Busy week';
+
+  @override
+  String get badgeRecord1 => 'New best';
+
+  @override
+  String get badgeRecord10 => 'Record breaker';
+
+  @override
+  String get badgeVolume10t => 'Heavy lifter';
+
+  @override
+  String get badgeVolume100t => 'Iron mover';
+
+  @override
+  String get badgeVariety => 'Explorer';
+
+  @override
+  String badgeGoalWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Train on $count days',
+      one: 'Log your first workout',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String badgeGoalStreak(int count) {
+    return 'Train $count weeks in a row';
+  }
+
+  @override
+  String badgeGoalBusyWeek(int count) {
+    return 'Train $count times in one week';
+  }
+
+  @override
+  String badgeGoalRecords(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Set $count personal records',
+      one: 'Set a personal record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String badgeGoalVolume(String weight) {
+    return 'Lift $weight in total';
+  }
+
+  @override
+  String badgeGoalVariety(int count) {
+    return 'Train $count different exercises';
+  }
 }

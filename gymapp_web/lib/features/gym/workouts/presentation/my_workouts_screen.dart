@@ -10,6 +10,7 @@ import '../../../../core/widgets/gradient_background.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
 import '../../exercises/presentation/category_ui.dart';
+import '../../progress/progress_cards.dart';
 import '../data/workout_models.dart';
 import 'exercise_workouts_screen.dart';
 import 'workout_providers.dart';
@@ -34,7 +35,10 @@ class MyWorkoutsScreen extends ConsumerWidget {
               onRetry: () => ref.invalidate(workoutSummariesProvider),
             ),
             data: (items) => RefreshIndicator(
-              onRefresh: () => ref.refresh(workoutSummariesProvider.future),
+              onRefresh: () {
+                ref.invalidate(yearStatsProvider);
+                return ref.refresh(workoutSummariesProvider.future);
+              },
               child: items.isEmpty
                   // Scrollable even when empty, so pulling down works here too.
                   ? LayoutBuilder(
@@ -65,7 +69,11 @@ class MyWorkoutsScreen extends ConsumerWidget {
                   : ListView(
                       physics: const AlwaysScrollableScrollPhysics(),
                       padding: const EdgeInsets.all(16),
-                      children: [for (final s in items) _SummaryTile(summary: s, weights: ref.watch(weightFormatProvider))],
+                      children: [
+                        const ActivityCard(),
+                        BadgesCard(distinctExercises: items.length),
+                        for (final s in items) _SummaryTile(summary: s, weights: ref.watch(weightFormatProvider)),
+                      ],
                     ),
             ),
           ),

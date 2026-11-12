@@ -1591,6 +1591,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Before {weight} — not logged'**
   String warmUpHint(String weight);
+
+  /// No description provided for @activityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity'**
+  String get activityTitle;
+
+  /// No description provided for @activitySummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No workouts in the last 12 months} =1{1 workout in the last 12 months} other{{count} workouts in the last 12 months}}'**
+  String activitySummary(int count);
+
+  /// No description provided for @activityTapHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap a day to see it'**
+  String get activityTapHint;
+
+  /// No description provided for @activityRestDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: rest day'**
+  String activityRestDay(String date);
+
+  /// No description provided for @activityDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{date}: {exercises, plural, =1{1 exercise} other{{exercises} exercises}} · {sets} sets'**
+  String activityDay(String date, int exercises, int sets);
+
+  /// No description provided for @badgesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get badgesTitle;
+
+  /// No description provided for @badgesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{earned} of {total} earned'**
+  String badgesCount(int earned, int total);
+
+  /// No description provided for @badgeUnlocked.
+  ///
+  /// In en, this message translates to:
+  /// **'New badge: {name} 🏅'**
+  String badgeUnlocked(String name);
+
+  /// No description provided for @badgeEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned'**
+  String get badgeEarned;
+
+  /// No description provided for @badgeEarnedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Earned {date}'**
+  String badgeEarnedOn(String date);
+
+  /// No description provided for @badgeWorkouts1.
+  ///
+  /// In en, this message translates to:
+  /// **'First step'**
+  String get badgeWorkouts1;
+
+  /// No description provided for @badgeWorkouts10.
+  ///
+  /// In en, this message translates to:
+  /// **'Getting going'**
+  String get badgeWorkouts10;
+
+  /// No description provided for @badgeWorkouts50.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular'**
+  String get badgeWorkouts50;
+
+  /// No description provided for @badgeWorkouts100.
+  ///
+  /// In en, this message translates to:
+  /// **'Centurion'**
+  String get badgeWorkouts100;
+
+  /// No description provided for @badgeStreak4.
+  ///
+  /// In en, this message translates to:
+  /// **'Month strong'**
+  String get badgeStreak4;
+
+  /// No description provided for @badgeStreak12.
+  ///
+  /// In en, this message translates to:
+  /// **'Unstoppable'**
+  String get badgeStreak12;
+
+  /// No description provided for @badgeBusyWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Busy week'**
+  String get badgeBusyWeek;
+
+  /// No description provided for @badgeRecord1.
+  ///
+  /// In en, this message translates to:
+  /// **'New best'**
+  String get badgeRecord1;
+
+  /// No description provided for @badgeRecord10.
+  ///
+  /// In en, this message translates to:
+  /// **'Record breaker'**
+  String get badgeRecord10;
+
+  /// No description provided for @badgeVolume10t.
+  ///
+  /// In en, this message translates to:
+  /// **'Heavy lifter'**
+  String get badgeVolume10t;
+
+  /// No description provided for @badgeVolume100t.
+  ///
+  /// In en, this message translates to:
+  /// **'Iron mover'**
+  String get badgeVolume100t;
+
+  /// No description provided for @badgeVariety.
+  ///
+  /// In en, this message translates to:
+  /// **'Explorer'**
+  String get badgeVariety;
+
+  /// No description provided for @badgeGoalWorkouts.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Log your first workout} other{Train on {count} days}}'**
+  String badgeGoalWorkouts(int count);
+
+  /// No description provided for @badgeGoalStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'Train {count} weeks in a row'**
+  String badgeGoalStreak(int count);
+
+  /// No description provided for @badgeGoalBusyWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Train {count} times in one week'**
+  String badgeGoalBusyWeek(int count);
+
+  /// No description provided for @badgeGoalRecords.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Set a personal record} other{Set {count} personal records}}'**
+  String badgeGoalRecords(int count);
+
+  /// No description provided for @badgeGoalVolume.
+  ///
+  /// In en, this message translates to:
+  /// **'Lift {weight} in total'**
+  String badgeGoalVolume(String weight);
+
+  /// No description provided for @badgeGoalVariety.
+  ///
+  /// In en, this message translates to:
+  /// **'Train {count} different exercises'**
+  String badgeGoalVariety(int count);
 }
 
 class _AppLocalizationsDelegate

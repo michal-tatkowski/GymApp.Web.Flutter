@@ -26,4 +26,7 @@ class StorageKeys {
 
   /// Live workout session in progress (JSON), survives closing the app.
   static const activeSession = 'session.active';
+
+  /// Badges earned on this device (JSON id → date), see EarnedBadges.
+  static const earnedBadges = 'badges.earned';
 }
