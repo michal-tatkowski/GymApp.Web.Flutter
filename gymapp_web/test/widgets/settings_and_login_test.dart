@@ -91,6 +91,84 @@ void main() {
       expect(find.text('Too many attempts. Wait a minute and try again.'), findsOneWidget);
     });
 
+    testWidgets('unconfirmed email: login opens the code screen, sends a fresh code, the right code signs in',
+        (tester) async {
+      final repo = await pumpLogin(tester,
+          loginError: const ForbiddenFailure('Confirm your email address with the code we sent you.', 'EmailNotConfirmed'));
+
+      expect(find.text('Confirm your email'), findsOneWidget);
+      expect(find.textContaining('jan@test.pl'), findsOneWidget);
+      expect(repo.calls, contains('resend jan@test.pl'));
+      expect(tester.widget<TextButton>(find.byKey(const Key('verify.resend'))).onPressed, isNull); // 60 s cooldown
+
+      await tester.enterText(find.byKey(const Key('code.field')), '999999');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('verify.confirm')));
+      await tester.pumpAndSettle();
+      expect(find.text('The code is invalid or has expired.'), findsOneWidget);
+
+      await tester.enterText(find.byKey(const Key('code.field')), FakeAuthRepository.validCode);
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('verify.confirm')));
+      await tester.pumpAndSettle();
+      expect(find.byType(NavigationBar), findsOneWidget); // signed in
+      await tester.pump(const Duration(seconds: 61)); // let the cooldown timer finish
+    });
+
+    testWidgets('forgot password: email → code + new password → back to login', (tester) async {
+      final repo = await pumpLogin(tester,
+          loginError: const UnauthorizedFailure('Invalid login or password.', 'InvalidCredentials'));
+      await tester.tap(find.byKey(const Key('login.forgot')));
+      await tester.pumpAndSettle();
+
+      expect(tester.widget<TextFormField>(find.byKey(const Key('forgot.email'))).controller!.text, 'jan@test.pl');
+      await tester.tap(find.byKey(const Key('forgot.send')));
+      await tester.pumpAndSettle();
+      expect(repo.calls.last, 'forgot jan@test.pl');
+
+      await tester.enterText(find.byKey(const Key('code.field')), FakeAuthRepository.validCode);
+      await tester.enterText(find.byKey(const Key('forgot.password')), 'short');
+      await tester.pump();
+      await tester.tap(find.byKey(const Key('forgot.reset')));
+      await tester.pumpAndSettle();
+      expect(find.textContaining('at least 8'), findsOneWidget); // validated before calling the API
+      expect(repo.calls.where((c) => c.startsWith('reset')), isEmpty);
+
+      await tester.enterText(find.byKey(const Key('forgot.password')), 'NoweHaslo123');
+      await tester.tap(find.byKey(const Key('forgot.reset')));
+      await tester.pumpAndSettle();
+      expect(repo.calls.last, 'reset jan@test.pl ${FakeAuthRepository.validCode} NoweHaslo123');
+      expect(find.text('Password changed. Log in with the new one.'), findsOneWidget);
+      expect(find.text('Remember me'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 61));
+    });
+
+    testWidgets('sign-up goes to the code screen for that email', (tester) async {
+      final repo = FakeAuthRepository();
+      await tester.pumpWidget(ProviderScope(
+        retry: noRetry,
+        overrides: [
+          authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
+          restAlarmProvider.overrideWithValue(FakeRestAlarm()),
+          planRepositoryProvider.overrideWithValue(FakePlanRepository()),
+          authRepositoryProvider.overrideWithValue(repo),
+        ],
+        child: const GymApp(),
+      ));
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(OutlinedButton, 'Register'));
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(TextFormField).at(0), 'nowy@test.pl');
+      await tester.enterText(find.byType(TextFormField).at(1), 'secret123');
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+
+      expect(repo.calls, ['register nowy@test.pl']); // no extra resend: sign-up already sent the code
+      expect(find.text('Confirm your email'), findsOneWidget);
+      expect(find.textContaining('nowy@test.pl'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 61));
+    });
+
     testWidgets('successful login opens the Today tab with the bottom navigation', (tester) async {
       await pumpLogin(tester);
 

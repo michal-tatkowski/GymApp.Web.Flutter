@@ -115,6 +115,13 @@ class AuthController extends AsyncNotifier<AuthState> {
     state = const AsyncData(AuthState.unauthenticated);
   }
 
+  /// Throws [Failure] (e.g. code `InvalidCode`) without touching the state, so
+  /// the code screen shows the error in place; success signs in.
+  Future<void> confirmEmail({required String email, required String code, required bool rememberMe}) async {
+    await ref.read(authRepositoryProvider).confirmEmail(email: email, code: code, rememberMe: rememberMe);
+    state = const AsyncData(AuthState.authenticated);
+  }
+
   /// Throws [Failure] and stays logged in when the server refuses (e.g. wrong password).
   Future<void> deleteAccount(String password) async {
     await ref.read(authRepositoryProvider).deleteAccount(password);

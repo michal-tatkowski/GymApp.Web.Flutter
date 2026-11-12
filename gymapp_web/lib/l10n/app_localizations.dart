@@ -884,12 +884,6 @@ abstract class AppLocalizations {
   /// **'Creating account…'**
   String get registering;
 
-  /// No description provided for @accountCreated.
-  ///
-  /// In en, this message translates to:
-  /// **'Account created. You can log in now.'**
-  String get accountCreated;
-
   /// No description provided for @weightUnit.
   ///
   /// In en, this message translates to:
@@ -1465,6 +1459,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete forever'**
   String get deleteAccountConfirm;
+
+  /// No description provided for @verifyEmailTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your email'**
+  String get verifyEmailTitle;
+
+  /// No description provided for @verifyEmailBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We sent a 6-digit code to {email}. Enter it to finish creating your account.'**
+  String verifyEmailBody(String email);
+
+  /// No description provided for @codeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get codeLabel;
+
+  /// No description provided for @confirmCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirmCode;
+
+  /// No description provided for @resendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a new code'**
+  String get resendCode;
+
+  /// No description provided for @resendIn.
+  ///
+  /// In en, this message translates to:
+  /// **'New code in {seconds} s'**
+  String resendIn(int seconds);
+
+  /// No description provided for @codeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'New code sent. Check your inbox (and spam).'**
+  String get codeSent;
+
+  /// No description provided for @backToLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to login'**
+  String get backToLogin;
+
+  /// No description provided for @forgotTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get forgotTitle;
+
+  /// No description provided for @forgotBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your account email. We will send you a code to set a new password.'**
+  String get forgotBody;
+
+  /// No description provided for @sendCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Send code'**
+  String get sendCode;
+
+  /// No description provided for @resetBody.
+  ///
+  /// In en, this message translates to:
+  /// **'If {email} has an account, we sent it a code. Enter it with your new password.'**
+  String resetBody(String email);
+
+  /// No description provided for @newPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'New password'**
+  String get newPassword;
+
+  /// No description provided for @setNewPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Set new password'**
+  String get setNewPassword;
+
+  /// No description provided for @passwordChanged.
+  ///
+  /// In en, this message translates to:
+  /// **'Password changed. Log in with the new one.'**
+  String get passwordChanged;
 }
 
 class _AppLocalizationsDelegate

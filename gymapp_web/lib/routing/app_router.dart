@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../features/auth/presentation/auth_providers.dart';
 import '../features/auth/presentation/auth_state.dart';
+import '../features/auth/presentation/screens/email_code_screens.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/splash_screen.dart';
@@ -51,8 +52,7 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         return isAuthed ? AppRoutes.home : AppRoutes.login;
       }
 
-      final isOnAuthRoute =
-          here == AppRoutes.login || here == AppRoutes.register;
+      final isOnAuthRoute = AppRoutes.signedOut.contains(here);
 
       if (!isAuthed && !isOnAuthRoute) return AppRoutes.login;
       if (isAuthed && isOnAuthRoute) return AppRoutes.home;
@@ -62,6 +62,21 @@ final goRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: AppRoutes.splash, builder: (_, __) => const SplashScreen()),
       GoRoute(path: AppRoutes.login, builder: (_, __) => const LoginScreen()),
       GoRoute(path: AppRoutes.register, builder: (_, __) => const RegisterScreen()),
+      GoRoute(
+        path: AppRoutes.verifyEmail,
+        builder: (_, state) {
+          final q = state.uri.queryParameters;
+          return VerifyEmailScreen(
+            email: q['email'] ?? '',
+            rememberMe: q['remember'] != '0',
+            sendOnOpen: q['send'] == '1',
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.forgotPassword,
+        builder: (_, state) => ForgotPasswordScreen(email: state.uri.queryParameters['email'] ?? ''),
+      ),
       // Tabs: each branch has its own navigator, so pushed screens (exercise details,
       // training log) stay under the bottom bar and survive tab switches.
       StatefulShellRoute.indexedStack(

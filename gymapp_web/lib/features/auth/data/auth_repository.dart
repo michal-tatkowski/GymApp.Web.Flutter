@@ -44,6 +44,29 @@ class AuthRepository {
     await storage.clear();
   }
 
+  Future<void> confirmEmail({required String email, required String code, required bool rememberMe}) =>
+      _guard(() async {
+        final tokens = await api.confirmEmail(email, code);
+        await storage.saveTokens(tokens, rememberMe: rememberMe);
+      });
+
+  Future<void> resendConfirmation(String email) => _guard(() => api.resendConfirmation(email));
+
+  Future<void> forgotPassword(String email) => _guard(() => api.forgotPassword(email));
+
+  Future<void> resetPassword({required String email, required String code, required String newPassword}) =>
+      _guard(() => api.resetPassword(email: email, code: code, newPassword: newPassword));
+
+  Future<void> _guard(Future<void> Function() call) async {
+    try {
+      await call();
+    } on DioException catch (e) {
+      throw mapDioErrorToFailure(e);
+    } on FormatException {
+      throw const ServerFailure();
+    }
+  }
+
   /// Deletes the account on the server, then forgets the tokens (they are
   /// already invalid). Throws [Failure] — e.g. [ValidationFailure] with code
   /// `WrongPassword`; the tokens stay so the user can try again.

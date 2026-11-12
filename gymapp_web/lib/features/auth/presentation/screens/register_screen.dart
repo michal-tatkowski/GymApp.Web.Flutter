@@ -5,9 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../core/validation/validators.dart';
 import '../../../../l10n/app_localizations.dart';
-import '../../../../routing/app_routes.dart';
 import '../../../settings/privacy_policy_screen.dart';
 import '../auth_providers.dart';
+import 'email_code_screens.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -36,10 +36,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         .register(email: _emailCtrl.text.trim(), password: _passwordCtrl.text);
     if (!mounted) return;
     final state = ref.read(authControllerProvider);
-    if (!state.hasError) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context)!.accountCreated)));
-      context.go(AppRoutes.login);
-    }
+    // The API emailed a code; the account works once it is entered.
+    if (!state.hasError) context.go(VerifyEmailScreen.location(_emailCtrl.text.trim()));
   }
 
   @override

@@ -18,6 +18,8 @@ Najpierw API na komputerze (`GymApp.API`: `dotnet run --project Web.Api --launch
 
 Na Windowsie może być potrzebne otwarcie portu 5035 w zaporze, żeby telefon dosięgnął API.
 
+Kod potwierdzający e-mail i kod resetu hasła: lokalne API bez SMTP nie wysyła maili, tylko wypisuje je do swojego logu (konsola / Seq) — stamtąd przepisz 6 cyfr.
+
 `http` działa tylko lokalnie: na Androidzie wyłącznie w buildach debug (`src/debug/AndroidManifest.xml`), na iOS tylko dla sieci lokalnej (`NSAllowsLocalNetworking`). Wydanie łączy się z API po `https`:
 
 ```bash
