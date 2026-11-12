@@ -128,8 +128,20 @@ void main() {
     return (repo, container);
   }
 
+  /// On a slow CI emulator the session restore can finish after pumpAndSettle: wait for the widget.
+  Future<void> pumpUntilFound(WidgetTester tester, Finder finder, {Duration timeout = const Duration(seconds: 20)}) async {
+    final end = DateTime.now().add(timeout);
+    while (finder.evaluate().isEmpty) {
+      if (DateTime.now().isAfter(end)) fail('Not found within $timeout: $finder');
+      await tester.pump(const Duration(milliseconds: 200));
+    }
+    await tester.pumpAndSettle();
+  }
+
   Future<void> signUpAndConfirm(WidgetTester tester) async {
-    await tester.tap(find.widgetWithText(OutlinedButton, 'Register'));
+    final register = find.widgetWithText(OutlinedButton, 'Register');
+    await pumpUntilFound(tester, register);
+    await tester.tap(register);
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextFormField).at(0), 'e2e@test.pl');
     await tester.enterText(find.byType(TextFormField).at(1), 'secret123');
