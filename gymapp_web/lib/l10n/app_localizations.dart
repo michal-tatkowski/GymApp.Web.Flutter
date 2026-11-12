@@ -614,6 +614,228 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @onboardingTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Let\'s set you up'**
+  String get onboardingTitle;
+
+  /// No description provided for @skip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get skip;
+
+  /// No description provided for @onboardingGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'What\'s your main goal?'**
+  String get onboardingGoal;
+
+  /// No description provided for @goalStrength.
+  ///
+  /// In en, this message translates to:
+  /// **'Get stronger'**
+  String get goalStrength;
+
+  /// No description provided for @goalMuscle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build muscle'**
+  String get goalMuscle;
+
+  /// No description provided for @goalFitness.
+  ///
+  /// In en, this message translates to:
+  /// **'General fitness'**
+  String get goalFitness;
+
+  /// No description provided for @goalFatLoss.
+  ///
+  /// In en, this message translates to:
+  /// **'Lose fat'**
+  String get goalFatLoss;
+
+  /// No description provided for @onboardingPlace.
+  ///
+  /// In en, this message translates to:
+  /// **'Where do you train?'**
+  String get onboardingPlace;
+
+  /// No description provided for @placeGym.
+  ///
+  /// In en, this message translates to:
+  /// **'At a gym'**
+  String get placeGym;
+
+  /// No description provided for @placeHome.
+  ///
+  /// In en, this message translates to:
+  /// **'At home, no equipment'**
+  String get placeHome;
+
+  /// No description provided for @onboardingDays.
+  ///
+  /// In en, this message translates to:
+  /// **'How many days a week?'**
+  String get onboardingDays;
+
+  /// No description provided for @onboardingPlanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your plan'**
+  String get onboardingPlanTitle;
+
+  /// No description provided for @onboardingPlanHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A proven plan to start with — change anything later in Plans.'**
+  String get onboardingPlanHint;
+
+  /// No description provided for @onboardingSplitHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} plans to rotate, one per workout — change anything later in Plans.'**
+  String onboardingSplitHint(int count);
+
+  /// No description provided for @onboardingReminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Remind me on training days'**
+  String get onboardingReminders;
+
+  /// No description provided for @onboardingRemindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} days a week, at 18:00 — adjust in Settings'**
+  String onboardingRemindersHint(int count);
+
+  /// No description provided for @onboardingAccept.
+  ///
+  /// In en, this message translates to:
+  /// **'Add plan and weekly goal'**
+  String get onboardingAccept;
+
+  /// No description provided for @onboardingReady.
+  ///
+  /// In en, this message translates to:
+  /// **'All set — start your first workout from Plans'**
+  String get onboardingReady;
+
+  /// No description provided for @shareTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Share \"{name}\"'**
+  String shareTitle(String name);
+
+  /// No description provided for @shareHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Anyone with this code can add a copy in GymApp (New plan → From a code).'**
+  String get shareHint;
+
+  /// No description provided for @shareMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'My \"{name}\" in GymApp — add it with the code {code} (New plan → From a code).'**
+  String shareMessage(String name, String code);
+
+  /// No description provided for @codeCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Code copied'**
+  String get codeCopied;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get copy;
+
+  /// No description provided for @importFromCode.
+  ///
+  /// In en, this message translates to:
+  /// **'From a code'**
+  String get importFromCode;
+
+  /// No description provided for @importFromCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A plan or exercise someone shared with you'**
+  String get importFromCodeHint;
+
+  /// No description provided for @shareCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Share code'**
+  String get shareCode;
+
+  /// No description provided for @showShared.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get showShared;
+
+  /// No description provided for @addToMyPlans.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my plans'**
+  String get addToMyPlans;
+
+  /// No description provided for @addToMyExercises.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to my exercises'**
+  String get addToMyExercises;
+
+  /// No description provided for @planImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan \"{name}\" added'**
+  String planImported(String name);
+
+  /// No description provided for @exerciseImported.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise \"{name}\" added'**
+  String exerciseImported(String name);
+
+  /// No description provided for @rir.
+  ///
+  /// In en, this message translates to:
+  /// **'RIR'**
+  String get rir;
+
+  /// No description provided for @rirExplained.
+  ///
+  /// In en, this message translates to:
+  /// **'Reps in reserve: how many more you could have done. Feeds the next hint.'**
+  String get rirExplained;
+
+  /// No description provided for @rirZero.
+  ///
+  /// In en, this message translates to:
+  /// **'0 — nothing left, to failure'**
+  String get rirZero;
+
+  /// No description provided for @rirValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} more in reserve'**
+  String rirValue(String count);
+
+  /// No description provided for @setNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note to this set'**
+  String get setNote;
+
+  /// No description provided for @setNoteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. elbow hurt, slow negative'**
+  String get setNoteHint;
+
   /// No description provided for @exportData.
   ///
   /// In en, this message translates to:

@@ -21,6 +21,7 @@ import 'week_summary.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/pending_workouts.dart';
 import '../goals/goals_card.dart';
+import '../onboarding/onboarding.dart';
 import '../history/history_screen.dart';
 import '../workouts/presentation/workout_providers.dart';
 
@@ -139,6 +140,7 @@ class TodayScreen extends ConsumerWidget {
                 ),
               ),
 
+            const OnboardingGate(),
             // ── This week ──────────────────────────────────────────────
             const WeekSummaryCard(),
             const GoalsCard(),

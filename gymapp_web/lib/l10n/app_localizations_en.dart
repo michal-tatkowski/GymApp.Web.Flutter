@@ -274,6 +274,134 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String get onboardingTitle => 'Let\'s set you up';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get onboardingGoal => 'What\'s your main goal?';
+
+  @override
+  String get goalStrength => 'Get stronger';
+
+  @override
+  String get goalMuscle => 'Build muscle';
+
+  @override
+  String get goalFitness => 'General fitness';
+
+  @override
+  String get goalFatLoss => 'Lose fat';
+
+  @override
+  String get onboardingPlace => 'Where do you train?';
+
+  @override
+  String get placeGym => 'At a gym';
+
+  @override
+  String get placeHome => 'At home, no equipment';
+
+  @override
+  String get onboardingDays => 'How many days a week?';
+
+  @override
+  String get onboardingPlanTitle => 'Your plan';
+
+  @override
+  String get onboardingPlanHint =>
+      'A proven plan to start with — change anything later in Plans.';
+
+  @override
+  String onboardingSplitHint(int count) {
+    return '$count plans to rotate, one per workout — change anything later in Plans.';
+  }
+
+  @override
+  String get onboardingReminders => 'Remind me on training days';
+
+  @override
+  String onboardingRemindersHint(int count) {
+    return '$count days a week, at 18:00 — adjust in Settings';
+  }
+
+  @override
+  String get onboardingAccept => 'Add plan and weekly goal';
+
+  @override
+  String get onboardingReady => 'All set — start your first workout from Plans';
+
+  @override
+  String shareTitle(String name) {
+    return 'Share \"$name\"';
+  }
+
+  @override
+  String get shareHint =>
+      'Anyone with this code can add a copy in GymApp (New plan → From a code).';
+
+  @override
+  String shareMessage(String name, String code) {
+    return 'My \"$name\" in GymApp — add it with the code $code (New plan → From a code).';
+  }
+
+  @override
+  String get codeCopied => 'Code copied';
+
+  @override
+  String get copy => 'Copy';
+
+  @override
+  String get importFromCode => 'From a code';
+
+  @override
+  String get importFromCodeHint => 'A plan or exercise someone shared with you';
+
+  @override
+  String get shareCode => 'Share code';
+
+  @override
+  String get showShared => 'Show';
+
+  @override
+  String get addToMyPlans => 'Add to my plans';
+
+  @override
+  String get addToMyExercises => 'Add to my exercises';
+
+  @override
+  String planImported(String name) {
+    return 'Plan \"$name\" added';
+  }
+
+  @override
+  String exerciseImported(String name) {
+    return 'Exercise \"$name\" added';
+  }
+
+  @override
+  String get rir => 'RIR';
+
+  @override
+  String get rirExplained =>
+      'Reps in reserve: how many more you could have done. Feeds the next hint.';
+
+  @override
+  String get rirZero => '0 — nothing left, to failure';
+
+  @override
+  String rirValue(String count) {
+    return '$count more in reserve';
+  }
+
+  @override
+  String get setNote => 'Note to this set';
+
+  @override
+  String get setNoteHint => 'e.g. elbow hurt, slow negative';
+
+  @override
   String get exportData => 'Export my data';
 
   @override

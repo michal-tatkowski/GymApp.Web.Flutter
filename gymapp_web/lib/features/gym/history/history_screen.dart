@@ -186,7 +186,10 @@ class HistoryDayCard extends ConsumerWidget {
                               ExerciseWorkoutsScreen.describeSets(e.sets, weights),
                               style: theme.textTheme.bodySmall,
                             ),
-                            for (final note in e.entries.map((x) => x.notes).whereType<String>())
+                            for (final note in [
+                              ...e.entries.map((x) => x.notes).whereType<String>(),
+                              ...e.sets.map((s) => s.note).whereType<String>(),
+                            ])
                               Text('„$note”', style: theme.textTheme.bodySmall?.copyWith(fontStyle: FontStyle.italic)),
                           ],
                         ),

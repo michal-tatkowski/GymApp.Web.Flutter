@@ -15,18 +15,26 @@ double _num(dynamic v) => (v as num?)?.toDouble() ?? 0;
 /// ([Tracking.time], [Tracking.distance]) also have [durationSeconds] and
 /// [distanceMeters]; their reps may be 0.
 class WorkoutSet {
-  const WorkoutSet({required this.reps, required this.weight, this.durationSeconds, this.distanceMeters});
+  const WorkoutSet({required this.reps, required this.weight, this.durationSeconds, this.distanceMeters, this.rir, this.note});
 
   final int reps;
   final double weight;
   final int? durationSeconds;
   final double? distanceMeters;
 
+  /// Reps in reserve (0 = to failure) — how hard the set felt.
+  final int? rir;
+
+  /// Short note to this set ("elbow hurt").
+  final String? note;
+
   factory WorkoutSet.fromJson(Map<String, dynamic> json) => WorkoutSet(
         reps: (json['reps'] as num).toInt(),
         weight: _num(json['weight']),
         durationSeconds: (json['durationSeconds'] as num?)?.toInt(),
         distanceMeters: (json['distanceMeters'] as num?)?.toDouble(),
+        rir: (json['rir'] as num?)?.toInt(),
+        note: json['note'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +42,8 @@ class WorkoutSet {
         'weight': weight,
         if (durationSeconds != null) 'durationSeconds': durationSeconds,
         if (distanceMeters != null) 'distanceMeters': distanceMeters,
+        if (rir != null) 'rir': rir,
+        if (note != null && note!.trim().isNotEmpty) 'note': note!.trim(),
       };
 
   @override
@@ -42,10 +52,12 @@ class WorkoutSet {
       other.reps == reps &&
       other.weight == weight &&
       other.durationSeconds == durationSeconds &&
-      other.distanceMeters == distanceMeters;
+      other.distanceMeters == distanceMeters &&
+      other.rir == rir &&
+      other.note == note;
 
   @override
-  int get hashCode => Object.hash(reps, weight, durationSeconds, distanceMeters);
+  int get hashCode => Object.hash(reps, weight, durationSeconds, distanceMeters, rir, note);
 }
 
 int totalDuration(Iterable<WorkoutSet> sets) => sets.fold(0, (sum, s) => sum + (s.durationSeconds ?? 0));

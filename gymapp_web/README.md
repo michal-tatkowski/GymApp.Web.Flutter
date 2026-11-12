@@ -41,6 +41,7 @@ flutter gen-l10n          # po zmianie lib/l10n/*.arb (źródło tekstów)
 flutter analyze
 flutter test
 flutter build apk --debug # szybki test, że konfiguracja Androida się buduje (robi to też CI)
+flutter test integration_test   # na uruchomionym emulatorze/telefonie: cała aplikacja z prawdziwymi pluginami (CI: job integration-android)
 ```
 
 ## Podpis wydania (Android)

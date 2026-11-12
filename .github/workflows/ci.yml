@@ -64,3 +64,46 @@ jobs:
           name: gymapp-debug-apk
           path: gymapp_web/build/app/outputs/flutter-apk/app-debug.apk
           retention-days: 7
+
+  # The whole app on an Android emulator (integration_test/): real plugins —
+  # encrypted storage, preferences, notifications, files — with an in-memory
+  # backend. Sign-up with the e-mail code, a workout from a plan into the
+  # history, offline logging and sync.
+  integration-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Enable KVM (hardware acceleration for the emulator)
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        working-directory: gymapp_web
+        run: flutter pub get
+
+      - name: Integration tests on an emulator (API 34)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 34
+          arch: x86_64
+          target: google_apis
+          profile: pixel_6
+          disable-animations: true
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim
+          working-directory: gymapp_web
+          script: flutter test integration_test --timeout 15m

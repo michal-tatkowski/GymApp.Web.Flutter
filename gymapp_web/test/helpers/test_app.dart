@@ -16,6 +16,7 @@ import 'package:gymapp_web/features/gym/exercises/data/exercise_api.dart';
 import 'package:gymapp_web/features/gym/exercises/data/exercise_repository.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/create_exercise_request.dart';
 import 'package:gymapp_web/features/gym/exercises/data/models/exercise.dart';
+import 'package:gymapp_web/features/gym/onboarding/onboarding.dart';
 import 'package:gymapp_web/features/gym/plans/data/plan_models.dart';
 import 'package:gymapp_web/features/gym/plans/data/plan_repository.dart';
 import 'package:gymapp_web/features/gym/plans/presentation/plan_providers.dart';
@@ -37,7 +38,11 @@ Future<void> pumpScreen(
   RestAlarm? restAlarm,
   PlanRepository? plans,
   ReminderScheduler? reminders,
+  ThemeData? theme,
+  double textScale = 1,
+  bool onboarding = false,
 }) async {
+  OnboardingGate.checked = false;
   await tester.pumpWidget(ProviderScope(
     retry: noRetry,
     // Tests never talk to the real notification plugin.
@@ -45,9 +50,17 @@ Future<void> pumpScreen(
       restAlarmProvider.overrideWithValue(restAlarm ?? FakeRestAlarm()),
       planRepositoryProvider.overrideWithValue(plans ?? FakePlanRepository()),
       reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
+      onboardingEnabledProvider.overrideWithValue(onboarding),
       ...overrides,
     ],
     child: MaterialApp(
+      theme: theme,
+      builder: textScale == 1
+          ? null
+          : (context, child) => MediaQuery(
+                data: MediaQuery.of(context).copyWith(textScaler: TextScaler.linear(textScale)),
+                child: child!,
+              ),
       locale: locale,
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: const [

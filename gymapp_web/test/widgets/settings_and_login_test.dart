@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gymapp_web/features/gym/onboarding/onboarding.dart';
 import 'package:gymapp_web/app/app.dart';
 import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/core/providers/retry.dart';
@@ -38,6 +39,7 @@ void main() {
         retry: noRetry,
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
+          onboardingEnabledProvider.overrideWithValue(false),
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
           planRepositoryProvider.overrideWithValue(FakePlanRepository()),
           authRepositoryProvider.overrideWithValue(FakeAuthRepository()),
@@ -62,6 +64,7 @@ void main() {
         retry: noRetry,
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
+          onboardingEnabledProvider.overrideWithValue(false),
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
           planRepositoryProvider.overrideWithValue(FakePlanRepository()),
           authRepositoryProvider.overrideWithValue(repo),
@@ -149,6 +152,7 @@ void main() {
         retry: noRetry,
         overrides: [
           authLocalStorageProvider.overrideWithValue(EmptyAuthStorage()),
+          onboardingEnabledProvider.overrideWithValue(false),
           restAlarmProvider.overrideWithValue(FakeRestAlarm()),
           planRepositoryProvider.overrideWithValue(FakePlanRepository()),
           authRepositoryProvider.overrideWithValue(repo),

@@ -17,6 +17,7 @@ import '../../exercises/presentation/favorite_button.dart';
 import '../../exercises/presentation/illustration/motion.dart';
 import '../../exercises/presentation/illustration/motions.dart';
 import '../data/workout_models.dart';
+import '../../sharing/sharing.dart';
 import 'widgets/progress_chart.dart';
 import 'pending_workouts.dart';
 import 'rest_timer.dart';
@@ -108,12 +109,17 @@ class ExerciseWorkoutsScreen extends ConsumerStatefulWidget {
   static String describeSets(List<WorkoutSet> sets, [WeightFormat w = WeightFormat.kg]) {
     if (sets.any((s) => s.durationSeconds != null || s.distanceMeters != null)) return describeTimedSets(sets, w);
     String one(WorkoutSet s) => s.weight == 0 ? '${s.reps}' : '${s.reps}×${w.number(s.weight)}';
-    if (sets.length > 1 && sets.every((s) => s == sets.first)) {
-      final s = sets.first;
-      return s.weight == 0 ? '${sets.length} × ${s.reps}' : '${sets.length} × ${s.reps} × ${w.withUnit(s.weight)}';
+    // "· RIR 2/1/0" when logged (– for sets without it).
+    final rir = sets.any((s) => s.rir != null) ? ' · RIR ${sets.map((s) => s.rir?.toString() ?? '–').join('/')}' : '';
+    final first = sets.first;
+    if (sets.length > 1 && sets.every((s) => s.reps == first.reps && s.weight == first.weight)) {
+      return (first.weight == 0
+              ? '${sets.length} × ${first.reps}'
+              : '${sets.length} × ${first.reps} × ${w.withUnit(first.weight)}') +
+          rir;
     }
     final text = sets.map(one).join(', ');
-    return sets.any((s) => s.weight > 0) ? '$text ${w.label}' : text;
+    return (sets.any((s) => s.weight > 0) ? '$text ${w.label}' : text) + rir;
   }
 
   @override
@@ -164,7 +170,16 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.exerciseName),
-        actions: [if (exercise != null) _FavoriteAction(exercise: exercise)],
+        actions: [
+          if (exercise != null && exercise.isCustom)
+            IconButton(
+              key: const Key('exercise.share'),
+              tooltip: AppLocalizations.of(context)!.share,
+              icon: const Icon(Icons.share_outlined),
+              onPressed: () => shareItem(context, ref, name: exercise.name, exerciseId: exercise.id),
+            ),
+          if (exercise != null) _FavoriteAction(exercise: exercise),
+        ],
       ),
       floatingActionButton: ScrollAwareFab(
         key: const Key('workout.log'),

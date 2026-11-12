@@ -63,7 +63,9 @@ class _ActivityCardState extends ConsumerState<ActivityCard> {
             Text(t.activityTitle, style: theme.textTheme.titleMedium),
             Text(t.activitySummary(inYear), style: theme.textTheme.bodySmall),
             const SizedBox(height: 12),
-            SingleChildScrollView(
+            // The day squares are a visual map only: for screen readers the summary above says it,
+            // and History lists every day. 12 dp squares cannot be 48 dp tap targets.
+            ExcludeSemantics(child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               reverse: true, // today on screen; older weeks to the left
               child: Column(
@@ -123,7 +125,7 @@ class _ActivityCardState extends ConsumerState<ActivityCard> {
                   ),
                 ],
               ),
-            ),
+            )),
             const SizedBox(height: 8),
             Row(
               children: [

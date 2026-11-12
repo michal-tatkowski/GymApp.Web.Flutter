@@ -274,6 +274,141 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get onboardingTitle => 'Zaczynamy';
+
+  @override
+  String get skip => 'Pomiń';
+
+  @override
+  String get onboardingGoal => 'Jaki jest Twój główny cel?';
+
+  @override
+  String get goalStrength => 'Więcej siły';
+
+  @override
+  String get goalMuscle => 'Więcej mięśni';
+
+  @override
+  String get goalFitness => 'Ogólna sprawność';
+
+  @override
+  String get goalFatLoss => 'Redukcja tkanki tłuszczowej';
+
+  @override
+  String get onboardingPlace => 'Gdzie trenujesz?';
+
+  @override
+  String get placeGym => 'Na siłowni';
+
+  @override
+  String get placeHome => 'W domu, bez sprzętu';
+
+  @override
+  String get onboardingDays => 'Ile dni w tygodniu?';
+
+  @override
+  String get onboardingPlanTitle => 'Twój plan';
+
+  @override
+  String get onboardingPlanHint =>
+      'Sprawdzony plan na start — wszystko zmienisz później w Planach.';
+
+  @override
+  String onboardingSplitHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count planów na zmianę, jeden na trening',
+      few: '$count plany na zmianę, jeden na trening',
+    );
+    return '$_temp0 — wszystko zmienisz później w Planach.';
+  }
+
+  @override
+  String get onboardingReminders => 'Przypominaj w dni treningowe';
+
+  @override
+  String onboardingRemindersHint(int count) {
+    return '$count dni w tygodniu, o 18:00 — zmienisz w Ustawieniach';
+  }
+
+  @override
+  String get onboardingAccept => 'Dodaj plan i cel tygodniowy';
+
+  @override
+  String get onboardingReady => 'Gotowe — pierwszy trening zaczniesz z Planów';
+
+  @override
+  String shareTitle(String name) {
+    return 'Udostępnij „$name”';
+  }
+
+  @override
+  String get shareHint =>
+      'Każdy z tym kodem doda kopię w GymApp (Nowy plan → Z kodu).';
+
+  @override
+  String shareMessage(String name, String code) {
+    return 'Mój „$name” w GymApp — dodaj go kodem $code (Nowy plan → Z kodu).';
+  }
+
+  @override
+  String get codeCopied => 'Kod skopiowany';
+
+  @override
+  String get copy => 'Kopiuj';
+
+  @override
+  String get importFromCode => 'Z kodu';
+
+  @override
+  String get importFromCodeHint =>
+      'Plan albo ćwiczenie, które ktoś Ci udostępnił';
+
+  @override
+  String get shareCode => 'Kod udostępnienia';
+
+  @override
+  String get showShared => 'Pokaż';
+
+  @override
+  String get addToMyPlans => 'Dodaj do moich planów';
+
+  @override
+  String get addToMyExercises => 'Dodaj do moich ćwiczeń';
+
+  @override
+  String planImported(String name) {
+    return 'Dodano plan „$name”';
+  }
+
+  @override
+  String exerciseImported(String name) {
+    return 'Dodano ćwiczenie „$name”';
+  }
+
+  @override
+  String get rir => 'RIR';
+
+  @override
+  String get rirExplained =>
+      'Powtórzenia w zapasie: ile jeszcze dało się zrobić. Wpływa na następną podpowiedź.';
+
+  @override
+  String get rirZero => '0 — nic w zapasie, do upadku';
+
+  @override
+  String rirValue(String count) {
+    return '$count w zapasie';
+  }
+
+  @override
+  String get setNote => 'Notatka do serii';
+
+  @override
+  String get setNoteHint => 'np. bolał łokieć, wolne opuszczanie';
+
+  @override
   String get exportData => 'Eksportuj moje dane';
 
   @override

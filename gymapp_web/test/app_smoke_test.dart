@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gymapp_web/features/gym/onboarding/onboarding.dart';
 import 'package:gymapp_web/app/app.dart';
 import 'package:gymapp_web/features/auth/data/auth_local_storage.dart';
 import 'package:gymapp_web/features/auth/data/models/auth_tokens.dart';
@@ -30,6 +31,7 @@ void main() {
     await tester.pumpWidget(ProviderScope(
       overrides: [
         authLocalStorageProvider.overrideWithValue(_EmptyStorage()),
+        onboardingEnabledProvider.overrideWithValue(false),
         restAlarmProvider.overrideWithValue(FakeRestAlarm()),
         planRepositoryProvider.overrideWithValue(FakePlanRepository()),
       ],

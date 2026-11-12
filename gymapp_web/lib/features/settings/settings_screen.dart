@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart' show DateFormat;
 
 import '../../core/errors/failure_messages.dart';
 import '../../core/home_widget_sync.dart';
 import '../../core/logging/app_logger.dart';
+import '../../core/storage/secure_storage_keys.dart';
 import '../../core/network/offline_cache.dart';
 import '../../core/units/weight_unit.dart';
 import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
+import '../gym/onboarding/onboarding.dart';
 import '../gym/progress/badges.dart';
 import '../gym/session/session_providers.dart';
 import '../profile/presentation/widgets/progress_photos.dart';
@@ -169,6 +172,10 @@ class SettingsScreen extends ConsumerWidget {
       // Photos are personal — the next account must not see them.
       () async => ref.read(progressPhotoStoreProvider)?.clearAll(),
       () => ref.read(homeWidgetSyncProvider).clear(),
+      () async {
+        OnboardingGate.checked = false;
+        await (await SharedPreferences.getInstance()).remove(StorageKeys.onboardingDone);
+      },
     ];
     for (final step in steps) {
       try {
