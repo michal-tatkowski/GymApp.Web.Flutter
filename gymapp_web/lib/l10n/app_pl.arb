@@ -262,5 +262,12 @@
   "resetBody": "Jeśli {email} ma konto, wysłaliśmy na niego kod. Wpisz go razem z nowym hasłem.",
   "newPassword": "Nowe hasło",
   "setNewPassword": "Ustaw nowe hasło",
-  "passwordChanged": "Hasło zmienione. Zaloguj się nowym."
+  "passwordChanged": "Hasło zmienione. Zaloguj się nowym.",
+  "supersetWithNext": "Superseria z następnym",
+  "supersetHint": "Robione na zmianę z następnym ćwiczeniem, przerwa dopiero po rundzie. Połącz 3+ w obwód.",
+  "superset": "Superseria",
+  "circuit": "Obwód",
+  "supersetNoRest": "Po odhaczeniu serii przechodzisz do następnego ćwiczenia, przerwa po rundzie.",
+  "warmUp": "Rozgrzewka",
+  "warmUpHint": "Przed {weight} — nie trafia do historii"
 }

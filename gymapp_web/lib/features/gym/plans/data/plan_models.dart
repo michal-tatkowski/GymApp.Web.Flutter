@@ -15,6 +15,7 @@ class PlanItem {
     this.sets = 3,
     this.repsMin = 8,
     this.repsMax = 12,
+    this.supersetWithNext = false,
   });
 
   final String exerciseId;
@@ -24,13 +25,17 @@ class PlanItem {
   final int repsMin;
   final int repsMax;
 
-  PlanItem copyWith({int? sets, int? repsMin, int? repsMax}) => PlanItem(
+  /// Done in turns with the next exercise, no rest in between (a chain of 3+ = circuit).
+  final bool supersetWithNext;
+
+  PlanItem copyWith({int? sets, int? repsMin, int? repsMax, bool? supersetWithNext}) => PlanItem(
         exerciseId: exerciseId,
         exerciseName: exerciseName,
         category: category,
         sets: sets ?? this.sets,
         repsMin: repsMin ?? this.repsMin,
         repsMax: repsMax ?? this.repsMax,
+        supersetWithNext: supersetWithNext ?? this.supersetWithNext,
       );
 
   /// "3 × 8–12" or "4 × 5".
@@ -43,10 +48,16 @@ class PlanItem {
         sets: (json['sets'] as num).toInt(),
         repsMin: (json['repsMin'] as num).toInt(),
         repsMax: (json['repsMax'] as num).toInt(),
+        supersetWithNext: json['supersetWithNext'] == true,
       );
 
-  Map<String, dynamic> toJson() =>
-      {'exerciseId': exerciseId, 'sets': sets, 'repsMin': repsMin, 'repsMax': repsMax};
+  Map<String, dynamic> toJson() => {
+        'exerciseId': exerciseId,
+        'sets': sets,
+        'repsMin': repsMin,
+        'repsMax': repsMax,
+        'supersetWithNext': supersetWithNext,
+      };
 }
 
 class WorkoutPlan {
@@ -72,5 +83,12 @@ class PlanRequest {
   final String name;
   final List<PlanItem> items;
 
-  Map<String, dynamic> toJson() => {'name': name.trim(), 'exercises': items.map((i) => i.toJson()).toList()};
+  /// The last exercise has nothing to pair with, so its link is dropped.
+  Map<String, dynamic> toJson() => {
+        'name': name.trim(),
+        'exercises': [
+          for (var i = 0; i < items.length; i++)
+            (i == items.length - 1 ? items[i].copyWith(supersetWithNext: false) : items[i]).toJson(),
+        ],
+      };
 }

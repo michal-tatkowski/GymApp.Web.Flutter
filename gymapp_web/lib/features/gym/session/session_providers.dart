@@ -99,15 +99,29 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       });
 
   /// Ticks a set off (starts the rest timer) or un-ticks it.
+  ///
+  /// In a superset/circuit a ticked set moves straight on to the next exercise of
+  /// the group that still has sets to do — no rest in between. The rest comes after
+  /// the last exercise of the round, and then the round starts over from the first.
   void toggleDone(int exercise, int set) {
     final s = state;
     if (s == null) return;
     final value = s.exercises[exercise].sets[set];
     updateSet(exercise, set, value.copyWith(done: !value.done));
-    if (!value.done) {
-      HapticFeedback.mediumImpact();
-      ref.read(restTimerProvider.notifier).startAfterSet();
+    if (value.done) return;
+    HapticFeedback.mediumImpact();
+
+    final now = state!;
+    final group = now.groupOf(exercise);
+    bool hasWork(int i) => !now.exercises[i].saved && now.exercises[i].sets.any((x) => !x.done);
+    final later = [for (var i = exercise + 1; i <= group.end; i++) if (hasWork(i)) i];
+    if (later.isNotEmpty) {
+      _set(now.copyWith(current: later.first));
+      return;
     }
+    ref.read(restTimerProvider.notifier).startAfterSet();
+    final again = [for (var i = group.start; i < exercise; i++) if (hasWork(i)) i];
+    if (again.isNotEmpty) _set(now.copyWith(current: again.first));
   }
 
   /// One more set, same as the last one.
@@ -131,17 +145,26 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       if (!isOfflineFailure(e)) rethrow;
     }
     final added = SessionExercise.fromPlan(item, last, ref.read(weightFormatProvider));
-    final at = s.current + 1;
-    _set(s.copyWith(exercises: [...s.exercises]..insert(at, added)));
+    final at = s.groupOf(s.current).end + 1; // never splits a superset
+    final latest = state;
+    if (latest == null) return;
+    _set(latest.copyWith(exercises: [...latest.exercises]..insert(at, added)));
     await goTo(at, actions);
   }
 
-  /// Moves to another exercise; the one being left is saved first if it has done sets.
+  /// Moves to another exercise. Leaving a group (a single exercise, or a whole
+  /// superset) saves its done sets first; moving inside a superset saves nothing,
+  /// since its exercises are still being done in turns.
   /// Throws a Failure when saving fails (offline is not a failure — it is queued).
   Future<void> goTo(int index, WorkoutActions actions) async {
     final s = state;
     if (s == null || index < 0 || index >= s.exercises.length) return;
-    await _save(s.current, actions);
+    final group = s.groupOf(s.current);
+    if (index < group.start || index > group.end) {
+      for (var i = group.start; i <= group.end; i++) {
+        await _save(i, actions);
+      }
+    }
     final now = state;
     if (now != null) _set(now.copyWith(current: index));
   }
