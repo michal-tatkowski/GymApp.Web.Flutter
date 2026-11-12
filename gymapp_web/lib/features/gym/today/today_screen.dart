@@ -20,6 +20,7 @@ import '../workouts/data/workout_models.dart';
 import 'week_summary.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/pending_workouts.dart';
+import '../goals/goals_card.dart';
 import '../history/history_screen.dart';
 import '../workouts/presentation/workout_providers.dart';
 
@@ -140,6 +141,7 @@ class TodayScreen extends ConsumerWidget {
 
             // ── This week ──────────────────────────────────────────────
             const WeekSummaryCard(),
+            const GoalsCard(),
 
             // ── Plans ──────────────────────────────────────────────────
             PlansSection(onStart: (plan) => startSession(context, ref, plan)),
