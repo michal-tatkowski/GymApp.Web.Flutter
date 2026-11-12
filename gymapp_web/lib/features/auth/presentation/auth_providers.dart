@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/dio_client.dart';
+import '../../../core/network/offline_cache.dart';
 import '../../../core/network/interceptors/auth_interceptor.dart';
 import '../../../core/network/interceptors/locale_interceptor.dart';
 import '../../settings/presentation/settings_providers.dart';
@@ -48,11 +49,20 @@ final dioProvider = Provider<Dio>((ref) {
       },
       onAuthFailure: () async {
         await storage.clear();
+        await ref.read(responseCacheProvider).clear(); // the next account must not see this one's data
         // Flip auth state to unauthenticated; router will redirect to /login.
         ref.read(authControllerProvider.notifier).forceLogout();
       },
     ),
   );
+
+  // Last, so it sees requests with all headers and gets "no connection" errors as they are.
+  final offline = ref.read(offlineDataProvider.notifier);
+  dio.interceptors.add(OfflineCacheInterceptor(
+    cache: ref.watch(responseCacheProvider),
+    onServedFromCache: offline.servedFromCache,
+    onOnline: offline.online,
+  ));
 
   return dio;
 });

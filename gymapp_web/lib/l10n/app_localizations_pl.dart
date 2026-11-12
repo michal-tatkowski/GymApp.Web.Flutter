@@ -863,4 +863,171 @@ class AppLocalizationsPl extends AppLocalizations {
 
   @override
   String get passwordChanged => 'Hasło zmienione. Zaloguj się nowym.';
+
+  @override
+  String get supersetWithNext => 'Superseria z następnym';
+
+  @override
+  String get supersetHint =>
+      'Robione na zmianę z następnym ćwiczeniem, przerwa dopiero po rundzie. Połącz 3+ w obwód.';
+
+  @override
+  String get superset => 'Superseria';
+
+  @override
+  String get circuit => 'Obwód';
+
+  @override
+  String get supersetNoRest =>
+      'Po odhaczeniu serii przechodzisz do następnego ćwiczenia, przerwa po rundzie.';
+
+  @override
+  String get warmUp => 'Rozgrzewka';
+
+  @override
+  String warmUpHint(String weight) {
+    return 'Przed $weight — nie trafia do historii';
+  }
+
+  @override
+  String get activityTitle => 'Aktywność';
+
+  @override
+  String activitySummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count treningów w ostatnich 12 miesiącach',
+      few: '$count treningi w ostatnich 12 miesiącach',
+      one: '1 trening w ostatnich 12 miesiącach',
+      zero: 'Brak treningów w ostatnich 12 miesiącach',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get activityTapHint => 'Dotknij dnia, aby zobaczyć szczegóły';
+
+  @override
+  String activityRestDay(String date) {
+    return '$date: dzień odpoczynku';
+  }
+
+  @override
+  String activityDay(String date, int exercises, int sets) {
+    String _temp0 = intl.Intl.pluralLogic(
+      exercises,
+      locale: localeName,
+      other: '$exercises ćwiczeń',
+      few: '$exercises ćwiczenia',
+      one: '1 ćwiczenie',
+    );
+    return '$date: $_temp0 · serie: $sets';
+  }
+
+  @override
+  String get badgesTitle => 'Odznaki';
+
+  @override
+  String badgesCount(int earned, int total) {
+    return 'Zdobyte: $earned z $total';
+  }
+
+  @override
+  String badgeUnlocked(String name) {
+    return 'Nowa odznaka: $name 🏅';
+  }
+
+  @override
+  String get badgeEarned => 'Zdobyta';
+
+  @override
+  String badgeEarnedOn(String date) {
+    return 'Zdobyta $date';
+  }
+
+  @override
+  String get badgeWorkouts1 => 'Pierwszy krok';
+
+  @override
+  String get badgeWorkouts10 => 'Rozkręcanie';
+
+  @override
+  String get badgeWorkouts50 => 'Stały bywalec';
+
+  @override
+  String get badgeWorkouts100 => 'Setka';
+
+  @override
+  String get badgeStreak4 => 'Miesiąc formy';
+
+  @override
+  String get badgeStreak12 => 'Nie do zatrzymania';
+
+  @override
+  String get badgeBusyWeek => 'Pracowity tydzień';
+
+  @override
+  String get badgeRecord1 => 'Nowy rekord';
+
+  @override
+  String get badgeRecord10 => 'Łowca rekordów';
+
+  @override
+  String get badgeVolume10t => 'Ciężki kaliber';
+
+  @override
+  String get badgeVolume100t => 'Żelazna góra';
+
+  @override
+  String get badgeVariety => 'Odkrywca';
+
+  @override
+  String badgeGoalWorkouts(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Trenuj przez $count dni',
+      few: 'Trenuj przez $count dni',
+      one: 'Zapisz pierwszy trening',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String badgeGoalStreak(int count) {
+    return 'Trenuj $count tygodni z rzędu';
+  }
+
+  @override
+  String badgeGoalBusyWeek(int count) {
+    return 'Trenuj $count razy w jednym tygodniu';
+  }
+
+  @override
+  String badgeGoalRecords(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Pobij $count rekordów',
+      few: 'Pobij $count rekordy',
+      one: 'Pobij rekord',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String badgeGoalVolume(String weight) {
+    return 'Podnieś łącznie $weight';
+  }
+
+  @override
+  String badgeGoalVariety(int count) {
+    return 'Wykonaj $count różnych ćwiczeń';
+  }
+
+  @override
+  String offlineData(String time) {
+    return 'Offline · dane zapisane $time. Pociągnij w dół, aby odświeżyć.';
+  }
 }

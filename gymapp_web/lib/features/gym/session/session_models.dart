@@ -85,6 +85,25 @@ ProgressionHint? suggestNext({
   );
 }
 
+/// Ramp-up sets before the working weight: ~40 % × 10, 60 % × 6, 80 % × 3, rounded
+/// down to the plate step of the user's unit. Light work (under 8 steps: 20 kg /
+/// 40 lb) needs no ramp; the 80 % set only from 16 steps up. Warm-ups are a guide
+/// only — they are not logged.
+List<SessionSet> warmUpSets(double workingKg, WeightFormat weights) {
+  final working = weights.fromKg(workingKg);
+  final step = weights.step;
+  if (working < 8 * step) return const [];
+  final result = <SessionSet>[];
+  for (final (share, reps) in const [(0.4, 10), (0.6, 6), (0.8, 3)]) {
+    if (share == 0.8 && working < 16 * step) continue;
+    final value = (working * share / step).floor() * step;
+    if (value <= 0 || value >= working) continue;
+    if (result.isNotEmpty && weights.fromKg(result.last.weightKg) == value) continue;
+    result.add(SessionSet(reps: reps, weightKg: weights.toKg(value)));
+  }
+  return result;
+}
+
 /// One exercise of the session.
 class SessionExercise {
   const SessionExercise({
@@ -97,6 +116,7 @@ class SessionExercise {
     this.lastSets,
     this.hint,
     this.savedEntryId,
+    this.supersetWithNext = false,
   });
 
   final String exerciseId;
@@ -113,7 +133,13 @@ class SessionExercise {
   /// Set once its done sets were saved as a log entry (then they are read-only).
   final String? savedEntryId;
 
+  /// From the plan: done in turns with the next exercise (see [WorkoutSession.groupOf]).
+  final bool supersetWithNext;
+
   bool get saved => savedEntryId != null;
+
+  /// Heaviest planned set — what the warm-up ramps up to.
+  double get workingKg => sets.fold(0.0, (m, s) => s.weightKg > m ? s.weightKg : m);
   List<SessionSet> get doneSets => sets.where((s) => s.done).toList();
   bool get allDone => sets.isNotEmpty && sets.every((s) => s.done);
   String get target => repsMin == repsMax ? '${sets.length} × $repsMin' : '${sets.length} × $repsMin–$repsMax';
@@ -128,6 +154,7 @@ class SessionExercise {
         lastSets: lastSets,
         hint: hint,
         savedEntryId: savedEntryId ?? this.savedEntryId,
+        supersetWithNext: supersetWithNext,
       );
 
   /// From a plan item; prefilled with the progression hint, or empty sets without history.
@@ -148,6 +175,7 @@ class SessionExercise {
       sets: hint?.sets ?? List.filled(item.sets, SessionSet(reps: item.repsMin, weightKg: 0)),
       lastSets: last,
       hint: hint?.kind,
+      supersetWithNext: item.supersetWithNext,
     );
   }
 
@@ -161,6 +189,7 @@ class SessionExercise {
         if (lastSets != null) 'lastSets': lastSets!.map((s) => s.toJson()).toList(),
         if (hint != null) 'hint': hint!.name,
         if (savedEntryId != null) 'savedEntryId': savedEntryId,
+        if (supersetWithNext) 'supersetWithNext': true,
       };
 
   factory SessionExercise.fromJson(Map<String, dynamic> j) => SessionExercise(
@@ -173,6 +202,7 @@ class SessionExercise {
         lastSets: (j['lastSets'] as List?)?.cast<Map<String, dynamic>>().map(WorkoutSet.fromJson).toList(),
         hint: HintKind.values.where((h) => h.name == j['hint']).firstOrNull,
         savedEntryId: j['savedEntryId'] as String?,
+        supersetWithNext: j['supersetWithNext'] == true,
       );
 }
 
@@ -193,6 +223,19 @@ class WorkoutSession {
   final int current;
 
   SessionExercise get currentExercise => exercises[current];
+
+  /// First and last index of the superset/circuit [index] belongs to
+  /// (a plain exercise is a group of one).
+  ({int start, int end}) groupOf(int index) {
+    var start = index, end = index;
+    while (start > 0 && exercises[start - 1].supersetWithNext) {
+      start--;
+    }
+    while (end < exercises.length - 1 && exercises[end].supersetWithNext) {
+      end++;
+    }
+    return (start: start, end: end);
+  }
 
   WorkoutSession copyWith({List<SessionExercise>? exercises, int? current}) => WorkoutSession(
         planId: planId,

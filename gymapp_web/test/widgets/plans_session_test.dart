@@ -202,5 +202,109 @@ void main() {
 
       expect(tester.widget<Text>(weightOf(1).first).data, '2.5');
     });
+
+    testWidgets('superset: a ticked set jumps to the partner without rest; rest after the round, back to the first',
+        (tester) async {
+      const superset = WorkoutPlan(id: 'p2', name: 'Arms', items: [
+        PlanItem(exerciseId: 'curl', exerciseName: 'Curl', category: ExerciseCategory.pull, sets: 2, repsMin: 10, repsMax: 10, supersetWithNext: true),
+        PlanItem(exerciseId: 'pushdown', exerciseName: 'Pushdown', category: ExerciseCategory.push, sets: 2, repsMin: 10, repsMax: 10),
+      ]);
+      tester.view.physicalSize = const Size(900, 1800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final workouts = FakeWorkoutRepository();
+      await pumpScreen(tester, const TodayScreen(), plans: FakePlanRepository([superset]), overrides: [
+        exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository(const [])),
+        workoutRepositoryProvider.overrideWithValue(workouts),
+      ]);
+      final c = ProviderScope.containerOf(tester.element(find.byType(TodayScreen)));
+      Future<void> tickFirstOpenSet() async {
+        final s = c.read(activeSessionProvider)!;
+        final set = s.currentExercise.sets.indexWhere((x) => !x.done);
+        await tester.tap(find.descendant(of: find.byKey(Key('session.set$set')), matching: find.byKey(const Key('done'))));
+        await tester.pump();
+      }
+
+      await tester.tap(find.byKey(const Key('plan.start.p2')));
+      await tester.pumpAndSettle();
+      expect(find.text('Superset · 1/2'), findsOneWidget);
+      expect(find.byIcon(Icons.flag), findsOneWidget); // one group = the last step: Next is Finish
+
+      await tickFirstOpenSet(); // Curl 1
+      expect(c.read(activeSessionProvider)!.current, 1);
+      expect(c.read(restTimerProvider).running, isFalse);
+      expect(find.text('Superset · 2/2'), findsOneWidget);
+
+      await tickFirstOpenSet(); // Pushdown 1 → end of the round
+      expect(c.read(restTimerProvider).running, isTrue);
+      expect(c.read(activeSessionProvider)!.current, 0);
+      expect(workouts.posted, isEmpty); // nothing saved while the superset is going
+
+      c.read(restTimerProvider.notifier).stop();
+      await tickFirstOpenSet(); // Curl 2
+      await tickFirstOpenSet(); // Pushdown 2
+      expect(c.read(activeSessionProvider)!.current, 1); // all done: stays
+      await tester.tap(find.byKey(const Key('session.finish')));
+      await tester.pumpAndSettle();
+      expect(workouts.posted, hasLength(2));
+      c.read(restTimerProvider.notifier).stop();
+    });
+  });
+
+  group('warm-up', () {
+    List<(int, double)> ramp(double kg, [WeightFormat w = kg]) =>
+        [for (final s in warmUpSets(kg, w)) (s.reps, w.fromKg(s.weightKg))];
+
+    test('ramps 40/60/80 % rounded down to the plate step', () {
+      expect(ramp(100), [(10, 40.0), (6, 60.0), (3, 80.0)]);
+      expect(ramp(102.5), [(10, 40.0), (6, 60.0), (3, 80.0)]);
+      expect(ramp(lb.toKg(225), lb), [(10, 90.0), (6, 135.0), (3, 180.0)]);
+    });
+
+    test('light weights: shorter ramp; very light or bodyweight: none', () {
+      expect(ramp(30), [(10, 10.0), (6, 17.5)]); // no 80 % under 40 kg
+      expect(ramp(17.5), isEmpty);
+      expect(ramp(0), isEmpty);
+    });
+
+    testWidgets('shown before the first set, gone once a set is done', (tester) async {
+      tester.view.physicalSize = const Size(900, 1800);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final workouts = FakeWorkoutRepository()
+        ..seed('bench', today.subtract(const Duration(days: 3)), const [WorkoutSet(reps: 8, weight: 100)]);
+      const plan = WorkoutPlan(id: 'p1', name: 'Push', items: [
+        PlanItem(exerciseId: 'bench', exerciseName: 'Bench press', category: ExerciseCategory.push, sets: 1, repsMin: 8, repsMax: 10),
+      ]);
+      await pumpScreen(tester, const TodayScreen(), plans: FakePlanRepository([plan]), overrides: [
+        exerciseRepositoryProvider.overrideWithValue(FakeExerciseRepository(const [])),
+        workoutRepositoryProvider.overrideWithValue(workouts),
+      ]);
+      await tester.tap(find.byKey(const Key('plan.start.p1')));
+      await tester.pumpAndSettle();
+
+      expect(find.textContaining('Before 100 kg'), findsOneWidget);
+      await tester.tap(find.text('Warm-up'));
+      await tester.pumpAndSettle();
+      expect(find.text('10 × 40 kg'), findsOneWidget);
+
+      await tester.tap(find.descendant(of: find.byKey(const Key('session.set0')), matching: find.byKey(const Key('done'))));
+      await tester.pump();
+      expect(find.byKey(const Key('session.warmUp')), findsNothing);
+      final c = ProviderScope.containerOf(tester.element(find.byType(TodayScreen, skipOffstage: false)));
+      c.read(restTimerProvider.notifier).stop();
+    });
+  });
+
+  test('plan request: the last exercise never links to a next one', () {
+    const items = [
+      PlanItem(exerciseId: 'a', exerciseName: 'A', category: ExerciseCategory.push, supersetWithNext: true),
+      PlanItem(exerciseId: 'b', exerciseName: 'B', category: ExerciseCategory.pull, supersetWithNext: true),
+    ];
+    final json = const PlanRequest(name: 'X', items: items).toJson()['exercises'] as List;
+    expect(json.map((e) => (e as Map)['supersetWithNext']), [true, false]);
+    expect(PlanItem.fromJson({...json.first as Map<String, dynamic>, 'exerciseName': 'A', 'category': 'Push'}).supersetWithNext, isTrue);
+    expect(PlanItem.fromJson(const {'exerciseId': 'a', 'exerciseName': 'A', 'category': 'Push', 'sets': 3, 'repsMin': 8, 'repsMax': 12})
+        .supersetWithNext, isFalse); // older API without the field
   });
 }

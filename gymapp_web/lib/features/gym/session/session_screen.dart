@@ -135,7 +135,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     }
     final index = session.current;
     final exercise = session.currentExercise;
-    final last = index == session.exercises.length - 1;
+    // Previous/Next move by group: a superset is one step of the workout.
+    final group = session.groupOf(index);
+    final last = group.end == session.exercises.length - 1;
     final elapsed = DateTime.now().difference(session.startedAt);
 
     return Scaffold(
@@ -173,7 +175,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
               key: ValueKey(exercise.exerciseId), // fresh scroll position per exercise
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
+                if (group.end > group.start)
+                  _SupersetBanner(position: index - group.start + 1, size: group.end - group.start + 1),
                 _ExerciseHeader(exercise: exercise, weights: weights),
+                if (!exercise.saved && exercise.doneSets.isEmpty) _WarmUpCard(exercise: exercise, weights: weights),
                 const SizedBox(height: 12),
                 for (var i = 0; i < exercise.sets.length; i++)
                   _SetRow(
@@ -210,16 +215,18 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               child: Row(
                 children: [
-                  if (index > 0)
+                  if (group.start > 0)
                     OutlinedButton.icon(
-                      onPressed: _busy ? null : () => _run((actions) => _session.goTo(index - 1, actions)),
+                      onPressed: _busy
+                          ? null
+                          : () => _run((actions) => _session.goTo(session.groupOf(group.start - 1).start, actions)),
                       icon: const Icon(Icons.chevron_left),
                       label: Text(t.sessionPrevious),
                     ),
                   const Spacer(),
                   FilledButton.icon(
                     key: const Key('session.next'),
-                    onPressed: _busy ? null : last ? _finish : () => _run((actions) => _session.goTo(index + 1, actions)),
+                    onPressed: _busy ? null : last ? _finish : () => _run((actions) => _session.goTo(group.end + 1, actions)),
                     icon: Icon(last ? Icons.flag : Icons.chevron_right),
                     label: Text(last ? t.sessionFinish : t.sessionNext),
                   ),
@@ -252,7 +259,10 @@ class _ExerciseStrip extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           itemCount: session.exercises.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 8),
+          // A link between chips = done in turns (superset/circuit).
+          separatorBuilder: (context, i) => session.exercises[i].supersetWithNext
+              ? Icon(Icons.link, size: 18, color: Theme.of(context).colorScheme.tertiary)
+              : const SizedBox(width: 8),
           itemBuilder: (context, i) {
             final e = session.exercises[i];
             final finished = e.saved || e.allDone;
@@ -322,6 +332,71 @@ class _ExerciseHeader extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// "Superset · 1/2" (or "Circuit" for 3+) above the exercise name.
+class _SupersetBanner extends StatelessWidget {
+  const _SupersetBanner({required this.position, required this.size});
+
+  final int position;
+  final int size;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final colors = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Row(
+        children: [
+          Chip(
+            key: const Key('session.superset'),
+            avatar: Icon(Icons.link, size: 18, color: colors.onTertiaryContainer),
+            backgroundColor: colors.tertiaryContainer,
+            side: BorderSide.none,
+            label: Text(
+              '${size == 2 ? t.superset : t.circuit} · $position/$size',
+              style: TextStyle(color: colors.onTertiaryContainer),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(child: Text(t.supersetNoRest, style: Theme.of(context).textTheme.bodySmall)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Suggested ramp-up before the first working set; folded by default.
+class _WarmUpCard extends StatelessWidget {
+  const _WarmUpCard({required this.exercise, required this.weights});
+
+  final SessionExercise exercise;
+  final WeightFormat weights;
+
+  @override
+  Widget build(BuildContext context) {
+    final sets = warmUpSets(exercise.workingKg, weights);
+    if (sets.isEmpty) return const SizedBox.shrink();
+    final t = AppLocalizations.of(context)!;
+    return Card(
+      key: const Key('session.warmUp'),
+      margin: const EdgeInsets.only(top: 8),
+      child: ExpansionTile(
+        leading: const Icon(Icons.local_fire_department_outlined),
+        title: Text(t.warmUp),
+        subtitle: Text(t.warmUpHint(weights.withUnit(exercise.workingKg))),
+        shape: const Border(),
+        children: [
+          for (final s in sets)
+            ListTile(
+              dense: true,
+              title: Text('${s.reps} × ${weights.withUnit(s.weightKg)}'),
+            ),
+        ],
+      ),
     );
   }
 }
