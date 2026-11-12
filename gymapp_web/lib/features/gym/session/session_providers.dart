@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -8,6 +9,7 @@ import '../../../core/errors/failure.dart';
 import '../../../core/logging/app_logger.dart';
 import '../../../core/storage/secure_storage_keys.dart';
 import '../../../core/units/weight_unit.dart';
+import '../../../core/utils/uuid.dart';
 import '../exercises/data/models/exercise.dart';
 import '../plans/data/plan_models.dart';
 import '../workouts/data/workout_models.dart';
@@ -66,7 +68,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
     }));
     _records.clear();
     _set(WorkoutSession(
-      planId: plan.id,
+      planId: plan.id.isEmpty ? null : plan.id, // "" = a repeated workout, not a saved plan
       planName: plan.name,
       startedAt: DateTime.now(),
       exercises: [for (var i = 0; i < plan.items.length; i++) SessionExercise.fromPlan(plan.items[i], last[i], weights)],
@@ -200,9 +202,29 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       volumeKg: done.fold(0.0, (v, e) => v + e.doneSets.fold(0.0, (w, s) => w + s.reps * s.weightKg)),
       records: _records.toList(),
     );
+    if (done.isNotEmpty) unawaited(_recordSession(s));
     _set(null);
     ref.read(restTimerProvider.notifier).stop();
     return summary;
+  }
+
+  /// Duration and name for the history. Best effort: without a connection the history
+  /// simply shows the day without its duration (the sets themselves are queued).
+  Future<void> _recordSession(WorkoutSession s) async {
+    final now = DateTime.now();
+    try {
+      await ref.read(workoutRepositoryProvider).saveSession(
+            id: newUuid(),
+            planId: s.planId == null || s.planId!.isEmpty ? null : s.planId,
+            name: s.planName,
+            date: DateTime(s.startedAt.year, s.startedAt.month, s.startedAt.day),
+            startedAt: s.startedAt,
+            finishedAt: now,
+          );
+      if (ref.mounted) ref.invalidate(trainingDaysProvider);
+    } catch (e) {
+      log.w('Session not recorded: $e');
+    }
   }
 
   /// Ends without saving the remaining sets (exercises already saved stay in the history).

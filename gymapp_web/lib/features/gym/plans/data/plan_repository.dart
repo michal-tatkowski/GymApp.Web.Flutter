@@ -27,6 +27,11 @@ class PlanRepository {
 
   Future<void> delete(String id) => _guard(() => _dio.delete<dynamic>('Plans/$id'));
 
+  Future<List<PlanTemplate>> getTemplates() => _guard(() async {
+        final res = await _dio.get<dynamic>('Plans/templates');
+        return (res.data as List).cast<Map<String, dynamic>>().map(PlanTemplate.fromJson).toList();
+      });
+
   static Future<T> _guard<T>(Future<T> Function() call) async {
     try {
       return await call();

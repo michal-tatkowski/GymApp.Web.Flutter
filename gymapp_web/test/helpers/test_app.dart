@@ -246,6 +246,11 @@ class FakePlanRepository extends PlanRepository {
   final saved = <PlanRequest>[];
   int _id = 0;
 
+  List<PlanTemplate> templates = const [];
+
+  @override
+  Future<List<PlanTemplate>> getTemplates() async => templates;
+
   @override
   Future<List<WorkoutPlan>> getPlans() async {
     if (error != null) throw error!;

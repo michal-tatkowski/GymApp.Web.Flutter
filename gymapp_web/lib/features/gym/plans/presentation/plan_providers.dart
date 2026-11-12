@@ -65,3 +65,9 @@ class PlanActions {
 }
 
 final planActionsProvider = Provider<PlanActions>(PlanActions.new);
+
+/// Ready-made plans (FBW, 5×5, Push/Pull/Legs…) in the app language.
+final planTemplatesProvider = FutureProvider.autoDispose<List<PlanTemplate>>(
+  (ref) => ref.watch(planRepositoryProvider).getTemplates(),
+  retry: noRetry,
+);

@@ -302,3 +302,69 @@ class BodyWeight {
   factory BodyWeight.fromJson(Map<String, dynamic> json) =>
       BodyWeight(date: fromApiDate(json['date'] as String), kg: _num(json['weightKg']));
 }
+
+/// A finished session (from a plan or "repeat"): when and how long.
+class WorkoutSessionInfo {
+  const WorkoutSessionInfo({required this.id, required this.name, required this.startedAt, required this.finishedAt, this.planId});
+
+  final String id;
+  final String? planId;
+  final String name;
+  final DateTime startedAt;
+  final DateTime finishedAt;
+
+  Duration get duration => finishedAt.difference(startedAt);
+
+  factory WorkoutSessionInfo.fromJson(Map<String, dynamic> json) => WorkoutSessionInfo(
+        id: json['id'].toString(),
+        planId: json['planId']?.toString(),
+        name: json['name'] as String,
+        startedAt: DateTime.parse(json['startedAt'] as String).toLocal(),
+        finishedAt: DateTime.parse(json['finishedAt'] as String).toLocal(),
+      );
+}
+
+/// One exercise of a day in the history, with all its entries of that day.
+class DayExercise {
+  const DayExercise({
+    required this.exerciseId,
+    required this.exerciseName,
+    required this.category,
+    required this.tracking,
+    required this.entries,
+  });
+
+  final String exerciseId;
+  final String exerciseName;
+  final ExerciseCategory category;
+  final Tracking tracking;
+  final List<WorkoutEntry> entries;
+
+  List<WorkoutSet> get sets => [for (final e in entries) ...e.sets];
+
+  factory DayExercise.fromJson(Map<String, dynamic> json) => DayExercise(
+        exerciseId: json['exerciseId'].toString(),
+        exerciseName: json['exerciseName'] as String,
+        category: ExerciseCategoryX.fromJson(json['category']),
+        tracking: TrackingX.fromJson(json['tracking']),
+        entries: (json['entries'] as List).cast<Map<String, dynamic>>().map(WorkoutEntry.fromJson).toList(),
+      );
+}
+
+/// A day in the history: exercises in training order and the sessions of that day.
+class TrainingDayDetails {
+  const TrainingDayDetails({required this.date, required this.exercises, this.sessions = const []});
+
+  final DateTime date;
+  final List<DayExercise> exercises;
+  final List<WorkoutSessionInfo> sessions;
+
+  int get sets => exercises.fold(0, (n, e) => n + e.sets.length);
+  double get volumeKg => exercises.fold(0.0, (v, e) => v + e.sets.fold(0.0, (w, s) => w + s.reps * s.weight));
+
+  factory TrainingDayDetails.fromJson(Map<String, dynamic> json) => TrainingDayDetails(
+        date: fromApiDate(json['date'] as String),
+        exercises: (json['exercises'] as List).cast<Map<String, dynamic>>().map(DayExercise.fromJson).toList(),
+        sessions: (json['sessions'] as List? ?? const []).cast<Map<String, dynamic>>().map(WorkoutSessionInfo.fromJson).toList(),
+      );
+}

@@ -274,6 +274,66 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String get history => 'History';
+
+  @override
+  String get historyEmpty => 'No workouts yet.';
+
+  @override
+  String get historyEnd => 'That\'s everything.';
+
+  @override
+  String get historyLoadMore => 'Older workouts';
+
+  @override
+  String get repeatWorkout => 'Repeat';
+
+  @override
+  String get repeatLastWorkout => 'Repeat last workout';
+
+  @override
+  String workoutOfDay(String date) {
+    return 'Workout of $date';
+  }
+
+  @override
+  String durationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String setsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sets',
+      one: '1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get planTemplates => 'Ready-made plans';
+
+  @override
+  String get fromTemplate => 'From a ready-made plan';
+
+  @override
+  String get fromTemplateHint =>
+      'FBW, 5×5, Push/Pull/Legs, Upper/Lower, home circuit';
+
+  @override
+  String get emptyPlan => 'Empty plan';
+
+  @override
+  String get useTemplate => 'Use';
+
+  @override
+  String daysPerWeek(int count) {
+    return '$count× a week';
+  }
+
+  @override
   String get hintBeatLastTime => 'Try to beat last time';
 
   @override
