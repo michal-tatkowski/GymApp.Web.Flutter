@@ -12,18 +12,21 @@ import 'plan_providers.dart';
 /// Create or edit a plan: name + exercises in training order, each with a target
 /// (sets × reps range). Drag the handle to reorder.
 class PlanEditorScreen extends ConsumerStatefulWidget {
-  const PlanEditorScreen({super.key, this.plan});
+  const PlanEditorScreen({super.key, this.plan, this.template});
 
   /// null = new plan.
   final WorkoutPlan? plan;
+
+  /// New plan prefilled from a ready-made one (saved as the user's own).
+  final PlanTemplate? template;
 
   @override
   ConsumerState<PlanEditorScreen> createState() => _PlanEditorScreenState();
 }
 
 class _PlanEditorScreenState extends ConsumerState<PlanEditorScreen> {
-  late final _name = TextEditingController(text: widget.plan?.name ?? '');
-  late final List<PlanItem> _items = [...?widget.plan?.items];
+  late final _name = TextEditingController(text: widget.plan?.name ?? widget.template?.name ?? '');
+  late final List<PlanItem> _items = [...?(widget.plan?.items ?? widget.template?.items)];
   bool _saving = false;
 
   @override

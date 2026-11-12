@@ -5,6 +5,7 @@ import '../../../../core/errors/failure_messages.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../data/plan_models.dart';
 import 'plan_editor_screen.dart';
+import 'plan_templates_screen.dart';
 import 'plan_providers.dart';
 
 /// "Plans" on Today: each plan with "Start"; tap the card to edit it, "+" for a new one.
@@ -16,6 +17,41 @@ class PlansSection extends ConsumerWidget {
   static void openEditor(BuildContext context, [WorkoutPlan? plan]) => Navigator.of(context).push(
         MaterialPageRoute<void>(builder: (_) => PlanEditorScreen(plan: plan), fullscreenDialog: plan == null),
       );
+
+  /// New plan: from scratch or from a ready-made one.
+  static Future<void> newPlan(BuildContext context) async {
+    final t = AppLocalizations.of(context)!;
+    final fromTemplate = await showModalBottomSheet<bool>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              key: const Key('plans.new.template'),
+              leading: const Icon(Icons.auto_awesome_outlined),
+              title: Text(t.fromTemplate),
+              subtitle: Text(t.fromTemplateHint),
+              onTap: () => Navigator.pop(context, true),
+            ),
+            ListTile(
+              key: const Key('plans.new.empty'),
+              leading: const Icon(Icons.edit_note),
+              title: Text(t.emptyPlan),
+              onTap: () => Navigator.pop(context, false),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (fromTemplate == null || !context.mounted) return;
+    if (fromTemplate) {
+      await Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const PlanTemplatesScreen()));
+    } else {
+      openEditor(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,7 +71,7 @@ class PlansSection extends ConsumerWidget {
                 key: const Key('plans.new'),
                 tooltip: t.newPlan,
                 icon: const Icon(Icons.add),
-                onPressed: () => openEditor(context),
+                onPressed: () => newPlan(context),
               ),
             ],
           ),
@@ -54,7 +90,7 @@ class PlansSection extends ConsumerWidget {
                   child: ListTile(
                     leading: const Icon(Icons.playlist_add),
                     title: Text(t.noPlansYet),
-                    onTap: () => openEditor(context),
+                    onTap: () => newPlan(context),
                   ),
                 )
               : Card(

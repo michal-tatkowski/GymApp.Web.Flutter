@@ -614,6 +614,96 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @history.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get history;
+
+  /// No description provided for @historyEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No workouts yet.'**
+  String get historyEmpty;
+
+  /// No description provided for @historyEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s everything.'**
+  String get historyEnd;
+
+  /// No description provided for @historyLoadMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Older workouts'**
+  String get historyLoadMore;
+
+  /// No description provided for @repeatWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat'**
+  String get repeatWorkout;
+
+  /// No description provided for @repeatLastWorkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat last workout'**
+  String get repeatLastWorkout;
+
+  /// No description provided for @workoutOfDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout of {date}'**
+  String workoutOfDay(String date);
+
+  /// No description provided for @durationMinutes.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String durationMinutes(int minutes);
+
+  /// No description provided for @setsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 set} other{{count} sets}}'**
+  String setsCount(int count);
+
+  /// No description provided for @planTemplates.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready-made plans'**
+  String get planTemplates;
+
+  /// No description provided for @fromTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'From a ready-made plan'**
+  String get fromTemplate;
+
+  /// No description provided for @fromTemplateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'FBW, 5×5, Push/Pull/Legs, Upper/Lower, home circuit'**
+  String get fromTemplateHint;
+
+  /// No description provided for @emptyPlan.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty plan'**
+  String get emptyPlan;
+
+  /// No description provided for @useTemplate.
+  ///
+  /// In en, this message translates to:
+  /// **'Use'**
+  String get useTemplate;
+
+  /// No description provided for @daysPerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{count}× a week'**
+  String daysPerWeek(int count);
+
   /// No description provided for @hintBeatLastTime.
   ///
   /// In en, this message translates to:

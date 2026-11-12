@@ -12,6 +12,7 @@ import '../../../../l10n/app_localizations.dart';
 import '../../../../routing/app_routes.dart';
 import '../../exercises/data/models/exercise.dart';
 import '../../exercises/presentation/category_ui.dart';
+import '../../history/history_screen.dart';
 import '../../progress/progress_cards.dart';
 import '../data/workout_models.dart';
 import 'exercise_workouts_screen.dart';
@@ -27,7 +28,17 @@ class MyWorkoutsScreen extends ConsumerWidget {
     final summaries = ref.watch(workoutSummariesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: Text(t.progress)),
+      appBar: AppBar(
+        title: Text(t.progress),
+        actions: [
+          IconButton(
+            key: const Key('progress.history'),
+            tooltip: t.history,
+            icon: const Icon(Icons.history),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const HistoryScreen())),
+          ),
+        ],
+      ),
       body: GradientBackground(
         child: SafeArea(
           child: summaries.when(

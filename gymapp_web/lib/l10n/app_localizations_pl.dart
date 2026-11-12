@@ -274,6 +274,67 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get history => 'Historia';
+
+  @override
+  String get historyEmpty => 'Nie ma jeszcze treningów.';
+
+  @override
+  String get historyEnd => 'To już wszystko.';
+
+  @override
+  String get historyLoadMore => 'Starsze treningi';
+
+  @override
+  String get repeatWorkout => 'Powtórz';
+
+  @override
+  String get repeatLastWorkout => 'Powtórz ostatni trening';
+
+  @override
+  String workoutOfDay(String date) {
+    return 'Trening z $date';
+  }
+
+  @override
+  String durationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String setsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count serii',
+      few: '$count serie',
+      one: '1 seria',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get planTemplates => 'Gotowe plany';
+
+  @override
+  String get fromTemplate => 'Z gotowego planu';
+
+  @override
+  String get fromTemplateHint =>
+      'FBW, 5×5, Push/Pull/Legs, Upper/Lower, obwód w domu';
+
+  @override
+  String get emptyPlan => 'Pusty plan';
+
+  @override
+  String get useTemplate => 'Użyj';
+
+  @override
+  String daysPerWeek(int count) {
+    return '$count× w tygodniu';
+  }
+
+  @override
   String get hintBeatLastTime => 'Spróbuj pobić poprzedni wynik';
 
   @override

@@ -119,5 +119,68 @@ class WorkoutActions {
     _container.invalidate(workoutSummariesProvider);
     _container.invalidate(workoutStatsProvider);
     _container.invalidate(yearStatsProvider);
+    _container.invalidate(trainingDaysProvider);
+  }
+}
+
+/// History day by day (newest first), loaded in pages of [TrainingHistoryNotifier.pageDays]
+/// going back; "Load more" adds the next page.
+final trainingDaysProvider =
+    AsyncNotifierProvider.autoDispose<TrainingHistoryNotifier, TrainingHistory>(TrainingHistoryNotifier.new, retry: noRetry);
+
+class TrainingHistory {
+  const TrainingHistory({required this.days, required this.loadedFrom, required this.hasMore, this.loadingMore = false});
+
+  final List<TrainingDayDetails> days;
+
+  /// Oldest day already asked for.
+  final DateTime loadedFrom;
+  final bool hasMore;
+  final bool loadingMore;
+
+  TrainingHistory copyWith({List<TrainingDayDetails>? days, DateTime? loadedFrom, bool? hasMore, bool? loadingMore}) =>
+      TrainingHistory(
+        days: days ?? this.days,
+        loadedFrom: loadedFrom ?? this.loadedFrom,
+        hasMore: hasMore ?? this.hasMore,
+        loadingMore: loadingMore ?? this.loadingMore,
+      );
+}
+
+class TrainingHistoryNotifier extends AsyncNotifier<TrainingHistory> {
+  static const pageDays = 90;
+
+  /// Older than this with an empty page = nothing more to look for.
+  static const searchBackDays = 3 * 365;
+
+  @override
+  Future<TrainingHistory> build() async {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final from = today.subtract(const Duration(days: pageDays));
+    final days = await ref.watch(workoutRepositoryProvider).getDays(from: from, to: today.add(const Duration(days: 1)));
+    return TrainingHistory(days: days, loadedFrom: from, hasMore: true);
+  }
+
+  Future<void> loadMore() async {
+    final current = state.value;
+    if (current == null || !current.hasMore || current.loadingMore) return;
+    state = AsyncData(current.copyWith(loadingMore: true));
+    final to = current.loadedFrom.subtract(const Duration(days: 1));
+    final from = to.subtract(const Duration(days: pageDays - 1));
+    try {
+      final older = await ref.read(workoutRepositoryProvider).getDays(from: from, to: to);
+      final now = DateTime.now();
+      final tooOld = now.difference(from).inDays > searchBackDays;
+      state = AsyncData(current.copyWith(
+        days: [...current.days, ...older],
+        loadedFrom: from,
+        hasMore: older.isNotEmpty || !tooOld,
+        loadingMore: false,
+      ));
+    } catch (e) {
+      state = AsyncData(current.copyWith(loadingMore: false));
+      rethrow;
+    }
   }
 }

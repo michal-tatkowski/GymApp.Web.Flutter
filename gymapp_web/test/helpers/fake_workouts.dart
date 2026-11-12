@@ -23,6 +23,50 @@ class FakeWorkoutRepository extends WorkoutRepository {
     if (offline) throw const NetworkFailure();
   }
 
+  /// Sessions posted at the end of a workout.
+  final sessions = <({String name, DateTime date})>[];
+
+  @override
+  Future<void> saveSession({
+    required String id,
+    required String name,
+    required DateTime date,
+    required DateTime startedAt,
+    required DateTime finishedAt,
+    String? planId,
+  }) async {
+    _online();
+    sessions.add((name: name, date: date));
+  }
+
+  /// Days from [entries] (exercise name = the id, like the other fakes), newest first.
+  @override
+  Future<List<TrainingDayDetails>> getDays({DateTime? from, DateTime? to}) async {
+    _online();
+    final byDay = <DateTime, Map<String, List<WorkoutEntry>>>{};
+    for (final MapEntry(key: exercise, value: list) in entries.entries) {
+      for (final e in list) {
+        if ((from != null && e.date.isBefore(from)) || (to != null && e.date.isAfter(to))) continue;
+        ((byDay[e.date] ??= {})[exercise] ??= []).add(e);
+      }
+    }
+    final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
+    return [
+      for (final d in days)
+        TrainingDayDetails(
+          date: d,
+          exercises: [
+            for (final MapEntry(key: id, value: list) in byDay[d]!.entries)
+              DayExercise(exerciseId: id, exerciseName: id, category: ExerciseCategory.push, tracking: Tracking.weight, entries: list),
+          ],
+          sessions: [
+            for (final s in sessions.where((s) => s.date == d))
+              WorkoutSessionInfo(id: 's', name: s.name, startedAt: d, finishedAt: d.add(const Duration(minutes: 45))),
+          ],
+        ),
+    ];
+  }
+
   static WorkoutEntry entryOf(String id, DateTime date, List<WorkoutSet> sets, String? notes) => WorkoutEntry(
         id: id,
         date: date,

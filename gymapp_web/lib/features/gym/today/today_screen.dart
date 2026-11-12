@@ -20,6 +20,7 @@ import '../workouts/data/workout_models.dart';
 import 'week_summary.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/pending_workouts.dart';
+import '../history/history_screen.dart';
 import '../workouts/presentation/workout_providers.dart';
 
 /// Start tab: quick log from favorites + what was done today.
@@ -142,6 +143,7 @@ class TodayScreen extends ConsumerWidget {
 
             // ── Plans ──────────────────────────────────────────────────
             PlansSection(onStart: (plan) => startSession(context, ref, plan)),
+            if (session == null) const RepeatLastCard(),
             const SizedBox(height: 8),
 
             // ── Done today ─────────────────────────────────────────────

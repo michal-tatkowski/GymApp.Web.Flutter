@@ -98,3 +98,22 @@ class PlanRequest {
         ],
       };
 }
+
+/// Ready-made plan from the API (api/Plans/templates), opened in the editor to save as one's own.
+class PlanTemplate {
+  const PlanTemplate({required this.key, required this.name, required this.description, required this.daysPerWeek, required this.items});
+
+  final String key;
+  final String name;
+  final String description;
+  final int daysPerWeek;
+  final List<PlanItem> items;
+
+  factory PlanTemplate.fromJson(Map<String, dynamic> json) => PlanTemplate(
+        key: json['key'] as String,
+        name: json['name'] as String,
+        description: json['description'] as String? ?? '',
+        daysPerWeek: (json['daysPerWeek'] as num?)?.toInt() ?? 3,
+        items: (json['exercises'] as List).cast<Map<String, dynamic>>().map(PlanItem.fromJson).toList(),
+      );
+}
