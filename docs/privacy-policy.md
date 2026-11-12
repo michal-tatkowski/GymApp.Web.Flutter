@@ -27,7 +27,7 @@ Dane konta i treningów są przechowywane na serwerze aplikacji do czasu usunię
 Nie sprzedajemy danych i nie wyświetlamy reklam. Dane mogą być powierzane wyłącznie dostawcom technicznym: firmie hostingowej serwera oraz dostawcy raportów błędów (Sentry), na podstawie umów powierzenia.
 
 ### 6. Twoje prawa
-Masz prawo dostępu do danych, ich sprostowania (profil edytujesz w aplikacji), usunięcia, ograniczenia przetwarzania, przenoszenia oraz sprzeciwu. Konto i wszystkie dane usuniesz w aplikacji: **Ustawienia → Usuń konto** — dzieje się to od razu i nieodwracalnie. Przysługuje Ci też skarga do Prezesa Urzędu Ochrony Danych Osobowych.
+Masz prawo dostępu do danych, ich sprostowania (profil edytujesz w aplikacji), usunięcia, ograniczenia przetwarzania, przenoszenia oraz sprzeciwu. Kopię wszystkich danych pobierzesz w aplikacji: Ustawienia → Eksportuj moje dane (JSON i CSV). Konto i wszystkie dane usuniesz w aplikacji: **Ustawienia → Usuń konto** — dzieje się to od razu i nieodwracalnie. Przysługuje Ci też skarga do Prezesa Urzędu Ochrony Danych Osobowych.
 
 ### 7. Zmiany
 O istotnych zmianach tej polityki poinformujemy w aplikacji. Data ostatniej aktualizacji jest podana na górze.
@@ -53,7 +53,7 @@ Account and training data are stored on the app server until you delete your acc
 We do not sell data and show no ads. Data may be entrusted only to technical providers: the server hosting company and the crash reporting provider (Sentry), under data processing agreements.
 
 ### 6. Your rights
-You have the right to access, rectify (edit your profile in the app), erase, restrict, port and object to the processing of your data. Delete your account and all data in the app: **Settings → Delete account** — it happens immediately and cannot be undone. You may also lodge a complaint with a data protection authority.
+You have the right to access, rectify (edit your profile in the app), erase, restrict, port and object to the processing of your data. Download a copy of all your data in the app: Settings → Export my data (JSON and CSV). Delete your account and all data in the app: **Settings → Delete account** — it happens immediately and cannot be undone. You may also lodge a complaint with a data protection authority.
 
 ### 7. Changes
 We will announce significant changes to this policy in the app. The last update date is shown at the top.

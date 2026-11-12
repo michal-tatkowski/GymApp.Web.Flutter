@@ -73,7 +73,7 @@ const _pl = <PolicySection>[
   ),
   (
     title: '6. Twoje prawa',
-    body: 'Masz prawo dostępu do danych, ich sprostowania (profil edytujesz w aplikacji), usunięcia, ograniczenia przetwarzania, przenoszenia oraz sprzeciwu. '
+    body: 'Masz prawo dostępu do danych, ich sprostowania (profil edytujesz w aplikacji), usunięcia, ograniczenia przetwarzania, przenoszenia oraz sprzeciwu. Kopię wszystkich danych pobierzesz w aplikacji: Ustawienia → Eksportuj moje dane (JSON i CSV). '
         'Konto i wszystkie dane usuniesz w aplikacji: Ustawienia → Usuń konto — dzieje się to od razu i nieodwracalnie. '
         'Przysługuje Ci też skarga do Prezesa Urzędu Ochrony Danych Osobowych.',
   ),
@@ -111,7 +111,7 @@ const _en = <PolicySection>[
   ),
   (
     title: '6. Your rights',
-    body: 'You have the right to access, rectify (edit your profile in the app), erase, restrict, port and object to the processing of your data. '
+    body: 'You have the right to access, rectify (edit your profile in the app), erase, restrict, port and object to the processing of your data. Download a copy of all your data in the app: Settings → Export my data (JSON and CSV). '
         'Delete your account and all data in the app: Settings → Delete account — it happens immediately and cannot be undone. '
         'You may also lodge a complaint with a data protection authority.',
   ),

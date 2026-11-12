@@ -274,6 +274,25 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get exportData => 'Eksportuj moje dane';
+
+  @override
+  String get exportDataHint =>
+      'Wszystko jako JSON, treningi jako CSV (Excel, Arkusze)';
+
+  @override
+  String get sessionChannel => 'Trwający trening';
+
+  @override
+  String sessionNotificationSet(int set, int total) {
+    return 'Seria $set z $total';
+  }
+
+  @override
+  String get sessionNotificationDone =>
+      'Wszystkie serie zrobione — czas na kolejne ćwiczenie';
+
+  @override
   String get measurements => 'Obwody';
 
   @override

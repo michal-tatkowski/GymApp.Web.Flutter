@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">This week\'s training: days, sets and week streak</string>
+    <string name="widget_default_title">This week</string>
+    <string name="widget_default_line">Open GymApp to see your week</string>
+</resources>

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +14,10 @@ import '../../../core/utils/uuid.dart';
 import '../exercises/data/models/exercise.dart';
 import '../plans/data/plan_models.dart';
 import '../workouts/data/workout_models.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../settings/presentation/settings_providers.dart';
+import '../workouts/presentation/exercise_workouts_screen.dart' show describeTimedOrPlain;
+import '../workouts/presentation/rest_alarm.dart';
 import '../workouts/presentation/rest_timer.dart';
 import '../workouts/presentation/workout_providers.dart';
 import 'session_models.dart';
@@ -32,8 +37,41 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
   @override
   WorkoutSession? build() {
     _restore();
+    // In the background a notification shows what is next, with "Set done".
+    final lifecycle = AppLifecycleListener(onHide: _showNotification, onShow: _clearNotification);
+    final actions = ref.read(restAlarmProvider).actions.listen((action) {
+      if (action == kSessionDoneAction) tickNext();
+    });
+    ref.onDispose(() {
+      lifecycle.dispose();
+      actions.cancel();
+    });
     return null;
   }
+
+  /// "Set done" from the notification: the first open set of the current exercise.
+  void tickNext() {
+    final s = state;
+    if (s == null) return;
+    final set = s.currentExercise.saved ? -1 : s.currentExercise.sets.indexWhere((x) => !x.done);
+    if (set >= 0) toggleDone(s.current, set);
+  }
+
+  /// "Push A · Bench press" / "Set 2 of 3 · 8 × 100 kg".
+  void _showNotification() {
+    final s = state;
+    if (s == null) return;
+    final t = lookupAppLocalizations(ref.read(localeProvider));
+    final e = s.currentExercise;
+    final next = e.saved ? -1 : e.sets.indexWhere((x) => !x.done);
+    final weights = ref.read(weightFormatProvider);
+    final body = next < 0
+        ? t.sessionNotificationDone
+        : '${t.sessionNotificationSet(next + 1, e.sets.length)} · ${describeTimedOrPlain(e.sets[next].toWorkoutSet(), weights)}';
+    ref.read(restAlarmProvider).showSession(title: '${s.planName} · ${e.name}', body: body, t: t);
+  }
+
+  void _clearNotification() => ref.read(restAlarmProvider).clearSession();
 
   Future<void> _restore() async {
     final raw = (await SharedPreferences.getInstance()).getString(StorageKeys.activeSession);
@@ -203,6 +241,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       records: _records.toList(),
     );
     if (done.isNotEmpty) unawaited(_recordSession(s));
+    _clearNotification();
     _set(null);
     ref.read(restTimerProvider.notifier).stop();
     return summary;
@@ -230,6 +269,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
   /// Ends without saving the remaining sets (exercises already saved stay in the history).
   void discard() {
     _set(null);
+    _clearNotification();
     ref.read(restTimerProvider.notifier).stop();
   }
 }
