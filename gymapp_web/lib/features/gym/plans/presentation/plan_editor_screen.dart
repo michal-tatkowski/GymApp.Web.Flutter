@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/errors/failure_messages.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../exercises/data/models/exercise.dart' show Tracking;
 import '../../exercises/presentation/category_ui.dart';
 import '../data/plan_models.dart';
 import '../../sharing/sharing.dart';
@@ -235,6 +236,19 @@ class _PlanItemCard extends StatelessWidget {
                   max: kPlanMaxReps,
                   onChanged: (v) => onChanged(item.copyWith(repsMax: v)),
                 ),
+                // Drop sets: only where there is a weight to drop.
+                if (item.tracking == Tracking.weight)
+                  Tooltip(
+                    message: t.dropSetsHint,
+                    child: _MiniStepper(
+                      key: Key('plan.$index.drops'),
+                      label: t.dropSets,
+                      value: item.dropSets,
+                      min: 0,
+                      max: kPlanMaxDropSets,
+                      onChanged: (v) => onChanged(item.copyWith(dropSets: v)),
+                    ),
+                  ),
               ],
             ),
             if (!isLast)

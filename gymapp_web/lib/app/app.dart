@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../features/settings/presentation/settings_providers.dart';
 import '../l10n/app_localizations.dart';
 import '../routing/app_router.dart';
+import 'localized_data.dart';
 import 'theme/app_theme.dart';
 
 class GymApp extends ConsumerWidget {
@@ -16,6 +17,10 @@ class GymApp extends ConsumerWidget {
     final themeMode = ref.watch(themeProvider);
     final locale = ref.watch(localeProvider);
     final router = ref.watch(goRouterProvider);
+    // Names from the API follow the language: reload what is on screen after a switch.
+    ref.listen(localeProvider.select((l) => l.languageCode), (previous, next) {
+      if (previous != null && previous != next) refreshLocalizedData(ref);
+    });
 
     return MaterialApp.router(
       title: 'GymApp',

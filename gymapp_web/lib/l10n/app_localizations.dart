@@ -614,6 +614,30 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @dropSets.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop sets'**
+  String get dropSets;
+
+  /// No description provided for @dropSetsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Straight after the last set: about 20% lighter each, no rest'**
+  String get dropSetsHint;
+
+  /// No description provided for @dropSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop set'**
+  String get dropSet;
+
+  /// No description provided for @dropSetHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Drop set: about 20% lighter, straight away, no rest'**
+  String get dropSetHint;
+
   /// No description provided for @exerciseNote.
   ///
   /// In en, this message translates to:

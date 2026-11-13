@@ -60,6 +60,15 @@ class FakeWorkoutRepository extends WorkoutRepository {
     feedback[id] = (mood: mood, note: note);
   }
 
+  /// This month's challenges; null = the endpoint is missing (older API).
+  MonthChallenges? challenges;
+
+  @override
+  Future<MonthChallenges> getChallenges() async {
+    _online();
+    return challenges ?? (throw const ServerFailure());
+  }
+
   /// From [entries], like the API; null = the endpoint is missing (older API).
   LifetimeStats? lifetime;
 

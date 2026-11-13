@@ -82,6 +82,12 @@ class WorkoutRepository {
   Future<void> setSessionFeedback(String id, {int? mood, String? note}) =>
       _guard(() => _dio.put<dynamic>('Workouts/sessions/$id/feedback', data: {'mood': mood, 'note': note}));
 
+  /// This month's challenges with progress (proposed by the API on the first read of the month).
+  Future<MonthChallenges> getChallenges() => _guard(() async {
+        final res = await _dio.get<dynamic>('Challenges');
+        return MonthChallenges.fromJson(res.data as Map<String, dynamic>);
+      });
+
   /// Totals over the whole account, for the "All time" card and lifetime badges.
   Future<LifetimeStats> getLifetime() => _guard(() async {
         final res = await _dio.get<dynamic>('Workouts/lifetime');

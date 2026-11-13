@@ -274,6 +274,19 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get dropSets => 'Drop-sety';
+
+  @override
+  String get dropSetsHint =>
+      'Zaraz po ostatniej serii: każdy o około 20% lżej, bez przerwy';
+
+  @override
+  String get dropSet => 'Drop-set';
+
+  @override
+  String get dropSetHint => 'Drop-set: około 20% lżej, od razu, bez przerwy';
+
+  @override
   String get exerciseNote => 'Notatka do ćwiczenia';
 
   @override

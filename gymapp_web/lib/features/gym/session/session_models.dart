@@ -14,6 +14,7 @@ class SessionSet {
     this.distanceMeters,
     this.rir,
     this.note,
+    this.drop = false,
   });
 
   final int reps;
@@ -27,6 +28,9 @@ class SessionSet {
   /// Reps in reserve, chosen after the set is done.
   final int? rir;
   final String? note;
+
+  /// A drop set: straight after the set before it, lighter, no rest.
+  final bool drop;
 
   /// [clearRir] / [clearNote] remove them (null alone means "keep").
   SessionSet copyWith({
@@ -48,6 +52,7 @@ class SessionSet {
         distanceMeters: distanceMeters ?? this.distanceMeters,
         rir: clearRir ? null : rir ?? this.rir,
         note: clearNote ? null : note ?? this.note,
+        drop: drop,
       );
 
   WorkoutSet toWorkoutSet() =>
@@ -61,6 +66,7 @@ class SessionSet {
         if (distanceMeters != null) 'distanceMeters': distanceMeters,
         if (rir != null) 'rir': rir,
         if (note != null) 'note': note,
+        if (drop) 'drop': true,
       };
 
   factory SessionSet.fromJson(Map<String, dynamic> j) => SessionSet(
@@ -71,6 +77,7 @@ class SessionSet {
         distanceMeters: (j['distanceMeters'] as num?)?.toDouble(),
         rir: (j['rir'] as num?)?.toInt(),
         note: j['note'] as String?,
+        drop: j['drop'] == true,
       );
 
   static SessionSet fromWorkoutSet(WorkoutSet s) =>
@@ -241,20 +248,23 @@ class SessionExercise {
         tracking: item.tracking,
       );
     }
+    // Last time's drop sets (lighter, at the end) are not working sets: the hint looks at the rest.
+    final working = last != null && item.dropSets > 0 && last.length > item.sets ? last.take(item.sets).toList() : last;
     final hint = suggestNext(
-      last: last,
+      last: working,
       targetSets: item.sets,
       repsMin: item.repsMin,
       repsMax: item.repsMax,
       weights: weights,
     );
+    final sets = hint?.sets ?? List.filled(item.sets, SessionSet(reps: item.repsMin, weightKg: 0));
     return SessionExercise(
       exerciseId: item.exerciseId,
       name: item.exerciseName,
       category: item.category,
       repsMin: item.repsMin,
       repsMax: item.repsMax,
-      sets: hint?.sets ?? List.filled(item.sets, SessionSet(reps: item.repsMin, weightKg: 0)),
+      sets: [...sets, ...dropSetsAfter(sets.last, item.dropSets, weights)],
       lastSets: last,
       hint: hint?.kind,
       supersetWithNext: item.supersetWithNext,
@@ -374,4 +384,18 @@ class SessionSummary {
 
   /// Completes with true once the session reached the API (mood / note can then be attached).
   final Future<bool>? recorded;
+}
+
+/// [count] drop sets after [last]: each about 20 % lighter than the one before (rounded to
+/// the plate step, never below one step), same reps — done to failure, no rest.
+List<SessionSet> dropSetsAfter(SessionSet last, int count, WeightFormat weights) {
+  final drops = <SessionSet>[];
+  var kg = last.weightKg;
+  for (var i = 0; i < count; i++) {
+    final shown = weights.fromKg(kg) * 0.8;
+    final rounded = (shown / weights.step).round() * weights.step;
+    kg = kg <= 0 ? 0 : weights.toKg(rounded < weights.step ? weights.step : rounded);
+    drops.add(SessionSet(reps: last.reps, weightKg: kg, drop: true));
+  }
+  return drops;
 }

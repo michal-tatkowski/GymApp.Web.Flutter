@@ -65,6 +65,20 @@ final muscleDaysProvider = FutureProvider.autoDispose<List<TrainingDayDetails>>(
 
 const kMuscleWeeks = 5;
 
+/// This month's challenges from the API — the same on every device, proposed by the server on
+/// the first look of the month and fixed until it ends. Null offline (with nothing cached) or
+/// with an older API: the card then just stays away.
+final challengesProvider = FutureProvider.autoDispose<MonthChallenges?>(
+  (ref) async {
+    try {
+      return await ref.watch(workoutRepositoryProvider).getChallenges();
+    } catch (_) {
+      return null;
+    }
+  },
+  retry: noRetry,
+);
+
 /// Must match the API (GetWorkoutStatsQuery.MaxDays).
 const kStatsMaxDays = 400;
 
@@ -144,6 +158,7 @@ class WorkoutActions {
     _container.invalidate(workoutSummariesProvider);
     _container.invalidate(workoutStatsProvider);
     _container.invalidate(yearStatsProvider);
+    _container.invalidate(challengesProvider);
     _container.invalidate(lifetimeStatsProvider);
     _container.invalidate(muscleDaysProvider);
     _container.invalidate(trainingDaysProvider);
