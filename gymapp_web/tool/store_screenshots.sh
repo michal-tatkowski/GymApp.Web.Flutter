@@ -4,6 +4,7 @@
 #
 #   SCREENSHOT_EMAIL=… SCREENSHOT_PASSWORD=… tool/store_screenshots.sh [device-id]
 #   API_BASE_URL=https://… (optional; default: the emulator's view of the local API)
+#   SCREENSHOT_LOCALES="en" (optional; default: "pl en")
 #
 # The screen is set to 1080×1920 (Play wants at most 2:1) with a clean status bar (demo mode),
 # and put back afterwards.
@@ -33,7 +34,7 @@ demo battery -e level 100 -e plugged false
 demo network -e wifi show -e level 4 -e mobile hide
 demo notifications -e visible false
 
-for locale in pl en; do
+for locale in ${SCREENSHOT_LOCALES:-pl en}; do
   echo "── $locale"
   SCREENSHOT_LOCALE=$locale flutter drive -d "$DEVICE" \
     --driver=test_driver/store_screenshots.dart \
