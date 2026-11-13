@@ -497,3 +497,39 @@ class LifetimeStats {
         records: (json['records'] as num? ?? 0).toInt(),
       );
 }
+
+/// Monthly challenge kinds (API: Workouts / Sets / Volume).
+enum ChallengeKind { workouts, sets, volume }
+
+/// One challenge of the month: training days, sets or kg — target and where it stands.
+class Challenge {
+  const Challenge({required this.kind, required this.target, this.value = 0, this.done = false});
+
+  final ChallengeKind kind;
+  final double target;
+  final double value;
+  final bool done;
+
+  factory Challenge.fromJson(Map<String, dynamic> json) => Challenge(
+        kind: ChallengeKind.values.firstWhere((k) => k.name.toLowerCase() == json['kind'].toString().toLowerCase(),
+            orElse: () => ChallengeKind.workouts),
+        target: (json['target'] as num).toDouble(),
+        value: (json['value'] as num? ?? 0).toDouble(),
+        done: json['done'] == true,
+      );
+}
+
+/// This month's challenges (the same on every device) and how many were completed before.
+class MonthChallenges {
+  const MonthChallenges({required this.month, required this.challenges, this.completedBefore = 0});
+
+  final DateTime month;
+  final List<Challenge> challenges;
+  final int completedBefore;
+
+  factory MonthChallenges.fromJson(Map<String, dynamic> json) => MonthChallenges(
+        month: fromApiDate(json['month'] as String),
+        challenges: [for (final c in json['challenges'] as List? ?? const []) Challenge.fromJson(c as Map<String, dynamic>)],
+        completedBefore: (json['completedBefore'] as num? ?? 0).toInt(),
+      );
+}

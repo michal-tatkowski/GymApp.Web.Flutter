@@ -5,6 +5,7 @@ const kPlanMaxNameLength = 60;
 const kPlanMaxExercises = 20;
 const kPlanMaxSets = 10;
 const kPlanMaxReps = 100;
+const kPlanMaxDropSets = 3;
 
 /// Exercise in a plan with its target: [sets] × [repsMin]–[repsMax] reps.
 class PlanItem {
@@ -17,6 +18,7 @@ class PlanItem {
     this.repsMax = 12,
     this.supersetWithNext = false,
     this.tracking = Tracking.weight,
+    this.dropSets = 0,
   });
 
   final String exerciseId;
@@ -32,7 +34,10 @@ class PlanItem {
   /// From the API (the exercise's type); not sent back.
   final Tracking tracking;
 
-  PlanItem copyWith({int? sets, int? repsMin, int? repsMax, bool? supersetWithNext}) => PlanItem(
+  /// Drop sets right after the last set: lighter, no rest (0–[kPlanMaxDropSets]).
+  final int dropSets;
+
+  PlanItem copyWith({int? sets, int? repsMin, int? repsMax, bool? supersetWithNext, int? dropSets}) => PlanItem(
         exerciseId: exerciseId,
         exerciseName: exerciseName,
         category: category,
@@ -41,6 +46,7 @@ class PlanItem {
         repsMax: repsMax ?? this.repsMax,
         supersetWithNext: supersetWithNext ?? this.supersetWithNext,
         tracking: tracking,
+        dropSets: dropSets ?? this.dropSets,
       );
 
   /// "3 × 8–12" or "4 × 5".
@@ -55,6 +61,7 @@ class PlanItem {
         repsMax: (json['repsMax'] as num).toInt(),
         supersetWithNext: json['supersetWithNext'] == true,
         tracking: TrackingX.fromJson(json['tracking']),
+        dropSets: (json['dropSets'] as num?)?.toInt() ?? 0,
       );
 
   Map<String, dynamic> toJson() => {
@@ -63,6 +70,7 @@ class PlanItem {
         'repsMin': repsMin,
         'repsMax': repsMax,
         'supersetWithNext': supersetWithNext,
+        if (dropSets > 0) 'dropSets': dropSets,
       };
 }
 

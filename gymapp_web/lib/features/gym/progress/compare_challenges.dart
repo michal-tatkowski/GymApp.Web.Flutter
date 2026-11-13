@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -146,108 +145,10 @@ class _PeriodCompareCardState extends ConsumerState<PeriodCompareCard> {
 
 // ─── Monthly challenges ────────────────────────────────────────────────────
 
-enum ChallengeKind { workouts, sets, volume }
-
-class Challenge {
-  const Challenge(this.kind, this.target);
-
-  final ChallengeKind kind;
-
-  /// Training days, sets, or kg.
-  final double target;
-
-  Map<String, dynamic> toJson() => {'kind': kind.name, 'target': target};
-
-  factory Challenge.fromJson(Map<String, dynamic> json) =>
-      Challenge(ChallengeKind.values.byName(json['kind'] as String), (json['target'] as num).toDouble());
-}
-
-String _monthKey(DateTime d) => '${d.year}-${d.month.toString().padLeft(2, '0')}';
-
-const _prefix = 'challenges.';
-
-/// Three challenges for [month], a notch (+10 %) above the average of the three months
-/// before it — training days, sets, and kilos (when weights are logged). With little
-/// history: two workouts a week and 40 sets.
-List<Challenge> proposeChallenges(List<TrainingDay> days, DateTime month) {
-  final start = DateTime(month.year, month.month);
-  final from = DateTime(month.year, month.month - 3);
-  final past = _totals(days, from, start);
-  final daysInMonth = DateUtils.getDaysInMonth(month.year, month.month);
-  double roundTo(double v, double step) => (v / step).round() * step;
-  final workouts = math.min(daysInMonth, math.max(8, (past.days / 3 * 1.1).ceil())).toDouble();
-  final sets = math.max(40.0, roundTo(past.sets / 3 * 1.1, 10));
-  final volume = past.volume <= 0 ? 0.0 : math.max(1000.0, roundTo(past.volume / 3 * 1.1, 1000));
-  return [
-    Challenge(ChallengeKind.workouts, workouts),
-    Challenge(ChallengeKind.sets, sets),
-    if (volume > 0) Challenge(ChallengeKind.volume, volume),
-  ];
-}
-
-double challengeValue(Challenge c, PeriodTotals totals) => switch (c.kind) {
-      ChallengeKind.workouts => totals.days.toDouble(),
-      ChallengeKind.sets => totals.sets.toDouble(),
-      ChallengeKind.volume => totals.volume,
-    };
-
-class MonthChallenges {
-  const MonthChallenges({required this.month, required this.challenges, required this.totals, required this.completedBefore});
-
-  final DateTime month;
-  final List<Challenge> challenges;
-  final PeriodTotals totals;
-
-  /// Challenges completed in earlier months (on this phone).
-  final int completedBefore;
-}
-
-/// This month's challenges. Fixed for the month once proposed (stored on the phone, so
-/// the bar does not move while you chase it); past months count towards "completed".
-/// Cleared on logout.
-final challengesProvider = FutureProvider.autoDispose<MonthChallenges?>((ref) async {
-  final stats = await ref.watch(yearStatsProvider.future);
-  final now = DateTime.now();
-  final month = DateTime(now.year, now.month);
-  final prefs = await SharedPreferences.getInstance();
-  final key = '$_prefix${_monthKey(month)}';
-
-  List<Challenge> read(String k) =>
-      [for (final c in jsonDecode(prefs.getString(k)!) as List) Challenge.fromJson(c as Map<String, dynamic>)];
-
-  List<Challenge> challenges;
-  try {
-    challenges = prefs.containsKey(key) ? read(key) : const [];
-  } catch (_) {
-    challenges = const [];
-  }
-  if (challenges.isEmpty) {
-    challenges = proposeChallenges(stats.days, month);
-    await prefs.setString(key, jsonEncode([for (final c in challenges) c.toJson()]));
-  }
-
-  var completed = 0;
-  for (final k in prefs.getKeys().where((k) => k.startsWith(_prefix) && k != key)) {
-    final parts = k.substring(_prefix.length).split('-');
-    final m = DateTime(int.parse(parts[0]), int.parse(parts[1]));
-    if (!m.isBefore(month)) continue;
-    final totals = _totals(stats.days, m, DateTime(m.year, m.month + 1));
-    try {
-      completed += read(k).where((c) => challengeValue(c, totals) >= c.target).length;
-    } catch (_) {}
-  }
-  return MonthChallenges(
-    month: month,
-    challenges: challenges,
-    totals: _totals(stats.days, month, DateTime(month.year, month.month + 1)),
-    completedBefore: completed,
-  );
-});
-
-/// Logout: the next account gets its own challenges.
+/// Logout: removes challenges an older version of the app kept on the phone.
 Future<void> clearChallenges() async {
   final prefs = await SharedPreferences.getInstance();
-  for (final k in prefs.getKeys().where((k) => k.startsWith(_prefix)).toList()) {
+  for (final k in prefs.getKeys().where((k) => k.startsWith('challenges.')).toList()) {
     await prefs.remove(k);
   }
 }
@@ -258,14 +159,15 @@ class ChallengesCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(challengesProvider).value;
-    if (data == null) return const SizedBox.shrink();
+    if (data == null || data.challenges.isEmpty) return const SizedBox.shrink();
     final t = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).toString();
     final weights = ref.watch(weightFormatProvider);
+    final count = NumberFormat.decimalPattern(locale);
     final today = DateUtils.dateOnly(DateTime.now());
     final left = DateUtils.getDaysInMonth(today.year, today.month) - today.day + 1;
-    final done = data.challenges.where((c) => challengeValue(c, data.totals) >= c.target).length;
+    final done = data.challenges.where((c) => c.done).length;
 
     String title(Challenge c) => switch (c.kind) {
           ChallengeKind.workouts => t.badgeGoalWorkouts(c.target.toInt()),
@@ -273,9 +175,9 @@ class ChallengesCard extends ConsumerWidget {
           ChallengeKind.volume => t.badgeGoalVolume(weights.withUnit(c.target)),
         };
     String value(Challenge c) => switch (c.kind) {
-          ChallengeKind.volume => '${NumberFormat.decimalPattern(locale).format(weights.fromKg(data.totals.volume).round())} / '
-              '${NumberFormat.decimalPattern(locale).format(weights.fromKg(c.target).round())} ${weights.label}',
-          _ => '${challengeValue(c, data.totals).toInt()} / ${c.target.toInt()}',
+          ChallengeKind.volume => '${count.format(weights.fromKg(c.value).round())} / '
+              '${count.format(weights.fromKg(c.target).round())} ${weights.label}',
+          _ => '${c.value.toInt()} / ${c.target.toInt()}',
         };
 
     return Card(
@@ -307,7 +209,7 @@ class ChallengesCard extends ConsumerWidget {
                     Row(
                       children: [
                         Expanded(child: Text(title(c))),
-                        if (challengeValue(c, data.totals) >= c.target)
+                        if (c.done)
                           Text(t.challengeDone, style: theme.textTheme.labelLarge?.copyWith(color: context.appColors.success))
                         else
                           Text(value(c), style: theme.textTheme.labelLarge),
@@ -315,10 +217,10 @@ class ChallengesCard extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     LinearProgressIndicator(
-                      value: (challengeValue(c, data.totals) / c.target).clamp(0, 1).toDouble(),
+                      value: c.target <= 0 ? 0 : (c.value / c.target).clamp(0, 1).toDouble(),
                       minHeight: 6,
                       borderRadius: BorderRadius.circular(3),
-                      color: challengeValue(c, data.totals) >= c.target ? context.appColors.success : null,
+                      color: c.done ? context.appColors.success : null,
                     ),
                   ],
                 ),

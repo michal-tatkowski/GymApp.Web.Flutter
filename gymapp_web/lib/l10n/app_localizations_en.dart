@@ -274,6 +274,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String get dropSets => 'Drop sets';
+
+  @override
+  String get dropSetsHint =>
+      'Straight after the last set: about 20% lighter each, no rest';
+
+  @override
+  String get dropSet => 'Drop set';
+
+  @override
+  String get dropSetHint =>
+      'Drop set: about 20% lighter, straight away, no rest';
+
+  @override
   String get exerciseNote => 'Note for this exercise';
 
   @override

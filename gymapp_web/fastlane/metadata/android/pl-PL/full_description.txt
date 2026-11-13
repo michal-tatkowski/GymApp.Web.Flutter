@@ -1,0 +1,26 @@
+GymApp to dziennik treningów na siłownię, który nie tylko zapisuje, ale podpowiada, co zrobić na następnym treningu.
+
+TRENING SERIA PO SERII
+• Plany treningowe z gotowych szablonów (FBW, Upper/Lower, Push/Pull/Legs, 5×5) albo własne
+• Podpowiedź progresji: kiedy dołożyć ciężar, a kiedy powtórzenia — z uwzględnieniem RIR
+• Superserie, obwody i drop-sety, timer przerwy z powiadomieniem
+• Rozgrzewka i rozciąganie dobrane do treningu, kalkulator talerzy
+• Timer dla serii na czas (deska, zwis), zamiana zajętej maszyny na ćwiczenie z tej samej partii
+• Notatki do ćwiczeń („siedzisko na 4”) i samopoczucie po treningu
+
+POSTĘP, KTÓRY WIDAĆ
+• Rekordy i wykresy dla każdego ćwiczenia (objętość, szacowany 1RM, maksymalny ciężar)
+• Mapa aktywności z całego roku, porównanie tygodni i miesięcy
+• Serie na partię mięśni z podpowiedzią, czego brakuje
+• Cele z prognozą („w tym tempie: około 6 tygodni”), wyzwania miesięczne i odznaki
+• Masa ciała, obwody i zdjęcia sylwetki
+
+WYGODNIE NA SIŁOWNI
+• Działa offline — treningi wyślą się, gdy wróci zasięg
+• Duże przyciski do obsługi jedną ręką, ciemny motyw i czysta czerń (OLED)
+• Widżet „Ten tydzień” i przypomnienia o treningu
+• kg albo lb, polski i angielski
+
+TWOJE DANE
+• Eksport wszystkich danych (JSON i CSV) i usunięcie konta w aplikacji
+• Bez reklam i bez sprzedawania danych

@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
@@ -203,39 +202,29 @@ void main() {
     });
   });
 
-  group('monthly challenges', () {
-    TrainingDay day(DateTime d) => TrainingDay(date: d, volume: 3000, exercises: 3, sets: 15);
-
-    test('a notch above the last three months; a sensible start without history', () {
-      final days = [for (var i = 0; i < 36; i++) day(DateTime(2026, 8, 1).add(Duration(days: i * 2 + 1)))]; // 12 a month, Aug–Oct
-      final c = proposeChallenges(days, DateTime(2026, 11));
-      expect([for (final x in c) (x.kind, x.target)], [
-        (ChallengeKind.workouts, 14.0), // 12 × 1.1 → 13.2 → 14
-        (ChallengeKind.sets, 200.0), // 180 × 1.1 = 198 → 200
-        (ChallengeKind.volume, 40000.0), // 36 000 × 1.1 = 39 600 → 40 000
-      ]);
-      expect([for (final x in proposeChallenges(const [], DateTime(2026, 11))) (x.kind, x.target)],
-          [(ChallengeKind.workouts, 8.0), (ChallengeKind.sets, 40.0)]);
-    });
-
-    testWidgets('card: targets stay fixed for the month; earlier months count as completed', (tester) async {
-      final now = DateTime.now();
-      final month = DateTime(now.year, now.month);
-      final prev = DateTime(now.year, now.month - 1);
-      String key(DateTime m) => 'challenges.${m.year}-${m.month.toString().padLeft(2, '0')}';
-      SharedPreferences.setMockInitialValues({
-        key(month): jsonEncode([const Challenge(ChallengeKind.workouts, 2).toJson()]),
-        key(prev): jsonEncode([const Challenge(ChallengeKind.workouts, 1).toJson(), const Challenge(ChallengeKind.sets, 999).toJson()]),
-      });
+  group('monthly challenges (from the API)', () {
+    testWidgets('card: progress per challenge, done ones marked, completed ones counted', (tester) async {
       final repo = FakeWorkoutRepository()
-        ..seed('bench', DateUtils.dateOnly(now), const [WorkoutSet(reps: 5, weight: 100)])
-        ..seed('bench', DateTime(prev.year, prev.month, 10), const [WorkoutSet(reps: 5, weight: 100)]);
+        ..challenges = MonthChallenges(month: DateTime(2026, 11), completedBefore: 2, challenges: const [
+          Challenge(kind: ChallengeKind.workouts, target: 12, value: 5),
+          Challenge(kind: ChallengeKind.sets, target: 100, value: 120, done: true),
+          Challenge(kind: ChallengeKind.volume, target: 20000, value: 8500),
+        ]);
       await pumpScreen(tester, const SingleChildScrollView(child: ChallengesCard()),
           overrides: [workoutRepositoryProvider.overrideWithValue(repo)]);
 
-      expect(find.text('Train on 2 days'), findsOneWidget);
-      expect(find.text('1 / 2'), findsOneWidget);
-      expect(find.text('1 challenge completed so far'), findsOneWidget); // last month's "1 day", not the 999 sets
+      expect(find.text('Challenges · November'), findsOneWidget);
+      expect(find.text('Train on 12 days'), findsOneWidget);
+      expect(find.text('5 / 12'), findsOneWidget);
+      expect(find.text('Done!'), findsOneWidget);
+      expect(find.text('8,500 / 20,000 kg'), findsOneWidget);
+      expect(find.text('3 challenges completed so far'), findsOneWidget); // 2 before + 1 now
+    });
+
+    testWidgets('older API or offline: no card', (tester) async {
+      await pumpScreen(tester, const SingleChildScrollView(child: ChallengesCard()),
+          overrides: [workoutRepositoryProvider.overrideWithValue(FakeWorkoutRepository())]);
+      expect(find.byKey(const Key('today.challenges')), findsNothing);
     });
   });
 }

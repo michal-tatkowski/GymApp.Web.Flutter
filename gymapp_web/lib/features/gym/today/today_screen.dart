@@ -117,6 +117,7 @@ class TodayScreen extends ConsumerWidget {
           ref.invalidate(workoutSummariesProvider);
           ref.invalidate(plansProvider);
           ref.invalidate(workoutStatsProvider);
+          ref.invalidate(challengesProvider);
           await ref.read(favoriteExercisesProvider.future);
         },
         child: ListView(

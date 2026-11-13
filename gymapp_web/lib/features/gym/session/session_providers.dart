@@ -157,6 +157,9 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
     HapticFeedback.mediumImpact();
 
     final now = state!;
+    // A drop set comes next: straight on, no rest (and no moving to a superset partner).
+    final sets = now.exercises[exercise].sets;
+    if (set + 1 < sets.length && sets[set + 1].drop && !sets[set + 1].done) return;
     final group = now.groupOf(exercise);
     bool hasWork(int i) => !now.exercises[i].saved && now.exercises[i].sets.any((x) => !x.done);
     final later = [for (var i = exercise + 1; i <= group.end; i++) if (hasWork(i)) i];

@@ -1,0 +1,26 @@
+GymApp is a gym workout log that doesn't just record — it tells you what to do next time.
+
+TRAIN SET BY SET
+• Workout plans from ready-made templates (full body, upper/lower, push/pull/legs, 5×5) or your own
+• Progression hints: when to add weight and when to add reps — RIR included
+• Supersets, circuits and drop sets, a rest timer with a notification
+• A warm-up and stretching fitted to the workout, a plate calculator
+• A timer for timed sets (plank, hang), swap a busy machine for an exercise of the same muscle group
+• Exercise notes ("seat on 4") and how the workout felt
+
+PROGRESS YOU CAN SEE
+• Records and charts for every exercise (volume, estimated 1RM, heaviest weight)
+• A year-long activity map, this week and month compared with the previous ones
+• Sets per muscle group, with a hint about what is missing
+• Goals with a forecast ("at this pace: about 6 weeks"), monthly challenges and badges
+• Body weight, measurements and progress photos
+
+MADE FOR THE GYM FLOOR
+• Works offline — workouts are sent when you're back online
+• Large one-handed buttons, dark theme and pure black (OLED)
+• A "This week" home-screen widget and workout reminders
+• kg or lb, English and Polish
+
+YOUR DATA
+• Export everything (JSON and CSV) and delete your account in the app
+• No ads, no selling data

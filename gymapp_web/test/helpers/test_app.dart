@@ -286,8 +286,12 @@ class FakePlanRepository extends PlanRepository {
   @override
   Future<List<PlanTemplate>> getTemplates() async => templates;
 
+  /// How many times the plans were fetched.
+  int loads = 0;
+
   @override
   Future<List<WorkoutPlan>> getPlans() async {
+    loads++;
     if (error != null) throw error!;
     return List.of(plans);
   }

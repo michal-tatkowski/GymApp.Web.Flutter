@@ -602,7 +602,17 @@ class _SetRow extends ConsumerWidget {
 
     final badge = GestureDetector(
       onLongPress: editable ? onRemove : null,
-      child: CircleAvatar(radius: 14, child: Text('$number', style: Theme.of(context).textTheme.labelMedium)),
+      child: set.drop
+          // A drop set: an arrow down instead of a number.
+          ? Tooltip(
+              message: t.dropSetHint,
+              child: CircleAvatar(
+                radius: 14,
+                backgroundColor: colors.tertiaryContainer,
+                child: Icon(Icons.south, size: 16, color: colors.onTertiaryContainer, semanticLabel: t.dropSet),
+              ),
+            )
+          : CircleAvatar(radius: 14, child: Text('$number', style: Theme.of(context).textTheme.labelMedium)),
     );
 
     // Timed set (plank, hang): count it down instead of typing the seconds in.
