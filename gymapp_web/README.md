@@ -77,9 +77,38 @@ Wysyłane są tylko błąd i informacje o urządzeniu/aplikacji (`sendDefaultPii
 
 Treść jest w aplikacji (Ustawienia → Polityka prywatności, link też przy rejestracji) i w [`../docs/privacy-policy.md`](../docs/privacy-policy.md). Sklepy wymagają publicznego URL — np. włącz GitHub Pages z folderu `docs/`. Przed publikacją uzupełnij administratora i e-mail kontaktowy (`privacyController`, `privacyContact` w `privacy_policy_screen.dart` i w pliku `.md`).
 
+## Wydanie do Google Play
+
+Podpisany pakiet `.aab` buduje GitHub Actions (`.github/workflows/release.yml`): **Actions → „Release (Google Play)” → Run workflow** (wybór ścieżki: internal / alpha / beta / production) albo tag `v1.2.3`. `versionCode` rośnie sam (numer uruchomienia), `versionName` z `pubspec.yaml` albo z tagu. Build sprawdza, że jest podpisany kluczem uploadu (nie debug) i że API jest po `https`.
+
+**1. Raz, w GitHubie** (repo → Settings → Secrets and variables → Actions):
+
+| Nazwa | Rodzaj | Wartość |
+|---|---|---|
+| `ANDROID_KEYSTORE_BASE64` | secret | plik klucza w base64: `base64 -w0 gymapp-upload.jks` (PowerShell: `[Convert]::ToBase64String([IO.File]::ReadAllBytes("gymapp-upload.jks"))`) |
+| `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` | secret | jak w `key.properties` (alias: `upload`) |
+| `API_BASE_URL` | variable | `https://api.twojadomena.pl/api/` (wdrożenie API: `GymApp.API/deploy/README.md`) |
+| `SENTRY_DSN` | secret, opcjonalnie | raporty awarii |
+| `PLAY_SERVICE_ACCOUNT_JSON` | secret, opcjonalnie | klucz konta usługi — automatyczne wgrywanie (pkt 3) |
+
+**2. Raz, w Play Console** (konto dewelopera: jednorazowo 25 USD):
+1. Utwórz aplikację, pakiet `pl.tatkowski.gymapp`, włącz **Play App Signing** (Twój klucz to wtedy tylko klucz uploadu — da się go zresetować).
+2. Uruchom workflow, pobierz artefakt (`app-release.aab`) i **pierwszy raz wgraj ręcznie**: Testowanie → Testy wewnętrzne → Utwórz wersję. Google nie przyjmuje pierwszego pakietu przez API.
+3. Dodaj testerów (lista e-maili) i wyślij im link do testów.
+4. Karta sklepu: teksty i zrzuty są w `fastlane/metadata/android/{pl-PL,en-US}/` (tytuł, krótki i pełny opis, `images/phoneScreenshots/`). Brakuje jeszcze **grafiki promocyjnej 1024×500** (ikona 512×512: `assets/icon`).
+5. Formularze: polityka prywatności (URL), **Bezpieczeństwo danych**, klasyfikacja treści, grupa docelowa, reklamy: brak.
+
+**3. Automatyczne wgrywanie (opcjonalnie):** Google Cloud → konto usługi → klucz JSON; w Play Console → Użytkownicy i uprawnienia → zaproś e-mail konta usługi z uprawnieniami do wydań. JSON wklej jako `PLAY_SERVICE_ACCOUNT_JSON` — od tej pory workflow sam wrzuca wersję na wybraną ścieżkę (notatki do wersji: `fastlane/whatsnew/`).
+
+**Zrzuty ekranu** (po zmianach w UI): emulator + działające API + konto z historią (np. z symulacji) —
+```bash
+SCREENSHOT_EMAIL=… SCREENSHOT_PASSWORD=… tool/store_screenshots.sh
+```
+Ekran 1080×1920 (Play: maks. proporcje 2:1), czysty pasek stanu, po polsku i po angielsku.
+
 ## Do zrobienia przed publikacją
 - Ikona i ekran startowy są gotowe (`assets/icon`, konfiguracja `flutter_launcher_icons` / `flutter_native_splash`) — przy zmianie grafiki uruchom oba generatory.
-- Klucz wydania (wyżej) i konto w Google Play / App Store.
+- Klucz wydania (wyżej) i konto w Google Play / App Store. Kroki: „Wydanie do Google Play”.
 - Administrator i kontakt w polityce prywatności + jej publiczny URL.
 - Produkcyjny adres API po `https` i DSN Sentry.
 - Formularz „Bezpieczeństwo danych” w Google Play (zgodnie z polityką: e-mail, dane o zdrowiu/fitness, raporty awarii; usuwanie konta w aplikacji).

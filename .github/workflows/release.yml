@@ -1,0 +1,119 @@
+name: Release (Google Play)
+
+# Signed Android App Bundle for Google Play; with a service account also uploaded to a track.
+# Start: Actions → "Release (Google Play)" → Run workflow, or push a tag v1.2.3.
+#
+# Repository secrets (Settings → Secrets and variables → Actions) — README "Wydanie do Google Play":
+#   ANDROID_KEYSTORE_BASE64    upload key (.jks) as base64
+#   ANDROID_KEYSTORE_PASSWORD, ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD
+#   PLAY_SERVICE_ACCOUNT_JSON  optional: without it the bundle is only an artifact to upload by hand
+#   SENTRY_DSN                 optional: crash reports
+# Repository variable:
+#   API_BASE_URL               https://api.yourdomain.com/api/
+on:
+  workflow_dispatch:
+    inputs:
+      track:
+        description: Google Play track
+        type: choice
+        options: [internal, alpha, beta, production]
+        default: internal
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: gymapp_web
+    env:
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+      SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # A release must never go out signed with the debug key or talking to a local/http API.
+      - name: Check configuration
+        run: |
+          [ -n "$KEYSTORE_BASE64" ] || { echo "::error::Secret ANDROID_KEYSTORE_BASE64 missing (README: Wydanie do Google Play)"; exit 1; }
+          case "$API_BASE_URL" in
+            https://*/api/) ;;
+            *) echo "::error::Variable API_BASE_URL must be https://…/api/ (now: '$API_BASE_URL')"; exit 1 ;;
+          esac
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.47.9
+          channel: stable
+          cache: true
+
+      - name: Upload key
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/upload.jks
+          cat > android/key.properties <<EOF
+          storeFile=upload.jks
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          EOF
+
+      # versionName from pubspec (or the tag v1.2.3), versionCode always growing: the run number.
+      - name: Version
+        id: version
+        run: |
+          name=$(grep '^version:' pubspec.yaml | sed -E 's/version: *([^+]+).*/\1/')
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then name="${GITHUB_REF#refs/tags/v}"; fi
+          code=$((1000 + GITHUB_RUN_NUMBER))
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+          echo "code=$code" >> "$GITHUB_OUTPUT"
+          echo "Version $name ($code)"
+
+      - run: flutter pub get
+
+      - name: Build app bundle
+        run: |
+          flutter build appbundle --release \
+            --build-name=${{ steps.version.outputs.name }} \
+            --build-number=${{ steps.version.outputs.code }} \
+            --obfuscate --split-debug-info=build/symbols \
+            --dart-define=API_BASE_URL="$API_BASE_URL" \
+            ${SENTRY_DSN:+--dart-define=SENTRY_DSN="$SENTRY_DSN"}
+
+      - name: Signed with the upload key, not the debug key
+        run: |
+          keytool -printcert -jarfile build/app/outputs/bundle/release/app-release.aab | tee cert.txt
+          if grep -q "CN=Android Debug" cert.txt; then echo "::error::Bundle signed with the debug key"; exit 1; fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gymapp-${{ steps.version.outputs.name }}-${{ steps.version.outputs.code }}
+          path: |
+            gymapp_web/build/app/outputs/bundle/release/app-release.aab
+            gymapp_web/build/symbols
+          retention-days: 30
+
+      - name: Upload to Google Play (${{ inputs.track || 'internal' }})
+        if: env.PLAY_JSON != ''
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: pl.tatkowski.gymapp
+          releaseFiles: gymapp_web/build/app/outputs/bundle/release/app-release.aab
+          track: ${{ inputs.track || 'internal' }}
+          status: completed
+          whatsNewDirectory: gymapp_web/fastlane/whatsnew
+
+      - name: Clean up the key
+        if: always()
+        run: rm -f android/upload.jks android/key.properties

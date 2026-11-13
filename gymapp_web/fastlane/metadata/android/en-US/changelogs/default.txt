@@ -1,0 +1,1 @@
+First release: plans, set-by-set workouts with progression hints, records, goals and challenges, offline mode.
