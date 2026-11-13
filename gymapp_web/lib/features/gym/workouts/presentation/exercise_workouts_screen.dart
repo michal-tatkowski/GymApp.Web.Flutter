@@ -11,6 +11,7 @@ import '../../../../core/units/weight_unit.dart';
 import '../../../../core/widgets/scroll_aware_fab.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../exercises/data/models/exercise.dart';
+import '../../exercises/presentation/exercise_note.dart';
 import '../../exercises/presentation/category_ui.dart';
 import '../../exercises/presentation/exercises_providers.dart';
 import '../../exercises/presentation/favorite_button.dart';
@@ -211,6 +212,7 @@ class _ExerciseWorkoutsScreenState extends ConsumerState<ExerciseWorkoutsScreen>
                     if (_motion case final motion?)
                       Center(child: MotionView(key: const Key('exercise.motion'), motion: motion, size: 150)),
                     if (exercise != null) ...[_ExerciseHeader(exercise: exercise), const SizedBox(height: 8)],
+                    if (!offline) ...[ExerciseNoteTile(exerciseId: exerciseId), const SizedBox(height: 8)],
                     if (!offline) Card(
                       child: Padding(
                         padding: const EdgeInsets.all(16),

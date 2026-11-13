@@ -12,6 +12,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../settings/presentation/settings_providers.dart';
 import '../exercises/data/models/exercise.dart';
 import '../exercises/presentation/category_ui.dart';
+import '../exercises/presentation/exercise_note.dart';
 import '../exercises/presentation/illustration/motion.dart';
 import '../exercises/presentation/illustration/motions.dart';
 import '../plans/data/plan_models.dart';
@@ -22,6 +23,8 @@ import 'plate_calculator.dart';
 import 'session_feedback.dart';
 import 'session_models.dart';
 import 'session_providers.dart';
+import 'routines.dart';
+import 'timed_set.dart';
 
 /// Starts [plan] (asking first when another workout is in progress) and opens it.
 Future<void> startSession(BuildContext context, WidgetRef ref, WorkoutPlan plan) async {
@@ -100,14 +103,44 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     await _run((actions) async => summary = await _session.finish(actions));
     final result = summary;
     if (result == null || !mounted) return;
-    await showDialog<void>(context: context, builder: (_) => _SummaryDialog(summary: result));
+    await showDialog<void>(
+      context: context,
+      builder: (_) => _SummaryDialog(summary: result),
+    );
     navigator.pop();
+  }
+
+  /// Same muscle group, other equipment: when the machine is taken. Only before the first
+  /// set — done sets belong to the exercise they were done on.
+  Future<void> _swap() async {
+    final t = AppLocalizations.of(context)!;
+    final messenger = ScaffoldMessenger.of(context);
+    final s = ref.read(activeSessionProvider);
+    if (s == null) return;
+    final current = s.currentExercise;
+    if (current.saved || current.doneSets.isNotEmpty) {
+      messenger.showSnackBar(SnackBar(content: Text(t.swapNotAfterSets)));
+      return;
+    }
+    final exercise = await pickExercise(
+      context,
+      alreadyAdded: {...s.exercises.map((e) => e.exerciseId)},
+      category: current.category,
+      title: t.swapExerciseTitle(current.name),
+    );
+    if (exercise == null || !mounted) return;
+    await _run((_) => _session.replaceExercise(s.current, exercise));
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(SnackBar(content: Text(t.swapped(exercise.name))));
   }
 
   Future<void> _menu(String action) async {
     final t = AppLocalizations.of(context)!;
     final navigator = Navigator.of(context);
-    if (action == 'add') {
+    if (action == 'swap') {
+      await _swap();
+    } else if (action == 'add') {
       final s = ref.read(activeSessionProvider);
       final exercise = await pickExercise(context, alreadyAdded: {...?s?.exercises.map((e) => e.exerciseId)});
       if (exercise != null) await _run((actions) => _session.addExercise(exercise, actions));
@@ -136,7 +169,10 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final session = ref.watch(activeSessionProvider);
     final weights = ref.watch(weightFormatProvider);
     if (session == null) {
-      return Scaffold(appBar: AppBar(), body: Center(child: Text(t.sessionNone)));
+      return Scaffold(
+        appBar: AppBar(),
+        body: Center(child: Text(t.sessionNone)),
+      );
     }
     final index = session.current;
     final exercise = session.currentExercise;
@@ -144,6 +180,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
     final group = session.groupOf(index);
     final last = group.end == session.exercises.length - 1;
     final elapsed = DateTime.now().difference(session.startedAt);
+    final showRoutines = !ref.watch(hideRoutinesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -154,7 +191,8 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             Text(
               _formatElapsed(elapsed),
               key: const Key('session.elapsed'),
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(fontFeatures: const [FontFeature.tabularFigures()]),
             ),
           ],
         ),
@@ -164,6 +202,7 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
             onSelected: _menu,
             itemBuilder: (_) => [
               PopupMenuItem(value: 'add', child: Text(t.addExercise)),
+              PopupMenuItem(value: 'swap', child: Text(t.swapExercise)),
               PopupMenuItem(value: 'discard', child: Text(t.sessionDiscard)),
             ],
           ),
@@ -171,43 +210,58 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
       ),
       body: Column(
         children: [
-          _ExerciseStrip(
-            session: session,
-            onTap: _busy ? null : (i) => _run((actions) => _session.goTo(i, actions)),
-          ),
+          _ExerciseStrip(session: session, onTap: _busy ? null : (i) => _run((actions) => _session.goTo(i, actions))),
           Expanded(
             child: ListView(
               key: ValueKey(exercise.exerciseId), // fresh scroll position per exercise
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               children: [
+                // General warm-up before the first set of the workout.
+                if (showRoutines && index == 0 && session.exercises.every((e) => !e.saved && e.doneSets.isEmpty))
+                  RoutineCard(
+                    id: 'warmUp',
+                    title: t.warmUpRoutineTitle,
+                    icon: Icons.directions_walk,
+                    steps: warmUpFor(session.exercises.map((e) => e.category)),
+                  ),
                 if (group.end > group.start)
                   _SupersetBanner(position: index - group.start + 1, size: group.end - group.start + 1),
-                _ExerciseHeader(exercise: exercise, weights: weights),
-                if (!exercise.saved && exercise.doneSets.isEmpty && exercise.tracking == Tracking.weight) _WarmUpCard(exercise: exercise, weights: weights),
+                _ExerciseHeader(
+                  exercise: exercise,
+                  weights: weights,
+                  onSwap: exercise.saved || exercise.doneSets.isNotEmpty || _busy ? null : _swap,
+                ),
+                if (!exercise.saved && exercise.doneSets.isEmpty && exercise.tracking == Tracking.weight)
+                  _WarmUpCard(exercise: exercise, weights: weights),
                 const SizedBox(height: 12),
                 for (var i = 0; i < exercise.sets.length; i++)
-                  Column(children: [
-                  _SetRow(
-                    key: Key('session.set$i'),
-                    number: i + 1,
-                    set: exercise.sets[i],
-                    weights: weights,
-                    readOnly: exercise.saved,
-                    onChanged: (v) => _session.updateSet(index, i, v),
-                    onToggle: () => _session.toggleDone(index, i),
-                    onRemove: exercise.sets.length > 1 ? () => _session.removeSet(index, i) : null,
-                    tracking: exercise.tracking,
-                    onWeightTap: exercise.tracking == Tracking.weight ? (kg) => showPlateCalculator(context, kg) : null,
+                  Column(
+                    children: [
+                      _SetRow(
+                        key: Key('session.set$i'),
+                        number: i + 1,
+                        set: exercise.sets[i],
+                        weights: weights,
+                        readOnly: exercise.saved,
+                        onChanged: (v) => _session.updateSet(index, i, v),
+                        onToggle: () => _session.toggleDone(index, i),
+                        onTimed: (seconds) => _session.completeTimedSet(index, i, seconds),
+                        onRemove: exercise.sets.length > 1 ? () => _session.removeSet(index, i) : null,
+                        tracking: exercise.tracking,
+                        onWeightTap: exercise.tracking == Tracking.weight
+                            ? (kg) => showPlateCalculator(context, kg)
+                            : null,
+                      ),
+                      // After the set: how hard it was (RIR) and an optional note.
+                      if (exercise.sets[i].done && !exercise.saved)
+                        _SetFeedback(
+                          key: Key('session.feedback$i'),
+                          set: exercise.sets[i],
+                          askRir: exercise.tracking == Tracking.weight,
+                          onChanged: (v) => _session.updateSet(index, i, v),
+                        ),
+                    ],
                   ),
-                  // After the set: how hard it was (RIR) and an optional note.
-                  if (exercise.sets[i].done && !exercise.saved)
-                    _SetFeedback(
-                      key: Key('session.feedback$i'),
-                      set: exercise.sets[i],
-                      askRir: exercise.tracking == Tracking.weight,
-                      onChanged: (v) => _session.updateSet(index, i, v),
-                    ),
-                  ]),
                 if (!exercise.saved)
                   Align(
                     alignment: Alignment.centerLeft,
@@ -222,6 +276,14 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                   ListTile(
                     leading: Icon(Icons.cloud_done_outlined, color: context.appColors.success),
                     title: Text(t.sessionSaved),
+                  ),
+                // Stretching once the last exercise is done.
+                if (showRoutines && last && (exercise.saved || exercise.allDone))
+                  RoutineCard(
+                    id: 'coolDown',
+                    title: t.coolDownTitle,
+                    icon: Icons.self_improvement,
+                    steps: coolDownFor(session.exercises.map((e) => e.category)),
                   ),
               ],
             ),
@@ -243,7 +305,11 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
                   const Spacer(),
                   FilledButton.icon(
                     key: const Key('session.next'),
-                    onPressed: _busy ? null : last ? _finish : () => _run((actions) => _session.goTo(group.end + 1, actions)),
+                    onPressed: _busy
+                        ? null
+                        : last
+                        ? _finish
+                        : () => _run((actions) => _session.goTo(group.end + 1, actions)),
                     icon: Icon(last ? Icons.flag : Icons.chevron_right),
                     label: Text(last ? t.sessionFinish : t.sessionNext),
                   ),
@@ -258,7 +324,9 @@ class _SessionScreenState extends ConsumerState<SessionScreen> {
 
   static String _formatElapsed(Duration d) {
     String two(int n) => n.toString().padLeft(2, '0');
-    return d.inHours > 0 ? '${d.inHours}:${two(d.inMinutes % 60)}:${two(d.inSeconds % 60)}' : '${two(d.inMinutes)}:${two(d.inSeconds % 60)}';
+    return d.inHours > 0
+        ? '${d.inHours}:${two(d.inMinutes % 60)}:${two(d.inSeconds % 60)}'
+        : '${two(d.inMinutes)}:${two(d.inSeconds % 60)}';
   }
 }
 
@@ -271,34 +339,37 @@ class _ExerciseStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-        height: 64, // chips with 48 dp tap targets
-        child: ListView.separated(
-          scrollDirection: Axis.horizontal,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          itemCount: session.exercises.length,
-          // A link between chips = done in turns (superset/circuit).
-          separatorBuilder: (context, i) => session.exercises[i].supersetWithNext
-              ? Icon(Icons.link, size: 18, color: Theme.of(context).colorScheme.tertiary)
-              : const SizedBox(width: 8),
-          itemBuilder: (context, i) {
-            final e = session.exercises[i];
-            final finished = e.saved || e.allDone;
-            return ChoiceChip(
-              key: Key('session.exercise$i'),
-              selected: i == session.current,
-              avatar: finished ? const Icon(Icons.check, size: 16) : null,
-              showCheckmark: false,
-              label: Text(e.name, overflow: TextOverflow.ellipsis),
-              // Current one stays enabled (not greyed out); tapping it does nothing.
-              onSelected: onTap == null ? null : (_) => i == session.current ? null : onTap!(i),
-            );
-          },
-        ),
-      );
+    height: 64, // chips with 48 dp tap targets
+    child: ListView.separated(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      itemCount: session.exercises.length,
+      // A link between chips = done in turns (superset/circuit).
+      separatorBuilder: (context, i) => session.exercises[i].supersetWithNext
+          ? Icon(Icons.link, size: 18, color: Theme.of(context).colorScheme.tertiary)
+          : const SizedBox(width: 8),
+      itemBuilder: (context, i) {
+        final e = session.exercises[i];
+        final finished = e.saved || e.allDone;
+        return ChoiceChip(
+          key: Key('session.exercise$i'),
+          selected: i == session.current,
+          avatar: finished ? const Icon(Icons.check, size: 16) : null,
+          showCheckmark: false,
+          label: Text(e.name, overflow: TextOverflow.ellipsis),
+          // Current one stays enabled (not greyed out); tapping it does nothing.
+          onSelected: onTap == null ? null : (_) => i == session.current ? null : onTap!(i),
+        );
+      },
+    ),
+  );
 }
 
 class _ExerciseHeader extends StatelessWidget {
-  const _ExerciseHeader({required this.exercise, required this.weights});
+  const _ExerciseHeader({required this.exercise, required this.weights, this.onSwap});
+
+  /// Null once a set is done (no swapping then).
+  final VoidCallback? onSwap;
 
   final SessionExercise exercise;
   final WeightFormat weights;
@@ -324,6 +395,13 @@ class _ExerciseHeader extends StatelessWidget {
             Icon(categoryIcon(exercise.category), color: theme.colorScheme.primary),
             const SizedBox(width: 8),
             Expanded(child: Text(exercise.name, style: theme.textTheme.titleLarge)),
+            if (onSwap != null)
+              IconButton(
+                key: const Key('session.swap'),
+                tooltip: t.swapExercise,
+                onPressed: onSwap,
+                icon: const Icon(Icons.swap_horiz),
+              ),
           ],
         ),
         Center(
@@ -335,9 +413,12 @@ class _ExerciseHeader extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          exercise.tracking == Tracking.weight ? t.sessionTarget(exercise.target) : t.sessionTargetSets(exercise.sets.length),
+          exercise.tracking == Tracking.weight
+              ? t.sessionTarget(exercise.target)
+              : t.sessionTargetSets(exercise.sets.length),
           style: theme.textTheme.bodyMedium,
         ),
+        ExerciseNoteTile(key: ValueKey('session.note.${exercise.exerciseId}'), exerciseId: exercise.exerciseId),
         const SizedBox(height: 8),
         Card(
           key: const Key('session.hint'),
@@ -345,7 +426,9 @@ class _ExerciseHeader extends StatelessWidget {
           margin: EdgeInsets.zero,
           child: ListTile(
             leading: Icon(
-              exercise.hint == HintKind.addWeight || exercise.hint == HintKind.addReps ? Icons.trending_up : Icons.tips_and_updates_outlined,
+              exercise.hint == HintKind.addWeight || exercise.hint == HintKind.addReps
+                  ? Icons.trending_up
+                  : Icons.tips_and_updates_outlined,
               color: theme.colorScheme.onSecondaryContainer,
             ),
             title: Text(hint),
@@ -414,11 +497,7 @@ class _WarmUpCard extends StatelessWidget {
         subtitle: Text(t.warmUpHint(weights.withUnit(exercise.workingKg))),
         shape: const Border(),
         children: [
-          for (final s in sets)
-            ListTile(
-              dense: true,
-              title: Text('${s.reps} × ${weights.withUnit(s.weightKg)}'),
-            ),
+          for (final s in sets) ListTile(dense: true, title: Text('${s.reps} × ${weights.withUnit(s.weightKg)}')),
         ],
       ),
     );
@@ -439,7 +518,11 @@ class _SetRow extends ConsumerWidget {
     required this.onRemove,
     this.tracking = Tracking.weight,
     this.onWeightTap,
+    this.onTimed,
   });
+
+  /// The timer finished (or was stopped early) after this many seconds.
+  final ValueChanged<int>? onTimed;
 
   final int number;
   final SessionSet set;
@@ -466,60 +549,79 @@ class _SetRow extends ConsumerWidget {
     final meters = set.distanceMeters ?? 0;
 
     Widget weightStepper() => _Stepper(
-          key: const Key('weight'),
-          text: weights.number(set.weightKg),
-          unit: weights.label,
-          step: '${WeightFormat.formatNumber(weights.step)} ${weights.label}',
-          onTextTap: onWeightTap == null || set.weightKg <= 0 ? null : () => onWeightTap!(set.weightKg),
-          onMinus: editable && display > 0
-              ? () => onChanged(set.copyWith(weightKg: weights.toKg((display - weights.step).clamp(0, weights.maxSetWeight))))
-              : null,
-          onPlus: editable && display < weights.maxSetWeight
-              ? () => onChanged(set.copyWith(weightKg: weights.toKg(display + weights.step)))
-              : null,
-        );
+      key: const Key('weight'),
+      text: weights.number(set.weightKg),
+      unit: weights.label,
+      step: '${WeightFormat.formatNumber(weights.step)} ${weights.label}',
+      onTextTap: onWeightTap == null || set.weightKg <= 0 ? null : () => onWeightTap!(set.weightKg),
+      onMinus: editable && display > 0
+          ? () =>
+                onChanged(set.copyWith(weightKg: weights.toKg((display - weights.step).clamp(0, weights.maxSetWeight))))
+          : null,
+      onPlus: editable && display < weights.maxSetWeight
+          ? () => onChanged(set.copyWith(weightKg: weights.toKg(display + weights.step)))
+          : null,
+    );
 
     Widget timeStepper(int step) => _Stepper(
-          key: const Key('time'),
-          text: formatDuration(seconds),
-          unit: t.metricTotalTime.toLowerCase(),
-          step: formatDuration(step),
-          onMinus: editable && seconds > step ? () => onChanged(set.copyWith(durationSeconds: seconds - step)) : null,
-          onPlus: editable ? () => onChanged(set.copyWith(durationSeconds: seconds + step)) : null,
-        );
+      key: const Key('time'),
+      text: formatDuration(seconds),
+      unit: t.metricTotalTime.toLowerCase(),
+      step: formatDuration(step),
+      onMinus: editable && seconds > step ? () => onChanged(set.copyWith(durationSeconds: seconds - step)) : null,
+      onPlus: editable ? () => onChanged(set.copyWith(durationSeconds: seconds + step)) : null,
+    );
 
     final fields = switch (tracking) {
       Tracking.weight => [
-          _Stepper(
-            key: const Key('reps'),
-            text: '${set.reps}',
-            unit: t.repsShort,
-            step: '1',
-            onMinus: editable && set.reps > 1 ? () => onChanged(set.copyWith(reps: set.reps - 1)) : null,
-            onPlus: editable && set.reps < 1000 ? () => onChanged(set.copyWith(reps: set.reps + 1)) : null,
-          ),
-          weightStepper(),
-        ],
+        _Stepper(
+          key: const Key('reps'),
+          text: '${set.reps}',
+          unit: t.repsShort,
+          step: '1',
+          onMinus: editable && set.reps > 1 ? () => onChanged(set.copyWith(reps: set.reps - 1)) : null,
+          onPlus: editable && set.reps < 1000 ? () => onChanged(set.copyWith(reps: set.reps + 1)) : null,
+        ),
+        weightStepper(),
+      ],
       Tracking.time => [timeStepper(_timeStep), weightStepper()],
       Tracking.distance => [
-          _Stepper(
-            key: const Key('distance'),
-            text: formatDistance(meters).replaceAll(' km', '').replaceAll(' m', ''),
-            unit: meters < 1000 ? 'm' : 'km',
-            step: formatDistance(_distanceStep),
-            onMinus: editable && meters > _distanceStep
-                ? () => onChanged(set.copyWith(distanceMeters: meters - _distanceStep))
-                : null,
-            onPlus: editable ? () => onChanged(set.copyWith(distanceMeters: meters + _distanceStep)) : null,
-          ),
-          timeStepper(_cardioTimeStep),
-        ],
+        _Stepper(
+          key: const Key('distance'),
+          text: formatDistance(meters).replaceAll(' km', '').replaceAll(' m', ''),
+          unit: meters < 1000 ? 'm' : 'km',
+          step: formatDistance(_distanceStep),
+          onMinus: editable && meters > _distanceStep
+              ? () => onChanged(set.copyWith(distanceMeters: meters - _distanceStep))
+              : null,
+          onPlus: editable ? () => onChanged(set.copyWith(distanceMeters: meters + _distanceStep)) : null,
+        ),
+        timeStepper(_cardioTimeStep),
+      ],
     };
 
     final badge = GestureDetector(
       onLongPress: editable ? onRemove : null,
       child: CircleAvatar(radius: 14, child: Text('$number', style: Theme.of(context).textTheme.labelMedium)),
     );
+
+    // Timed set (plank, hang): count it down instead of typing the seconds in.
+    final canTime = tracking == Tracking.time && editable && !set.done && seconds > 0 && onTimed != null;
+    Future<void> startTimer() async {
+      final held = await runTimedSet(context, seconds);
+      if (held != null) onTimed!(held);
+    }
+
+    final timer = canTime
+        ? IconButton.filledTonal(
+            key: const Key('timer'),
+            tooltip: t.timedSetStart,
+            iconSize: large ? 30 : null,
+            style: large ? IconButton.styleFrom(minimumSize: const Size(56, 56)) : null,
+            onPressed: startTimer,
+            icon: const Icon(Icons.timer_outlined),
+          )
+        : null;
 
     if (large) {
       // One-handed mode: big steppers, and "done" across the whole card under them.
@@ -530,24 +632,35 @@ class _SetRow extends ConsumerWidget {
           padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
           child: Column(
             children: [
-              Row(children: [badge, for (final f in fields) Expanded(child: f)]),
+              Row(
+                children: [
+                  badge,
+                  for (final f in fields) Expanded(child: f),
+                ],
+              ),
               const SizedBox(height: 8),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: set.done
-                    ? FilledButton.icon(
-                        key: const Key('done'),
-                        onPressed: editable ? onToggle : null,
-                        icon: const Icon(Icons.check, size: 28),
-                        label: Text(t.sessionUndoSet),
-                      )
-                    : FilledButton.tonalIcon(
-                        key: const Key('done'),
-                        onPressed: editable ? onToggle : null,
-                        icon: const Icon(Icons.check, size: 28),
-                        label: Text(t.sessionDoneSet),
-                      ),
+              Row(
+                children: [
+                  if (timer != null) ...[timer, const SizedBox(width: 8)],
+                  Expanded(
+                    child: SizedBox(
+                      height: 56,
+                      child: set.done
+                          ? FilledButton.icon(
+                              key: const Key('done'),
+                              onPressed: editable ? onToggle : null,
+                              icon: const Icon(Icons.check, size: 28),
+                              label: Text(t.sessionUndoSet),
+                            )
+                          : FilledButton.tonalIcon(
+                              key: const Key('done'),
+                              onPressed: editable ? onToggle : null,
+                              icon: const Icon(Icons.check, size: 28),
+                              label: Text(t.sessionDoneSet),
+                            ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -564,13 +677,19 @@ class _SetRow extends ConsumerWidget {
           children: [
             badge,
             for (final f in fields) Expanded(child: f),
+            ?timer,
             IconButton.filled(
               key: const Key('done'),
               tooltip: set.done ? t.sessionUndoSet : t.sessionDoneSet,
               isSelected: set.done,
               onPressed: editable ? onToggle : null,
               icon: const Icon(Icons.check),
-              style: set.done ? null : IconButton.styleFrom(backgroundColor: colors.surfaceContainerHighest, foregroundColor: colors.onSurfaceVariant),
+              style: set.done
+                  ? null
+                  : IconButton.styleFrom(
+                      backgroundColor: colors.surfaceContainerHighest,
+                      foregroundColor: colors.onSurfaceVariant,
+                    ),
             ),
           ],
         ),
@@ -612,7 +731,11 @@ class _Stepper extends ConsumerWidget {
     // Large mode: 56 dp buttons, bigger icons and number.
     final large = ref.watch(largeSessionControlsProvider);
     final buttonStyle = large
-        ? IconButton.styleFrom(minimumSize: const Size(56, 56), iconSize: 30, backgroundColor: theme.colorScheme.surfaceContainerHighest)
+        ? IconButton.styleFrom(
+            minimumSize: const Size(56, 56),
+            iconSize: 30,
+            backgroundColor: theme.colorScheme.surfaceContainerHighest,
+          )
         : null;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -729,7 +852,9 @@ class _SummaryDialogState extends ConsumerState<_SummaryDialog> {
             if (summary.sessionId != null) ...[
               const Divider(height: 24),
               Text(t.moodQuestion, style: Theme.of(context).textTheme.titleSmall),
-              Center(child: MoodPicker(mood: _mood, onChanged: (m) => setState(() => _mood = m))),
+              Center(
+                child: MoodPicker(mood: _mood, onChanged: (m) => setState(() => _mood = m)),
+              ),
               const SizedBox(height: 8),
               WorkoutNoteField(controller: _note),
             ],
@@ -751,7 +876,10 @@ class _SetFeedback extends StatelessWidget {
   final ValueChanged<SessionSet> onChanged;
 
   Future<void> _editNote(BuildContext context) async {
-    final note = await showDialog<String>(context: context, builder: (_) => _NoteDialog(initial: set.note ?? ''));
+    final note = await showDialog<String>(
+      context: context,
+      builder: (_) => _NoteDialog(initial: set.note ?? ''),
+    );
     if (note == null) return;
     final trimmed = note.trim();
     onChanged(trimmed.isEmpty ? set.copyWith(clearNote: true) : set.copyWith(note: trimmed));
@@ -846,7 +974,11 @@ class _NoteDialogState extends State<_NoteDialog> {
       ),
       actions: [
         TextButton(onPressed: () => Navigator.pop(context), child: Text(t.cancel)),
-        TextButton(key: const Key('setNote.save'), onPressed: () => Navigator.pop(context, _controller.text), child: Text(t.save)),
+        TextButton(
+          key: const Key('setNote.save'),
+          onPressed: () => Navigator.pop(context, _controller.text),
+          child: Text(t.save),
+        ),
       ],
     );
   }

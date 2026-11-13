@@ -44,6 +44,9 @@ final pureBlackProvider = NotifierProvider<BoolSetting, bool>(() => BoolSetting(
 final largeSessionControlsProvider =
     NotifierProvider<BoolSetting, bool>(() => BoolSetting(StorageKeys.largeSessionControls));
 
+/// Warm-up and stretching checklists in a workout are shown unless turned off.
+final hideRoutinesProvider = NotifierProvider<BoolSetting, bool>(() => BoolSetting(StorageKeys.hideRoutines));
+
 /// An on/off preference in SharedPreferences, false until stored otherwise.
 class BoolSetting extends Notifier<bool> {
   BoolSetting(this._key);

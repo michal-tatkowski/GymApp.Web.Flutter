@@ -172,7 +172,13 @@ void main() {
     await tester.pumpAndSettle();
     for (var i = 0; i < 2; i++) {
       final done = find.descendant(of: find.byKey(Key('session.set$i')), matching: find.byKey(const Key('done')));
-      // On a small screen the set can sit under the bottom bar: bring it to the middle first.
+      // On a small screen the set may not be built yet (warm-up and note above it), or
+      // sit under the bottom bar: scroll the exercise's list to it, then to the middle.
+      await tester.scrollUntilVisible(
+        done,
+        200,
+        scrollable: find.descendant(of: find.byKey(const ValueKey('bench')), matching: find.byType(Scrollable)).first,
+      );
       await Scrollable.ensureVisible(tester.element(done), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.tap(done);

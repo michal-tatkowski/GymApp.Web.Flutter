@@ -13,6 +13,7 @@ import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
 import '../gym/onboarding/onboarding.dart';
 import '../gym/progress/badges.dart';
+import '../gym/progress/compare_challenges.dart';
 import '../gym/session/session_providers.dart';
 import '../profile/presentation/widgets/progress_photos.dart';
 import 'data_export.dart';
@@ -69,6 +70,14 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: Text(t.largeSessionControlsHint),
               value: ref.watch(largeSessionControlsProvider),
               onChanged: (v) => ref.read(largeSessionControlsProvider.notifier).set(v),
+            ),
+            SwitchListTile(
+              key: const Key('settings.routines'),
+              secondary: const Icon(Icons.self_improvement),
+              title: Text(t.routinesSetting),
+              subtitle: Text(t.routinesSettingHint),
+              value: !ref.watch(hideRoutinesProvider),
+              onChanged: (v) => ref.read(hideRoutinesProvider.notifier).set(!v),
             ),
             const Divider(),
             ListTile(leading: const Icon(Icons.fitness_center), title: Text(t.weightUnit), subtitle: Text(t.weightUnitHint)),
@@ -185,6 +194,7 @@ class SettingsScreen extends ConsumerWidget {
         if (ref.read(activeSessionProvider) != null) ref.read(activeSessionProvider.notifier).discard();
       },
       () => ref.read(earnedBadgesProvider.notifier).clear(),
+      clearChallenges,
       () => ref.read(responseCacheProvider).clear(),
       // Photos are personal — the next account must not see them.
       () async => ref.read(progressPhotoStoreProvider)?.clearAll(),

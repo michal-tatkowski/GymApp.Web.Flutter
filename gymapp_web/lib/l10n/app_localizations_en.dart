@@ -274,6 +274,197 @@ class AppLocalizationsEn extends AppLocalizations {
   String get plateCalculatorHint => 'Tap the weight to see the plates';
 
   @override
+  String get exerciseNote => 'Note for this exercise';
+
+  @override
+  String get exerciseNoteHint => 'Seat height, grip, cues: shown every workout';
+
+  @override
+  String get addExerciseNote => 'Add a note';
+
+  @override
+  String get editExerciseNote => 'Edit note';
+
+  @override
+  String get swapExercise => 'Swap exercise';
+
+  @override
+  String swapExerciseTitle(String name) {
+    return 'Instead of $name';
+  }
+
+  @override
+  String get swapNotAfterSets =>
+      'Done sets stay with this exercise: swap before the first set.';
+
+  @override
+  String swapped(String name) {
+    return 'Swapped for $name';
+  }
+
+  @override
+  String get timedSetStart => 'Start the timer';
+
+  @override
+  String get timedSetTitle => 'Hold it';
+
+  @override
+  String get getReady => 'Get ready';
+
+  @override
+  String get timedSetPause => 'Pause';
+
+  @override
+  String get timedSetResume => 'Resume';
+
+  @override
+  String get timedSetFinishNow => 'Finish now';
+
+  @override
+  String get warmUpRoutineTitle => 'Warm up first (5 min)';
+
+  @override
+  String get coolDownTitle => 'Stretch to finish (5 min)';
+
+  @override
+  String routineProgress(int done, int total) {
+    return '$done of $total';
+  }
+
+  @override
+  String get routinesSetting => 'Warm-up and stretching';
+
+  @override
+  String get routinesSettingHint =>
+      'Short checklists at the start and end of a workout';
+
+  @override
+  String get wuCardio => '5 min of light cardio (bike, rower, brisk walk)';
+
+  @override
+  String get wuArmCircles => 'Arm circles, 10 each way';
+
+  @override
+  String get wuBandPullApart => 'Band pull-aparts, 15';
+
+  @override
+  String get wuCatCow => 'Cat-cow, 8';
+
+  @override
+  String get wuHipCircles => 'Hip circles, 10 each way';
+
+  @override
+  String get wuLegSwings => 'Leg swings, 10 per leg';
+
+  @override
+  String get wuSquats => 'Bodyweight squats, 10';
+
+  @override
+  String get cdChest => 'Chest stretch in a doorway, 30 s';
+
+  @override
+  String get cdLat => 'Lat stretch, 30 s per side';
+
+  @override
+  String get cdShoulder => 'Cross-body shoulder stretch, 30 s per side';
+
+  @override
+  String get cdQuad => 'Standing quad stretch, 30 s per leg';
+
+  @override
+  String get cdHamstring => 'Hamstring stretch, 30 s per leg';
+
+  @override
+  String get cdHipFlexor => 'Kneeling hip flexor stretch, 30 s per side';
+
+  @override
+  String get cdChildPose => 'Child\'s pose, 30 s';
+
+  @override
+  String get cdBreathing => 'Slow breathing, 1 min';
+
+  @override
+  String get compareTitle => 'Compared with before';
+
+  @override
+  String get compareWeek => 'Week';
+
+  @override
+  String get compareMonth => 'Month';
+
+  @override
+  String get compareHintWeek => 'This week so far vs. the same days last week';
+
+  @override
+  String get compareHintMonth =>
+      'This month so far vs. the same days last month';
+
+  @override
+  String get compareNew => 'new';
+
+  @override
+  String goalForecastWeeks(int weeks) {
+    String _temp0 = intl.Intl.pluralLogic(
+      weeks,
+      locale: localeName,
+      other: 'At this pace: about $weeks weeks',
+      one: 'At this pace: about a week',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get goalForecastSoon => 'At this pace: any day now';
+
+  @override
+  String get goalForecastNoTrend => 'No trend towards it yet: keep logging';
+
+  @override
+  String get goalForecastLate => 'At this pace: a bit after the deadline';
+
+  @override
+  String challengesTitle(String month) {
+    return 'Challenges · $month';
+  }
+
+  @override
+  String challengeSets(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Do $count sets',
+      one: 'Do 1 set',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get challengeDone => 'Done!';
+
+  @override
+  String challengesCompleted(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count challenges completed so far',
+      one: '1 challenge completed so far',
+      zero: 'No challenge completed yet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String challengeDaysLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days left',
+      one: '1 day left',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get pureBlack => 'Pure black (OLED)';
 
   @override

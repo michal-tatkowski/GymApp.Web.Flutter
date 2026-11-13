@@ -134,6 +134,15 @@ class FakeExerciseRepository extends ExerciseRepository {
         .toList();
   }
 
+  final notes = <String, String>{};
+
+  @override
+  Future<Map<String, String>> getNotes() async => {...notes};
+
+  @override
+  Future<void> setNote(String exerciseId, String? note) async =>
+      note == null ? notes.remove(exerciseId) : notes[exerciseId] = note;
+
   Object? favoriteError;
   final favoriteCalls = <(String, bool)>[];
 

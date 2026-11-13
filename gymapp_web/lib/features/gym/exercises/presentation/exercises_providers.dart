@@ -250,3 +250,27 @@ final favoriteExercisesProvider = FutureProvider.autoDispose<List<Exercise>>(
   },
   retry: noRetry,
 );
+
+/// Persistent notes per exercise (exercise id → note), shown in a workout and in the
+/// exercise's history. Empty while offline or with an older API.
+final exerciseNotesProvider = AsyncNotifierProvider<ExerciseNotesNotifier, Map<String, String>>(ExerciseNotesNotifier.new);
+
+class ExerciseNotesNotifier extends AsyncNotifier<Map<String, String>> {
+  @override
+  Future<Map<String, String>> build() async {
+    try {
+      return await ref.watch(exerciseRepositoryProvider).getNotes();
+    } catch (_) {
+      return const {}; // offline / older API: no notes, nothing breaks
+    }
+  }
+
+  /// Saves the note (empty removes it); the screen shows it at once. Throws a Failure.
+  Future<void> set(String exerciseId, String note) async {
+    final trimmed = note.trim();
+    await ref.read(exerciseRepositoryProvider).setNote(exerciseId, trimmed.isEmpty ? null : trimmed);
+    final current = {...?state.value};
+    trimmed.isEmpty ? current.remove(exerciseId) : current[exerciseId] = trimmed;
+    state = AsyncData(current);
+  }
+}
