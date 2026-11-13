@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:gymapp_web/features/admin/admin_panel.dart';
 import 'package:gymapp_web/core/errors/failure.dart';
 import 'package:gymapp_web/core/providers/retry.dart';
 import 'package:gymapp_web/features/auth/data/auth_api.dart';
@@ -41,12 +42,15 @@ Future<void> pumpScreen(
   ThemeData? theme,
   double textScale = 1,
   bool onboarding = false,
+  FakeAdminRepository? admin,
 }) async {
   OnboardingGate.checked = false;
   await tester.pumpWidget(ProviderScope(
     retry: noRetry,
     // Tests never talk to the real notification plugin.
     overrides: [
+      // Settings asks whether to show the admin panel: not an admin unless the test says so.
+      adminRepositoryProvider.overrideWithValue(admin ?? FakeAdminRepository()),
       restAlarmProvider.overrideWithValue(restAlarm ?? FakeRestAlarm()),
       planRepositoryProvider.overrideWithValue(plans ?? FakePlanRepository()),
       reminderSchedulerProvider.overrideWithValue(reminders ?? FakeReminderScheduler()),
@@ -334,4 +338,18 @@ void tallView(WidgetTester tester) {
   tester.view.physicalSize = const Size(800, 2400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
+}
+
+/// api/Admin in memory: not an admin unless [isAdminUser]; [statsResult] for the panel.
+class FakeAdminRepository extends AdminRepository {
+  FakeAdminRepository({this.isAdminUser = false, this.statsResult}) : super(Dio());
+
+  final bool isAdminUser;
+  final AdminStats? statsResult;
+
+  @override
+  Future<bool> isAdmin() async => isAdminUser;
+
+  @override
+  Future<AdminStats> stats({int days = 30}) async => statsResult ?? (throw const ForbiddenFailure('Forbidden'));
 }

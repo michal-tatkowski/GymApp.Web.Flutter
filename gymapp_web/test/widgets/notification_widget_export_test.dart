@@ -80,7 +80,7 @@ void main() {
     ]);
 
     expect(widget.updates.last, contains('●'));
-    expect(widget.updates.last, contains('1 workout · 1 set · 1000 kg'));
+    expect(widget.updates.last, contains('1 workout · 1 set · 1,000 kg'));
   });
 
   testWidgets('in the background a notification shows the next set; "Set done" ticks it', (tester) async {

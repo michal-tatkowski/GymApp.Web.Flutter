@@ -274,6 +274,123 @@ class AppLocalizationsPl extends AppLocalizations {
   String get plateCalculatorHint => 'Dotknij ciężaru, aby zobaczyć talerze';
 
   @override
+  String get deloadTitle => 'Czas na lżejszy tydzień?';
+
+  @override
+  String get deloadReasonHard =>
+      'Ostatnio większość ostatnich serii szła do upadku (RIR 0).';
+
+  @override
+  String deloadReasonStall(int count) {
+    return 'Wyniki spadły w ćwiczeniach: $count.';
+  }
+
+  @override
+  String deloadReasonStreak(int weeks) {
+    return '$weeks tygodni treningów z rzędu bez przerwy.';
+  }
+
+  @override
+  String get deloadExplain =>
+      'Tydzień na około 85% ciężaru i o jedną serię mniej pozwala się zregenerować — potem progres idzie dalej.';
+
+  @override
+  String get deloadStart => 'Zaplanuj lżejszy tydzień';
+
+  @override
+  String get deloadLater => 'Nie teraz';
+
+  @override
+  String deloadActive(String date) {
+    return 'Lżejszy tydzień do $date';
+  }
+
+  @override
+  String get deloadActiveHint =>
+      'Treningi startują od ok. 85% ciężaru, o jedną serię mniej.';
+
+  @override
+  String get deloadEnd => 'Zakończ';
+
+  @override
+  String get hintDeload =>
+      'Lżejszy tydzień: ok. 85% ciężaru, o jedną serię mniej';
+
+  @override
+  String get adminPanel => 'Panel administracyjny';
+
+  @override
+  String get adminPanelHint => 'Rejestracje, aktywni użytkownicy, treningi';
+
+  @override
+  String get adminUsers => 'Użytkownicy';
+
+  @override
+  String get adminTotal => 'Wszyscy';
+
+  @override
+  String get adminConfirmed => 'Z potwierdzonym e-mailem';
+
+  @override
+  String get adminNew24h => 'Nowi w 24 h';
+
+  @override
+  String get adminNew7d => 'Nowi w 7 dni';
+
+  @override
+  String get adminNew30d => 'Nowi w 30 dni';
+
+  @override
+  String get adminActive => 'Aktywni (korzystali z aplikacji)';
+
+  @override
+  String get adminActive24h => 'Ostatnie 24 h';
+
+  @override
+  String get adminActive48h => 'Ostatnie 48 h';
+
+  @override
+  String get adminActive7d => 'Ostatnie 7 dni';
+
+  @override
+  String get adminActive30d => 'Ostatnie 30 dni';
+
+  @override
+  String get adminTraining => 'Treningi';
+
+  @override
+  String get adminTrainedToday => 'Trenowali dziś';
+
+  @override
+  String get adminTrained7d => 'Trenowali w 7 dni';
+
+  @override
+  String get adminTrained30d => 'Trenowali w 30 dni';
+
+  @override
+  String get adminWorkouts7d => 'Zapisane ćwiczenia w 7 dni';
+
+  @override
+  String get adminSessions7d => 'Sesje treningowe w 7 dni';
+
+  @override
+  String get adminDaily => 'Dzień po dniu';
+
+  @override
+  String get adminSeriesActive => 'Aktywni';
+
+  @override
+  String get adminSeriesNew => 'Nowi';
+
+  @override
+  String get adminSeriesTraining => 'Trenujący';
+
+  @override
+  String adminUpdated(String time) {
+    return 'Stan na $time';
+  }
+
+  @override
   String get dropSets => 'Drop-sety';
 
   @override

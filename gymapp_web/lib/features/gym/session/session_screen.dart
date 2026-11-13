@@ -383,6 +383,7 @@ class _ExerciseHeader extends StatelessWidget {
     final hint = switch (exercise.hint) {
       HintKind.addWeight when today != null => t.hintAddWeight(weights.withUnit(today.weightKg), today.reps),
       HintKind.addReps => t.hintAddReps,
+      HintKind.deload => t.hintDeload,
       HintKind.repeat when exercise.tracking != Tracking.weight => t.hintBeatLastTime,
       HintKind.repeat => t.hintRepeat(exercise.repsMax),
       _ => t.hintFirstTime,
@@ -426,9 +427,11 @@ class _ExerciseHeader extends StatelessWidget {
           margin: EdgeInsets.zero,
           child: ListTile(
             leading: Icon(
-              exercise.hint == HintKind.addWeight || exercise.hint == HintKind.addReps
-                  ? Icons.trending_up
-                  : Icons.tips_and_updates_outlined,
+              switch (exercise.hint) {
+                HintKind.addWeight || HintKind.addReps => Icons.trending_up,
+                HintKind.deload => Icons.battery_charging_full,
+                _ => Icons.tips_and_updates_outlined,
+              },
               color: theme.colorScheme.onSecondaryContainer,
             ),
             title: Text(hint),

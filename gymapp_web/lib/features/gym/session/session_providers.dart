@@ -21,6 +21,7 @@ import '../workouts/presentation/rest_alarm.dart';
 import '../workouts/presentation/rest_timer.dart';
 import '../workouts/presentation/workout_providers.dart';
 import 'session_models.dart';
+import '../deload/deload.dart';
 import 'routines.dart';
 
 /// The workout in progress (null = none). Persisted on every change, so closing
@@ -74,6 +75,9 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
 
   void _clearNotification() => ref.read(restAlarmProvider).clearSession();
 
+  /// A lighter week is on (Today → "Plan a lighter week"): workouts start lighter.
+  bool get _deload => ref.read(deloadProvider).activeOn(DateTime.now());
+
   Future<void> _restore() async {
     final raw = (await SharedPreferences.getInstance()).getString(StorageKeys.activeSession);
     if (!ref.mounted || _changedBeforeRestore || raw == null) return;
@@ -114,7 +118,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
       planId: plan.id.isEmpty ? null : plan.id, // "" = a repeated workout, not a saved plan
       planName: plan.name,
       startedAt: DateTime.now(),
-      exercises: [for (var i = 0; i < plan.items.length; i++) SessionExercise.fromPlan(plan.items[i], last[i], weights)],
+      exercises: [for (var i = 0; i < plan.items.length; i++) SessionExercise.fromPlan(plan.items[i], last[i], weights, deload: _deload)],
     ));
   }
 
@@ -201,7 +205,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
     } catch (e) {
       if (!isOfflineFailure(e)) rethrow;
     }
-    final added = SessionExercise.fromPlan(item, last, ref.read(weightFormatProvider));
+    final added = SessionExercise.fromPlan(item, last, ref.read(weightFormatProvider), deload: _deload);
     final at = s.groupOf(s.current).end + 1; // never splits a superset
     final latest = state;
     if (latest == null) return;
@@ -233,7 +237,7 @@ class SessionNotifier extends Notifier<WorkoutSession?> {
     }
     final latest = state;
     if (latest == null) return;
-    _updateExercise(index, (_) => SessionExercise.fromPlan(item, last, ref.read(weightFormatProvider)));
+    _updateExercise(index, (_) => SessionExercise.fromPlan(item, last, ref.read(weightFormatProvider), deload: _deload));
   }
 
   /// Moves to another exercise. Leaving a group (a single exercise, or a whole
