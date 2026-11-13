@@ -134,7 +134,7 @@ void main() {
     expect(find.text('Bench press'), findsOneWidget);
     expect(find.text('105 kg (5 × 90 kg)'), findsOneWidget);
     expect(find.text('15 × 50 kg'), findsOneWidget);
-    expect(find.text('2400 kg'), findsOneWidget);
+    expect(find.text('2,400 kg'), findsOneWidget);
   });
 
   testWidgets('summary of this month with the share button', (tester) async {

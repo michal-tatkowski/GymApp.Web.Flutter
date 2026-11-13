@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../features/settings/presentation/settings_providers.dart' show localeProvider;
 import '../storage/secure_storage_keys.dart';
 
 /// Unit the user sees and types. The API always stores kilograms; conversion
@@ -22,9 +23,12 @@ enum WeightUnit {
 /// Formats and converts weights for one unit. Every weight on screen goes
 /// through here — never append "kg" by hand.
 class WeightFormat {
-  const WeightFormat(this.unit);
+  const WeightFormat(this.unit, {this.language = 'en'});
 
   final WeightUnit unit;
+
+  /// App language: how big numbers are grouped in [withUnit] ("11,677.5" / "11 677.5").
+  final String language;
 
   static const kg = WeightFormat(WeightUnit.kg);
 
@@ -39,24 +43,44 @@ class WeightFormat {
   double toKg(double value) =>
       unit == WeightUnit.kg ? value : (value / unit.perKg * 100).roundToDouble() / 100;
 
-  /// "100", "102.5", "220.5" — no unit.
+  /// "100", "102.5", "220.5" — no unit, no grouping (also fills input fields).
   String number(double kg) => formatNumber(fromKg(kg));
 
-  /// "100 kg", "220.5 lb".
-  String withUnit(double kg) => '${number(kg)} ${unit.label}';
+  /// "100 kg", "220.5 lb", "11,677.5 kg" (Polish: "11 677.5 kg") — for display only: inputs use [number].
+  String withUnit(double kg) => '${grouped(fromKg(kg), language)} ${unit.label}';
 
   /// Upper limit for a set in this unit (the API allows 1000 kg).
   double get maxSetWeight => fromKg(1000);
 
   static String formatNumber(double v) =>
       v == v.roundToDouble() ? v.toInt().toString() : v.toStringAsFixed(1);
+
+  /// [formatNumber] with thousands grouped: English from 1,000 ("3,380"), Polish from 10 000 with a
+  /// no-break space ("3380", "11 677.5") — the Polish typographic norm.
+  static String grouped(double v, String language) {
+    final text = formatNumber(v);
+    final pl = language == 'pl';
+    if (v.abs() < (pl ? 10000 : 1000)) return text;
+    final dot = text.indexOf('.');
+    final whole = dot < 0 ? text : text.substring(0, dot);
+    final sign = whole.startsWith('-') ? '-' : '';
+    final digits = whole.substring(sign.length);
+    final out = StringBuffer(sign);
+    for (var i = 0; i < digits.length; i++) {
+      if (i > 0 && (digits.length - i) % 3 == 0) out.write(pl ? ' ' : ',');
+      out.write(digits[i]);
+    }
+    return '$out${dot < 0 ? '' : text.substring(dot)}';
+  }
 }
 
 /// Chosen in Settings, persisted. kg until the user picks lb.
 final weightUnitProvider = NotifierProvider<WeightUnitNotifier, WeightUnit>(WeightUnitNotifier.new);
 
 /// Shortcut for widgets: `ref.watch(weightFormatProvider).withUnit(volume)`.
-final weightFormatProvider = Provider<WeightFormat>((ref) => WeightFormat(ref.watch(weightUnitProvider)));
+final weightFormatProvider = Provider<WeightFormat>(
+  (ref) => WeightFormat(ref.watch(weightUnitProvider), language: ref.watch(localeProvider.select((l) => l.languageCode))),
+);
 
 class WeightUnitNotifier extends Notifier<WeightUnit> {
   bool _changedByUser = false;

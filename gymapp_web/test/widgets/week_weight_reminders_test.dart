@@ -56,7 +56,7 @@ void main() {
         overrides: [workoutRepositoryProvider.overrideWithValue(repo)]);
 
     expect(find.byKey(const Key('today.week')), findsOneWidget);
-    expect(find.text('1 workout · 2 sets · 2000 kg'), findsOneWidget);
+    expect(find.text('1 workout · 2 sets · 2,000 kg'), findsOneWidget);
     expect(find.textContaining('2-week streak'), findsOneWidget);
   });
 

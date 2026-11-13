@@ -52,7 +52,7 @@ void main() {
       expect(find.text('Bench press'), findsOneWidget);
       expect(find.text('Squat'), findsOneWidget);
       expect(find.text('Barbell row'), findsNothing); // not a favorite
-      expect(find.textContaining(RegExp(r'Last: .* · 1000 kg')), findsOneWidget); // quick log row (the week card has its own total)
+      expect(find.textContaining(RegExp(r'Last: .* · 1,000 kg')), findsOneWidget); // quick log row (the week card has its own total)
       expect(find.text('Not trained yet'), findsOneWidget);
       expect(find.text('Done today'), findsNothing);
     });
@@ -70,7 +70,7 @@ void main() {
 
       expect(workouts.entries['bench']!.length, 2);
       expect(find.text('Done today'), findsOneWidget);
-      expect(find.text('1200 kg'), findsOneWidget);
+      expect(find.text('1,200 kg'), findsOneWidget);
     });
 
     testWidgets('no favorites: explains the star and links to the exercises', (tester) async {

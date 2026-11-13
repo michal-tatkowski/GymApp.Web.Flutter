@@ -42,11 +42,11 @@ void main() {
     });
 
     expect(find.byKey(const Key('progress.chart')), findsOneWidget);
-    expect(find.text('1200 kg'), findsWidgets); // latest value (big number) and newest history entry
+    expect(find.text('1,200 kg'), findsWidgets); // latest value (big number) and newest history entry
     expect(find.text('+20%'), findsOneWidget);
     expect(find.byIcon(Icons.trending_up), findsOneWidget);
     expect(find.widgetWithText(SegmentedButton<ProgressMetric>, 'Volume'), findsOneWidget);
-    expect(find.text('1200 kg'), findsNWidgets(2)); // big number + newest history entry
+    expect(find.text('1,200 kg'), findsNWidgets(2)); // big number + newest history entry
   });
 
   testWidgets('empty log: hint instead of a chart, "Log workout" saves the first entry', (tester) async {
@@ -67,7 +67,7 @@ void main() {
     expect(saved.date, today);
     expect(find.text('Workout saved'), findsOneWidget);
     expect(find.text('2 × 10 × 100 kg'), findsOneWidget);
-    expect(find.text('2000 kg'), findsOneWidget);
+    expect(find.text('2,000 kg'), findsOneWidget);
   });
 
   testWidgets('new entry starts from the last workout\'s sets', (tester) async {
@@ -198,8 +198,8 @@ void main() {
 
       expect(find.text('Bench press'), findsOneWidget);
       expect(find.textContaining('2 training days'), findsOneWidget);
-      expect(find.text('1000 kg'), findsOneWidget);
-      expect(find.text('best 1200 kg'), findsOneWidget);
+      expect(find.text('1,000 kg'), findsOneWidget);
+      expect(find.text('best 1,200 kg'), findsOneWidget);
     });
 
     testWidgets('empty state points to the exercises', (tester) async {

@@ -77,12 +77,12 @@ void main() {
     // Left edge of the plot = the first (oldest) day.
     await tester.tapAt(Offset(chart.left + 46, chart.center.dy));
     await tester.pump();
-    expect(bigNumber(tester), '1000 kg');
+    expect(bigNumber(tester), '1,000 kg');
     expect(find.byKey(const Key('progress.change')), findsNothing);
 
     await tester.tapAt(Offset(chart.left + 46, chart.center.dy));
     await tester.pump();
-    expect(bigNumber(tester), '1200 kg');
+    expect(bigNumber(tester), '1,200 kg');
   });
 
   testWidgets('a record day is labelled', (tester) async {

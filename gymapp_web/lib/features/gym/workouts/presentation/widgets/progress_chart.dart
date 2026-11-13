@@ -222,7 +222,8 @@ class _ProgressChartState extends State<ProgressChart> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              '${formatValue(values[shown])}${_unit(metric)}',
+              // Grouped like everywhere else ("1,200 kg"); the axis labels stay compact.
+              '${WeightFormat.grouped(values[shown], Localizations.localeOf(context).languageCode)}${_unit(metric)}',
               key: const Key('progress.value'),
               style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w600,
