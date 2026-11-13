@@ -13,6 +13,8 @@ import '../../l10n/app_localizations.dart';
 import '../auth/presentation/auth_providers.dart';
 import '../gym/onboarding/onboarding.dart';
 import '../gym/progress/badges.dart';
+import '../admin/admin_panel.dart';
+import '../gym/deload/deload.dart';
 import '../gym/progress/compare_challenges.dart';
 import '../gym/session/session_providers.dart';
 import '../profile/presentation/widgets/progress_photos.dart';
@@ -133,6 +135,15 @@ class SettingsScreen extends ConsumerWidget {
               title: Text(t.privacyPolicy),
               onTap: () => PrivacyPolicyScreen.open(context),
             ),
+            // Only for the admin account (API: Admin:Emails).
+            if (ref.watch(adminAccessProvider).value == true)
+              ListTile(
+                key: const Key('settings.admin'),
+                leading: const Icon(Icons.admin_panel_settings_outlined),
+                title: Text(t.adminPanel),
+                subtitle: Text(t.adminPanelHint),
+                onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const AdminScreen())),
+              ),
             const Divider(),
             ListTile(
               leading: Icon(Icons.logout, color: Theme.of(context).colorScheme.error),
@@ -195,6 +206,7 @@ class SettingsScreen extends ConsumerWidget {
       },
       () => ref.read(earnedBadgesProvider.notifier).clear(),
       clearChallenges,
+      () => ref.read(deloadProvider.notifier).clear(),
       () => ref.read(responseCacheProvider).clear(),
       // Photos are personal — the next account must not see them.
       () async => ref.read(progressPhotoStoreProvider)?.clearAll(),

@@ -3,6 +3,7 @@ import '../exercises/data/models/exercise.dart';
 import '../plans/data/plan_models.dart';
 import '../workouts/data/workout_models.dart';
 import '../workouts/presentation/widgets/workout_entry_sheet.dart' show defaultSet;
+import '../deload/deload.dart' show kDeloadShare;
 
 /// One set in a live session. [weightKg] always in kg (like the API).
 class SessionSet {
@@ -86,7 +87,8 @@ class SessionSet {
 
 /// What to aim for today, from the last workout and the plan's rep range
 /// (double progression: reach the top of the range in every set, then add weight).
-enum HintKind { addWeight, addReps, repeat }
+/// [deload]: a lighter week (85 % of the weight, one set fewer) — see features/gym/deload.
+enum HintKind { addWeight, addReps, repeat, deload }
 
 class ProgressionHint {
   const ProgressionHint({required this.kind, required this.lastSets, required this.sets});
@@ -231,7 +233,9 @@ class SessionExercise {
       );
 
   /// From a plan item; prefilled with the progression hint, or empty sets without history.
-  factory SessionExercise.fromPlan(PlanItem item, List<WorkoutSet>? last, WeightFormat weights) {
+  /// [deload]: a lighter week — weight × [kDeloadShare] (down to the plate step), one set fewer
+  /// (at least 2), no drop sets.
+  factory SessionExercise.fromPlan(PlanItem item, List<WorkoutSet>? last, WeightFormat weights, {bool deload = false}) {
     // Timed / cardio: no progression rule — start from last time (or a sensible default).
     if (item.tracking != Tracking.weight) {
       final from = last != null && last.isNotEmpty ? last : [defaultSet(item.tracking)];
@@ -258,6 +262,30 @@ class SessionExercise {
       weights: weights,
     );
     final sets = hint?.sets ?? List.filled(item.sets, SessionSet(reps: item.repsMin, weightKg: 0));
+    if (deload && hint != null) {
+      final count = item.sets > 2 ? item.sets - 1 : item.sets;
+      final light = [
+        for (final s in sets.take(count))
+          s.weightKg <= 0
+              ? s
+              : SessionSet(
+                  reps: s.reps,
+                  weightKg: weights.toKg((weights.fromKg(s.weightKg) * kDeloadShare / weights.step).floor() * weights.step),
+                ),
+      ];
+      return SessionExercise(
+        exerciseId: item.exerciseId,
+        name: item.exerciseName,
+        category: item.category,
+        repsMin: item.repsMin,
+        repsMax: item.repsMax,
+        sets: light,
+        lastSets: last,
+        hint: HintKind.deload,
+        supersetWithNext: item.supersetWithNext,
+        tracking: item.tracking,
+      );
+    }
     return SessionExercise(
       exerciseId: item.exerciseId,
       name: item.exerciseName,

@@ -614,6 +614,216 @@ abstract class AppLocalizations {
   /// **'Tap the weight to see the plates'**
   String get plateCalculatorHint;
 
+  /// No description provided for @deloadTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Time for a lighter week?'**
+  String get deloadTitle;
+
+  /// No description provided for @deloadReasonHard.
+  ///
+  /// In en, this message translates to:
+  /// **'Most of your last sets lately went to failure (RIR 0).'**
+  String get deloadReasonHard;
+
+  /// No description provided for @deloadReasonStall.
+  ///
+  /// In en, this message translates to:
+  /// **'Your results dropped in {count} exercises.'**
+  String deloadReasonStall(int count);
+
+  /// No description provided for @deloadReasonStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{weeks} weeks of training in a row without a break.'**
+  String deloadReasonStreak(int weeks);
+
+  /// No description provided for @deloadExplain.
+  ///
+  /// In en, this message translates to:
+  /// **'A week at about 85% of the weight and one set fewer lets you recover — then progress carries on.'**
+  String get deloadExplain;
+
+  /// No description provided for @deloadStart.
+  ///
+  /// In en, this message translates to:
+  /// **'Plan a lighter week'**
+  String get deloadStart;
+
+  /// No description provided for @deloadLater.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get deloadLater;
+
+  /// No description provided for @deloadActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighter week until {date}'**
+  String deloadActive(String date);
+
+  /// No description provided for @deloadActiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Workouts start at about 85% of the weight, one set fewer.'**
+  String get deloadActiveHint;
+
+  /// No description provided for @deloadEnd.
+  ///
+  /// In en, this message translates to:
+  /// **'End it'**
+  String get deloadEnd;
+
+  /// No description provided for @hintDeload.
+  ///
+  /// In en, this message translates to:
+  /// **'Lighter week: about 85% of the weight, one set fewer'**
+  String get hintDeload;
+
+  /// No description provided for @adminPanel.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin panel'**
+  String get adminPanel;
+
+  /// No description provided for @adminPanelHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign-ups, active users, workouts'**
+  String get adminPanelHint;
+
+  /// No description provided for @adminUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get adminUsers;
+
+  /// No description provided for @adminTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminTotal;
+
+  /// No description provided for @adminConfirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed e-mail'**
+  String get adminConfirmed;
+
+  /// No description provided for @adminNew24h.
+  ///
+  /// In en, this message translates to:
+  /// **'New in 24 h'**
+  String get adminNew24h;
+
+  /// No description provided for @adminNew7d.
+  ///
+  /// In en, this message translates to:
+  /// **'New in 7 days'**
+  String get adminNew7d;
+
+  /// No description provided for @adminNew30d.
+  ///
+  /// In en, this message translates to:
+  /// **'New in 30 days'**
+  String get adminNew30d;
+
+  /// No description provided for @adminActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active (used the app)'**
+  String get adminActive;
+
+  /// No description provided for @adminActive24h.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 24 h'**
+  String get adminActive24h;
+
+  /// No description provided for @adminActive48h.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 48 h'**
+  String get adminActive48h;
+
+  /// No description provided for @adminActive7d.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 7 days'**
+  String get adminActive7d;
+
+  /// No description provided for @adminActive30d.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get adminActive30d;
+
+  /// No description provided for @adminTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get adminTraining;
+
+  /// No description provided for @adminTrainedToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Trained today'**
+  String get adminTrainedToday;
+
+  /// No description provided for @adminTrained7d.
+  ///
+  /// In en, this message translates to:
+  /// **'Trained in 7 days'**
+  String get adminTrained7d;
+
+  /// No description provided for @adminTrained30d.
+  ///
+  /// In en, this message translates to:
+  /// **'Trained in 30 days'**
+  String get adminTrained30d;
+
+  /// No description provided for @adminWorkouts7d.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercises logged in 7 days'**
+  String get adminWorkouts7d;
+
+  /// No description provided for @adminSessions7d.
+  ///
+  /// In en, this message translates to:
+  /// **'Workout sessions in 7 days'**
+  String get adminSessions7d;
+
+  /// No description provided for @adminDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Day by day'**
+  String get adminDaily;
+
+  /// No description provided for @adminSeriesActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminSeriesActive;
+
+  /// No description provided for @adminSeriesNew.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get adminSeriesNew;
+
+  /// No description provided for @adminSeriesTraining.
+  ///
+  /// In en, this message translates to:
+  /// **'Training'**
+  String get adminSeriesTraining;
+
+  /// No description provided for @adminUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Updated {time}'**
+  String adminUpdated(String time);
+
   /// No description provided for @dropSets.
   ///
   /// In en, this message translates to:

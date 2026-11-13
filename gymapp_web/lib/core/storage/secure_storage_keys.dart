@@ -35,6 +35,7 @@ class StorageKeys {
 
   /// Badges earned on this device (JSON id → date), see EarnedBadges.
   static const earnedBadges = 'badges.earned';
+  static const deload = 'deload.state';
 
   /// Onboarding questions answered or skipped (cleared on logout).
   static const onboardingDone = 'onboarding.done';

@@ -20,6 +20,7 @@ import '../workouts/data/workout_models.dart';
 import 'week_summary.dart';
 import '../workouts/presentation/exercise_workouts_screen.dart';
 import '../workouts/presentation/pending_workouts.dart';
+import '../deload/deload.dart';
 import '../goals/goals_card.dart';
 import '../progress/compare_challenges.dart';
 import '../onboarding/onboarding.dart';
@@ -118,6 +119,7 @@ class TodayScreen extends ConsumerWidget {
           ref.invalidate(plansProvider);
           ref.invalidate(workoutStatsProvider);
           ref.invalidate(challengesProvider);
+          ref.invalidate(deloadAdviceProvider);
           await ref.read(favoriteExercisesProvider.future);
         },
         child: ListView(
@@ -145,6 +147,7 @@ class TodayScreen extends ConsumerWidget {
             const OnboardingGate(),
             // ── This week ──────────────────────────────────────────────
             const WeekSummaryCard(),
+            const DeloadCard(),
             const GoalsCard(),
 
             // ── Plans ──────────────────────────────────────────────────
